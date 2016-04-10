@@ -1,6 +1,6 @@
 /* Scheduler
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -21,28 +21,24 @@
 #include <smp.h>
 #include <kernel.h>
 #include <macros.h>
-#include <debug.h>
 #include <sched/scheduler.h>
+
+#include <arch/pit.h> /* get_system_time() */
+
+thread_t* first_ready;
+thread_t* last_ready;
+
+thread_t* first_expired;
+thread_t* last_expired;
 
 waitqueue_t sleep_queue;
 spinlock_t scheduler_lock = INIT_SPINLOCK( "scheduler" );
 
-static thread_t* first_ready;
-static thread_t* last_ready;
-
-static thread_t* first_expired;
-static thread_t* last_expired;
-
 int add_thread_to_ready( thread_t* thread ) {
     ASSERT( scheduler_is_locked() );
 
-    if ( thread->in_scheduler ) {
-        return 0;
-    }
-
     thread->state = THREAD_READY;
     thread->queue_next = NULL;
-    thread->in_scheduler = 1;
 
     if ( first_ready == NULL ) {
         first_ready = thread;
@@ -58,13 +54,8 @@ int add_thread_to_ready( thread_t* thread ) {
 int add_thread_to_expired( thread_t* thread ) {
     ASSERT( scheduler_is_locked() );
 
-    if ( thread->in_scheduler ) {
-        return 0;
-    }
-
     thread->state = THREAD_READY;
     thread->queue_next = NULL;
-    thread->in_scheduler = 1;
 
     reset_thread_quantum( thread );
 
@@ -116,8 +107,6 @@ static void update_prev_thread( thread_t* thread, uint64_t now ) {
 
     if ( thread == cpu->idle_thread ) {
         thread->state = THREAD_WAITING;
-        thread->in_scheduler = 1;
-
         cpu->idle_time += runtime;
 
         return;
@@ -170,7 +159,6 @@ static void update_prev_thread( thread_t* thread, uint64_t now ) {
 static void update_next_thread( thread_t* thread, uint64_t now ) {
     thread->exec_time = now;
     thread->prev_checkpoint = now;
-    thread->in_scheduler = 0;
 }
 
 thread_t* do_schedule( thread_t* current ) {
@@ -196,7 +184,6 @@ thread_t* do_schedule( thread_t* current ) {
 
     if ( first_ready != NULL ) {
         first_ready = first_ready->queue_next;
-        next->queue_next = NULL;
     }
 
     /* If the ready list is empty then execute the idle thread */
@@ -211,27 +198,6 @@ thread_t* do_schedule( thread_t* current ) {
 
     return next;
 }
-
-#ifdef ENABLE_DEBUGGER
-int dbg_dump_ready_list( const char* params ) {
-    thread_t* thread;
-
-    thread = first_ready;
-
-    if ( thread == NULL ) {
-        dbg_printf( "There is no ready thread!\n" );
-    } else {
-        dbg_printf( "Ready threads:\n" );
-
-        while ( thread != NULL ) {
-            dbg_printf( "  %s\n", thread->name );
-            thread = thread->queue_next;
-        }
-    }
-
-    return 0;
-}
-#endif /* ENABLE_DEBUGGER */
 
 __init int init_scheduler( void ) {
     int error;

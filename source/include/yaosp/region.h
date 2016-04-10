@@ -1,6 +1,6 @@
 /* Memory region functions
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,20 +19,14 @@
 #ifndef _YAOSP_REGION_H_
 #define _YAOSP_REGION_H_
 
-#include <inttypes.h>
-
 #define PAGE_SIZE 4096
 #define PAGE_ALIGN(s) (((s)+PAGE_SIZE-1)&~(PAGE_SIZE-1))
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef int region_id;
 
 typedef enum region_flags {
-    REGION_READ = (1 << 0),
-    REGION_WRITE = (1 << 1)
+    REGION_READ = ( 1 << 0 ),
+    REGION_WRITE = ( 1 << 1 )
 } region_flags_t;
 
 region_id memory_region_create( const char* name, uint64_t size, uint32_t flags, void** address );
@@ -41,9 +35,5 @@ int memory_region_delete( region_id id );
 int memory_region_remap_pages( region_id id, void* address );
 int memory_region_alloc_pages( region_id id );
 region_id memory_region_clone_pages( region_id id, void** address );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _YAOSP_REGION_H_ */

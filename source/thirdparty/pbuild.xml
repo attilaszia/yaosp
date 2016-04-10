@@ -2,8 +2,7 @@
 
 This file is part of the yaosp build system
 
-Copyright (c) 2009, 2010 Zoltan Kovacs
-Copyright (c) 2010 Kornel Csernai
+Copyright (c) 2009 Zoltan Kovacs
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License
@@ -22,33 +21,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <build>
     <array name="libraries-early">
-        <item>zlib-1.2.5</item>
-        <item>libpng-1.4.3</item>
-        <item>jpeg-8a</item>
-        <item>pixman-0.20.0</item>
-        <item>cairo-1.10.0</item>
+        <item>zlib-1.2.3</item>
+        <item>libpng-1.2.41</item>
     </array>
 
     <array name="libraries">
         <item>ncurses-5.7</item>
-        <item>readline-6.1</item>
-        <item>freetype-2.4.4</item>
+        <item>readline-6.0</item>
+        <item>freetype-2.3.11</item>
         <item>bzip2-1.0.5</item>
-        <item>curl-7.19.7</item>
-    </array>
-
-    <array name="applications">
-        <item>python-2.6.5</item>
+        <item>python-2.5.4</item>
         <item>bash-4.0</item>
-        <item>nano-2.2.3</item>
-        <item>less-436</item>
     </array>
 
     <target name="all">
         <for var="i" array="${libraries}">
-            <call target="all" directory="${i}"/>
-        </for>
-        <for var="i" array="${applications}">
             <call target="all" directory="${i}"/>
         </for>
     </target>
@@ -57,10 +44,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <for var="i" array="${libraries-early}">
             <call target="all" directory="${i}"/>
         </for>
-    </target>
-
-    <target name="all-installer">
-        <call target="all" directory="util-linux-ng-2.16.1"/>
     </target>
 
     <target name="clean">

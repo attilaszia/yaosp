@@ -1,6 +1,6 @@
 /* Miscellaneous kernel functions
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -34,12 +34,9 @@
 #include <lock/context.h>
 #include <lib/stdarg.h>
 #include <lib/string.h>
-#include <lib/ctype.h>
 
 #include <arch/interrupt.h>
 #include <arch/cpu.h>
-
-int kernel_running = 0;
 
 static uint32_t kernel_param_count = 0;
 static char* kernel_params[ MAX_KERNEL_PARAMS ];
@@ -124,32 +121,6 @@ int get_kernel_param_as_bool( const char* key, bool* value ) {
     return 0;
 }
 
-int get_kernel_param_as_int( const char* key, int* _value ) {
-    int error;
-    int value = 0;
-    const char* tmp;
-
-    error = get_kernel_param_as_string( key, &tmp );
-
-    if ( error < 0 ) {
-        return error;
-    }
-
-    while ( *tmp != 0 ) {
-        char c = *tmp++;
-
-        if ( !isdigit( c ) ) {
-            return -EINVAL;
-        }
-
-        value = ( value * 10 ) + ( c - '0' );
-    }
-
-    *_value = value;
-
-    return 0;
-}
-
 int sys_get_kernel_info( kernel_info_t* kernel_info ) {
     kernel_info->major_version = KERNEL_MAJOR_VERSION;
     kernel_info->minor_version = KERNEL_MINOR_VERSION;
@@ -192,11 +163,6 @@ int sys_dbprintf( const char* format, char** parameters ) {
     return 0;
 }
 
-int sys_dbtrace( void ) {
-    debug_print_stack_trace();
-    return 0;
-}
-
 void handle_panic( const char* file, int line, const char* format, ... ) {
     va_list args;
     thread_t* thread;
@@ -214,7 +180,7 @@ void handle_panic( const char* file, int line, const char* format, ... ) {
     }
 
     debug_print_stack_trace();
-    //memory_context_dump( &kernel_memory_context );
+    memory_context_dump( &kernel_memory_context );
 
     halt_loop();
 }
@@ -238,6 +204,9 @@ int sys_shutdown( void ) {
 }
 
 __init void kernel_main( void ) {
+    int error;
+
+    init_kernel_symbols();
     init_locking();
     init_regions();
     init_devices();
@@ -250,7 +219,9 @@ __init void kernel_main( void ) {
     init_ipc();
     init_smp();
 
-    if ( arch_late_init() != 0 ) {
+    error = arch_late_init();
+
+    if ( error < 0 ) {
         return;
     }
 

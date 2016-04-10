@@ -1,6 +1,6 @@
 /* Init thread
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,12 +27,19 @@
 #include <process.h>
 #include <mm/pages.h>
 #include <vfs/vfs.h>
-#include <network/network.h>
+#include <network/interface.h>
+#include <network/route.h>
+#include <network/arp.h>
+#include <network/socket.h>
+#include <network/tcp.h>
 #include <lib/string.h>
 
 #include <arch/fork.h>
 #include <arch/loader.h>
 #include <arch/smp.h>
+
+extern int __k_init_start;
+extern int __kernel_end;
 
 thread_id init_thread_id;
 
@@ -55,8 +62,6 @@ __init static void load_bootmodules( void ) {
             kprintf( INFO, "Failed to load module: %s\n", bootmodule->name );
         }
     }
-
-    release_bootmodules();
 }
 
 __init static int scan_and_mount_root_filesystem( void ) {
@@ -90,7 +95,6 @@ __init static int scan_and_mount_root_filesystem( void ) {
         error = mount( path, "/yaosp", "iso9660", MOUNT_RO );
 
         if ( error >= 0 ) {
-            kprintf( INFO, "Root filesystem mounted from %s.\n", path );
             break;
         }
     }
@@ -118,10 +122,6 @@ __init static void mount_root_filesystem( void ) {
 
     if ( error == 0 ) {
         error = mount( root, "/yaosp", "ext2", MOUNT_NONE );
-
-        if ( error >= 0 ) {
-            kprintf( INFO, "Root filesystem mounted from %s.\n", root );
-        }
     } else {
         error = scan_and_mount_root_filesystem();
     }
@@ -129,14 +129,25 @@ __init static void mount_root_filesystem( void ) {
     if ( error < 0 ) {
         panic( "Failed to mount root filesystem!\n" );
     }
+
+    kprintf( INFO, "Root filesystem mounted!\n" );
+}
+
+__init static void init_network( void ) {
+#if 0
+    init_network_interfaces();
+    init_routes();
+    init_arp();
+    init_socket();
+    init_tcp();
+    create_network_interfaces();
+#endif
 }
 
 int init_thread( void* arg ) {
     uint32_t init_page_count;
 
-    DEBUG_LOG( "Init thread started.\n" );
-
-    kernel_running = 1;
+    DEBUG_LOG( "Init thread started!\n" );
 
 #ifdef ENABLE_SMP
     arch_boot_processors();
@@ -145,10 +156,7 @@ int init_thread( void* arg ) {
     init_vfs();
     load_bootmodules();
     mount_root_filesystem();
-
-#ifdef ENABLE_NETWORK
     init_network();
-#endif /* ENABLE_NETWORK */
 
     /* Free init code */
 

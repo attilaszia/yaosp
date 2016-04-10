@@ -1,6 +1,6 @@
 /* Thread implementation
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -30,6 +30,7 @@
 #include <lib/hashtable.h>
 #include <lib/string.h>
 
+#include <arch/pit.h> /* get_system_time() */
 #include <arch/thread.h>
 #include <arch/spinlock.h>
 #include <arch/interrupt.h>
@@ -104,16 +105,16 @@ thread_t* allocate_thread( const char* name, process_t* process, int priority, u
 
     return thread;
 
- error4:
+error4:
     free_pages( thread->kernel_stack, kernel_stack_pages );
 
- error3:
+error3:
     kfree( thread->name );
 
- error2:
+error2:
     kfree( thread );
 
- error1:
+error1:
     return NULL;
 }
 
@@ -154,6 +155,8 @@ void destroy_thread( thread_t* thread ) {
 }
 
 int insert_thread( thread_t* thread ) {
+    int error;
+
     ASSERT( scheduler_is_locked() );
 
     do {
@@ -164,7 +167,13 @@ int insert_thread( thread_t* thread ) {
         }
     } while ( hashtable_get( &thread_table, ( const void* )&thread->id ) != NULL );
 
-    return hashtable_add( &thread_table, ( hashitem_t* )thread );
+    error = hashtable_add( &thread_table, ( hashitem_t* )thread );
+
+    if ( error < 0 ) {
+        return error;
+    }
+
+    return 0;
 }
 
 int rename_thread( thread_t* thread, char* new_name ) {
@@ -184,21 +193,15 @@ int rename_thread( thread_t* thread, char* new_name ) {
     return 0;
 }
 
-typedef struct {
+static int thread_reparent_iterator( hashitem_t* item, void* data ) {
     thread_id parent;
-    int children_found;
-} thread_reparent_data_t;
-
-static int thread_reparent_iterator( hashitem_t* item, void* _data ) {
     thread_t* thread;
-    thread_reparent_data_t* data;
 
     thread = ( thread_t* )item;
-    data = ( thread_reparent_data_t* )_data;
+    parent = *( ( thread_id* )data );
 
-    if ( thread->parent_id == data->parent ) {
+    if ( thread->parent_id == parent ) {
         thread->parent_id = init_thread_id;
-        data->children_found = 1;
     }
 
     return 0;
@@ -206,7 +209,6 @@ static int thread_reparent_iterator( hashitem_t* item, void* _data ) {
 
 void thread_exit( int exit_code ) {
     thread_t* thread;
-    thread_reparent_data_t data;
 
     /* Disable interrupts to make sure the timer interrupt won't preempt us */
 
@@ -240,22 +242,9 @@ void thread_exit( int exit_code ) {
         );
     }
 
-    /* Reparent the children of the current thread. */
+    /* Reparent the children of the current thread */
 
-    data.parent = thread->id;
-    data.children_found = 0;
-
-    hashtable_iterate( &thread_table, thread_reparent_iterator, ( void* )&data );
-
-    /* Send SIGCHLD to the init thread if the currently exiting thread
-       has at least one child. */
-
-    if ( data.children_found ) {
-        do_send_signal(
-            get_thread_by_id( init_thread_id ),
-            SIGCHLD
-        );
-    }
+    hashtable_iterate( &thread_table, thread_reparent_iterator, ( void* )&thread->id );
 
     spinunlock( &scheduler_lock );
 
@@ -342,10 +331,10 @@ thread_id create_kernel_thread( const char* name, int priority, thread_entry_t* 
 
     return error;
 
- error2:
+error2:
     destroy_thread( thread );
 
- error1:
+error1:
     return error;
 }
 
@@ -357,20 +346,20 @@ thread_id sys_create_thread( const char* name, int priority, thread_entry_t* ent
     uint8_t* user_stack;
 
     /* Get the current process */
+
     current = current_thread();
     process = current->process;
 
     /* Calculate user stack size */
+
     if ( user_stack_size == 0 ) {
         user_stack_size = USER_STACK_SIZE;
     } else {
-        user_stack_size = PAGE_ALIGN(user_stack_size);
+        user_stack_size = PAGE_ALIGN( user_stack_size );
     }
 
-    user_stack_size += (TLD_SIZE * sizeof(ptr_t));
-    user_stack_size = PAGE_ALIGN(user_stack_size);
-
     /* Allocate a new thread */
+
     thread = allocate_thread( name, process, priority, KERNEL_STACK_PAGES );
 
     if ( thread == NULL ) {
@@ -389,20 +378,13 @@ thread_id sys_create_thread( const char* name, int priority, thread_entry_t* ent
         goto error2;
     }
 
-    error = memory_region_alloc_pages( thread->user_stack_region );
+    memory_region_alloc_pages( thread->user_stack_region ); /* todo: check return value */
 
-    if ( error != 0 ) {
-        goto error2;
-    }
-
-    user_stack = (uint8_t*)thread->user_stack_region->address;
-    user_stack += user_stack_size;
-    thread->user_stack_end = (void*)user_stack;
-
-    user_stack -= (TLD_SIZE * sizeof(ptr_t));
-    thread->tld_data = (ptr_t*)user_stack;
+    user_stack = ( uint8_t* )thread->user_stack_region->address;
+    thread->user_stack_end = ( void* )( user_stack + user_stack_size );
 
     /* Initialize the architecture dependent part of the thread */
+
     error = arch_create_user_thread( thread, ( void* )entry, arg );
 
     if ( error < 0 ) {
@@ -430,27 +412,15 @@ thread_id sys_create_thread( const char* name, int priority, thread_entry_t* ent
 
     return error;
 
- error2:
+error2:
     destroy_thread( thread );
 
- error1:
+error1:
     return error;
 }
 
 int sys_exit_thread( int exit_code ) {
     thread_exit( exit_code );
-
-    return 0;
-}
-
-int udelay( uint64_t microsecs ) {
-    uint64_t end;
-
-    end = get_system_time() + microsecs;
-
-    while ( get_system_time() < end ) {
-        __asm__ __volatile__( "pause" ); /* todo: we shouldn't use this one here! */
-    }
 
     return 0;
 }
@@ -471,9 +441,7 @@ static int do_sleep_thread( uint64_t microsecs, uint64_t* remaining ) {
     thread = current_thread();
 
     thread->state = THREAD_SLEEPING;
-
-    node.type = WAIT_THREAD;
-    node.u.thread = thread->id;
+    node.thread = thread->id;
 
     waitqueue_add_node( &sleep_queue, &node );
 
@@ -547,7 +515,9 @@ uint32_t sys_get_thread_count_for_process( process_id id ) {
     uint32_t count;
 
     scheduler_lock();
+
     count = hashtable_get_filtered_item_count( &thread_table, thread_info_process_filter, ( void* )&id );
+
     scheduler_unlock();
 
     return count;
@@ -584,17 +554,13 @@ int do_wake_up_thread( thread_t* thread ) {
 
     ASSERT( scheduler_is_locked() );
 
-    switch ( thread->state ) {
-        case THREAD_NEW :
-        case THREAD_WAITING :
-        case THREAD_SLEEPING :
-            add_thread_to_ready( thread );
-            error = 0;
-            break;
-
-        default :
-            error = -EINVAL;
-            break;
+    if ( ( thread->state == THREAD_NEW ) ||
+         ( thread->state == THREAD_WAITING ) ||
+         ( thread->state == THREAD_SLEEPING ) ) {
+        add_thread_to_ready( thread );
+        error = 0;
+    } else {
+        error = -EINVAL;
     }
 
     return error;
@@ -679,9 +645,8 @@ static int dbg_list_thread_iterator( hashitem_t* item, void* data ) {
     thread = ( thread_t* )item;
 
     dbg_printf(
-        "%4d %4d %-25s %-25s %s\n",
+        "%4d %-25s %-25s %s\n",
         thread->id,
-        thread->parent_id,
         thread->process->name,
         thread->name,
         thread_states[ thread->state ]
@@ -693,8 +658,8 @@ static int dbg_list_thread_iterator( hashitem_t* item, void* data ) {
 int dbg_list_threads( const char* params ) {
     dbg_set_scroll_mode( true );
 
-    dbg_printf( "  Id Prnt Process                   Thread                   State\n" );
-    dbg_printf( "------------------------------------------------------------------\n" );
+    dbg_printf( "  Id Process                   Thread                   State\n" );
+    dbg_printf( "-----------------------------------------------------------------\n" );
 
     hashtable_iterate( &thread_table, dbg_list_thread_iterator, NULL );
 
@@ -732,9 +697,6 @@ int dbg_show_thread_info( const char* params ) {
     dbg_printf( "  name: %s\n", thread->name );
     dbg_printf( "  state: %s\n", thread_states[ thread->state ] );
     dbg_printf( "  priority: %d\n", thread->priority );
-    dbg_printf( "  in system: %d\n", thread->in_system );
-    dbg_printf( "  system time: %llu, user time: %llu\n", thread->sys_time, thread->user_time );
-    dbg_printf( "  pending signals: %llx\n", thread->pending_signals );
 
     if ( thread->blocking_semaphore != -1 ) {
         dbg_printf( "  blocking semaphore: %d\n", thread->blocking_semaphore );
@@ -781,8 +743,11 @@ __init int init_threads( void ) {
     int error;
 
     error = init_hashtable(
-        &thread_table, 256, thread_key,
-        hash_int, compare_int
+        &thread_table,
+        256,
+        thread_key,
+        hash_int,
+        compare_int
     );
 
     if ( error < 0 ) {

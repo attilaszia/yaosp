@@ -1,7 +1,7 @@
 # Python build system
 #
-# Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
-# Copyright (c) 2009, 2010 Kornel Csernai
+# Copyright (c) 2008, 2009 Zoltan Kovacs
+# Copyright (c) 2009 Kornel Csernai
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License
@@ -25,7 +25,6 @@ import hashlib
 import definitions
 import handler as hndlr
 import context as ctx
-import logging
 
 class Work :
     def __init__( self ) :
@@ -36,28 +35,10 @@ class Work :
 
     def execute_sub_works( self, context ) :
         for work in self.sub_works :
-            logging.debug( "Executing work %s" % work )
-            if work.execute( context ) == False:
-                logging.critical( "Failed to execute work %s" % work )
-                sys.exit( 1 )
+            work.execute( context )
 
-    # If False returned, it means it's a critical error.
     def execute( self, context ) :
         pass
-
-    def exec_shell( self, command ) :
-        # Get the return code of the process
-        try:
-            retcode = subprocess.call( command )
-            # If the return code is not 0, the build process must stop
-            if retcode != 0 :
-                logging.error( "Process returned with return code %d" % retcode )
-                logging.error( "Build stopped." )
-                return False
-            return
-        except OSError, e:
-            logging.error( 'Failed to exec shell command ("%s"): %s' % ( command, e ) )
-            return False
 
 class Target( Work ) :
     def __init__( self, name, private ) :
@@ -74,7 +55,7 @@ class Target( Work ) :
         return self.private
 
     def execute( self, context ) :
-        return self.execute_sub_works( context )
+        self.execute_sub_works( context )
 
 class ForWork( Work ) :
     def __init__( self, loop_variable, array_name ) :
@@ -91,8 +72,8 @@ class ForWork( Work ) :
             definition = context.get_definition( def_name )
 
             if definition == None :
-                logging.error( "Definition " + def_name + " not found" )
-                return False
+                print "Definition " + def_name + " not found"
+                return
 
             array = definition.to_array()
         else :
@@ -104,9 +85,7 @@ class ForWork( Work ) :
 
             context.add_definition( string )
 
-            if self.execute_sub_works( context ) == False:
-                context.remove_definition( self.loop_variable )
-                return False
+            self.execute_sub_works( context )
 
             context.remove_definition( self.loop_variable )
 
@@ -118,30 +97,27 @@ class EchoWork( Work ) :
         self.text = text
 
     def execute( self, context ) :
-        # use logging.info()?
         print context.replace_definitions( self.text )
 
 class GccWork( Work ) :
-    def __init__( self, need_gpp, profile ) :
+    def __init__( self ) :
         self.inputs = []
         self.output = ""
         self.flags = []
         self.includes = []
         self.defines = {}
-        self.need_gpp = need_gpp
-        self.profile = profile
 
     def add_input( self, input ) :
-        self.inputs += [input]
+        self.inputs.append( input )
 
     def set_output( self, output ) :
         self.output = output
 
     def add_flag( self, flag ) :
-        self.flags += [flag]
+        self.flags.append( flag )
 
     def add_include( self, include ) :
-        self.includes += [include]
+        self.includes.append( include )
 
     def add_define( self, key, value ) :
         self.defines[ key ] = value
@@ -151,8 +127,6 @@ class GccWork( Work ) :
         real_flags = None
         real_includes = []
         real_defines = []
-        need_cpp = False
-        gcc_profile = context.get_project_context().get_gcc_profile(self.profile)
 
         # Parse the input files
 
@@ -160,23 +134,14 @@ class GccWork( Work ) :
             input = context.replace_definitions( input )
             real_inputs += context.replace_wildcards( input )
 
-        if not self.need_gpp :
-            for input in real_inputs :
-                if input.endswith(".cpp") :
-                    self.need_gpp = True
-                    break
-
         # Parse flags
 
         real_flags = context.replace_definitions_in_array( self.flags )
-        real_flags += [ x for x in gcc_profile["flags"].split(" ") if len(x) > 0 ]
 
         # Parse includes
 
         for include in self.includes :
-            real_includes.append("-I" + context.replace_definitions(include))
-        for include in gcc_profile["includes"] :
-            real_includes.append("-I" + context.replace_definitions(include))
+            real_includes.append( "-I" + include )
 
         # Add defines
 
@@ -190,29 +155,27 @@ class GccWork( Work ) :
 
         # Build the command
 
-        if self.need_gpp :
-            command = [context.get_project_context().get_executable("g++")]
-        else :
-            command = [context.get_project_context().get_executable("gcc")]
-
-        command += real_flags + real_inputs + real_includes
+        command = [ "gcc" ] + real_flags + real_inputs + real_includes
         command += real_defines
         command += [ "-o", context.handle_everything( self.output ) ]
 
-        return self.exec_shell( command )
+        # Get the return code of the process
+        retcode = subprocess.call( command )
+        # If the return code is not 0, the build process must stop
+        if retcode != 0 :
+            print "Process returned with return code %d" % retcode
+            print "Build stopped."
+            sys.exit( retcode )
+
 
 class LdWork( Work ) :
     def __init__( self ) :
         self.linker_script = None
         self.inputs = []
-        self.flags = []
         self.output = ""
 
     def add_input( self, input ) :
         self.inputs.append( input )
-
-    def add_flag( self, flag ) :
-        self.flags.append( flag )
 
     def set_output( self, output ) :
         self.output = output
@@ -231,7 +194,7 @@ class LdWork( Work ) :
 
         # Build the command
 
-        command = [context.get_project_context().get_executable("ld")] + self.flags
+        command = [ "ld" ]
 
         if self.linker_script != None :
             command += [ "-T" + self.linker_script ]
@@ -241,41 +204,13 @@ class LdWork( Work ) :
 
         # Execute a new LD process
 
-        return self.exec_shell( command )
-
-class ArWork( Work ) :
-    def __init__( self ) :
-        self.inputs = []
-        self.flags = []
-        self.output = ""
-
-    def add_input( self, input ) :
-        self.inputs.append( input )
-
-    def add_flag( self, flag ) :
-        self.flags.append( flag )
-
-    def set_output( self, output ) :
-        self.output = output
-
-    def execute( self, context ) :
-        real_inputs = []
-
-        # Parse the input files
-
-        for input in self.inputs :
-            input = context.replace_definitions( input )
-            real_inputs += context.replace_wildcards( input )
-
-        # Build the command
-
-        command = [context.get_project_context().get_executable("ar")] + self.flags
-        command += [ context.handle_everything( self.output ) ]
-        command += real_inputs
-
-        # Execute a new AR process
-
-        return self.exec_shell( command )
+        # Get the return code of the process
+        retcode = subprocess.call( command )
+        # If the return code is not 0, the build process must stop
+        if retcode != 0 :
+            print "Process returned with return code %d" % retcode
+            print "Build stopped."
+            sys.exit( retcode )
 
 class MakeDirectory( Work ) :
     def __init__( self ) :
@@ -286,10 +221,9 @@ class MakeDirectory( Work ) :
 
     def execute( self, context ) :
         try :
-            dirname = context.replace_definitions(self.directory)
-            os.mkdir( dirname )
+            os.mkdir( self.directory )
         except OSError, e :
-            logging.warning( 'Failed to make directory ("%s"): %s' % ( dirname, e ) )
+            pass
 
 class RemoveDirectory( Work ) :
     def __init__( self ) :
@@ -300,10 +234,9 @@ class RemoveDirectory( Work ) :
 
     def execute( self, context ) :
         try :
-            dirname = context.replace_definitions(self.directory)
-            os.rmdir( dirname )
+            os.rmdir( self.directory )
         except OSError, e :
-            logging.warning( 'Failed to remove directory ("%s"): %s' % ( dirname, e ) )
+            pass
 
 class CleanDirectory( Work ) :
     def __init__( self ) :
@@ -313,15 +246,10 @@ class CleanDirectory( Work ) :
         self.directory = directory
 
     def execute( self, context ) :
-        directory = context.replace_definitions(self.directory)
+        if not os.path.isdir( self.directory ) :
+            return
 
-        if os.path.islink(directory) :
-            try :
-                os.remove(directory)
-            except OSError, e :
-                logging.warning( 'Failed to remove directory ("%s") while cleaning: %s' % ( directory, e ) )
-        elif os.path.isdir(directory) :
-            self._clean_directory(directory)
+        self._clean_directory( self.directory )
 
     def _clean_directory( self, dir ) :
         entries = os.listdir( dir )
@@ -329,27 +257,22 @@ class CleanDirectory( Work ) :
         for entry in entries :
             path = dir + os.path.sep + entry
 
-            if os.path.islink( path ) :
-                try :
-                    os.remove( path )
-                except OSError, e :
-                    logging.warning( 'Failed to remove directory ("%s") while cleaning: %s' % ( path, e ) )
-            elif os.path.isdir( path ) :
+            if os.path.isdir( path ) :
                 self._clean_directory( path )
 
                 try :
                     os.rmdir( path )
                 except OSError, e :
-                    logging.warning( 'Failed to remove directory ("%s") while cleaning: %s' % ( path, e ) )
+                    pass
             else :
                 try :
                     os.remove( path )
                 except OSError, e :
-                    logging.warning( 'Failed to remove directory ("%s") while cleaning: %s' % ( path, e ) )
+                    pass
 
 class CallTarget( Work ) :
-    def __init__( self, targets, directory ) :
-        self.targets = targets
+    def __init__( self, target, directory ) :
+        self.target = target
         self.directory = directory
 
     def execute( self, context ) :
@@ -357,35 +280,28 @@ class CallTarget( Work ) :
             directory = context.handle_everything( self.directory )
 
             if not os.path.isdir( directory ) :
-                logging.error( directory + " is not a directory!" )
+                print directory + " is not a directory!"
                 return
 
             cached_cwd = os.getcwd()
             os.chdir( cached_cwd + os.sep + directory )
 
-            context = ctx.BuildContext( context.get_project_context() )
+            context = ctx.BuildContext()
             handler = hndlr.BuildHandler( context )
 
             if not os.path.isfile( "pbuild.xml" ) :
-                logging.critical( "pbuild.xml not found in " + os.getcwd() )
-                logging.critical( "Build stopped." )
-                sys.exit(1)
+                print "pbuild.xml not found in " + os.getcwd()
+                print "Build stopped."
+                sys.exit( 1 );
 
             xml_parser = xml.sax.make_parser()
             xml_parser.setContentHandler( handler )
+            xml_parser.parse( "pbuild.xml" )
 
-            try :
-                xml_parser.parse( "pbuild.xml" )
-            except :
-                logging.critical( "pbuild.xml is not valid at %s" % ( os.getcwd() ) )
-                logging.critical( "Build stopped." )
-                sys.exit(1)
+        target = context.get_target( self.target, True )
 
-        for target in self.targets :
-            target = context.get_target(target, True)
-
-            if target != None :
-                target.execute(context)
+        if target != None :
+            target.execute( context )
 
         if self.directory != None :
             os.chdir( cached_cwd )
@@ -402,18 +318,18 @@ class CopyWork( Work ) :
 
         dest_is_dir = os.path.isdir( dest )
 
-        # In the case of more than one input is specified, dest
-        # must be a directory.
+        # In the case of more than one input is specified dest
+        # must be a directory
 
         if len( src ) > 1 and not dest_is_dir :
             return
 
-        # Put the path separator character to the end of dest.
+        # Put the path separator character to the end of dest
 
         if dest_is_dir and not dest.endswith( os.path.sep ) :
             dest += os.path.sep
 
-        # Copy the file(s).
+        # Copy the file(s)
 
         for sf in src :
             if dest_is_dir :
@@ -432,54 +348,21 @@ class CopyWork( Work ) :
         try :
             src_file = open( src, "r" )
         except IOError, e :
-            logging.critical( "CopyWork: Failed to open source file: " + src )
-            logging.critical( "Build stopped." )
+            print "CopyWork: Failed to open source file: " + src
+            print "Build stopped."
             sys.exit( 1 );
 
         try :
             dest_file = open( dest, "w" )
         except IOError, e :
-            logging.critical( "CopyWork: Failed to open destination file: " + dest )
-            logging.critical( "Build stopped." )
+            print "CopyWork: Failed to open destination file: " + dest
+            print "Build stopped."
             sys.exit( 1 )
 
         dest_file.write( src_file.read() )
 
         src_file.close()
         dest_file.close()
-
-class MoveWork( Work ) :
-    def __init__( self, src, dest ) :
-        self.src = src
-        self.dest = dest
-
-    def execute( self, context ) :
-        src = context.replace_definitions( self.src )
-        dest = context.replace_definitions( self.dest )
-
-        if os.path.isfile( src ) or not os.path.isfile( dest ) :
-            return
-
-        try :
-            src_file = open( src, "r" )
-        except IOError, e :
-            logging.critical( "MoveWork: Failed to open source file: " + src )
-            logging.critical( "Build stopped." )
-            sys.exit( 1 );
-
-        try :
-            dest_file = open( dest, "w" )
-        except IOError, e :
-            logging.critical( "MoveWork: Failed to open destination file: " + dest )
-            logging.critical( "Build stopped." )
-            sys.exit( 1 )
-
-        dest_file.write( src_file.read() )
-
-        src_file.close()
-        dest_file.close()
-
-        os.unlink( src )
 
 class DeleteWork( Work ) :
     def __init__( self ) :
@@ -495,7 +378,7 @@ class DeleteWork( Work ) :
             try :
                 os.remove( file )
             except OSError, e :
-                logging.warning( 'Failed to delete "%s": %s' % ( file, e ) )
+                pass
 
 class ExecWork( Work ) :
     def __init__( self, executable ) :
@@ -503,10 +386,7 @@ class ExecWork( Work ) :
         self.executable = executable
 
     def add_argument( self, arg ) :
-        self.args += [arg]
-
-    def add_arguments( self, args ) :
-        self.args += args
+        self.args.append( arg )
 
     def execute( self, context ) :
         real_args = []
@@ -519,7 +399,17 @@ class ExecWork( Work ) :
 
         # Get the return code of the process
 
-        self.exec_shell( command )
+        try :
+            retcode = subprocess.call( command )
+        except OSError, e :
+            retcode = -1
+
+        # If the return code is not 0, the build process must stop
+
+        if retcode != 0 :
+            print "Process returned with return code %d" % retcode
+            print "Build stopped."
+            sys.exit( retcode )
 
 class SymlinkWork( Work ) :
     def __init__( self, src, dest ) :
@@ -530,7 +420,7 @@ class SymlinkWork( Work ) :
         try :
             os.symlink( self.src, self.dest )
         except OSError, e :
-            logging.warning( 'Failed to symlink "%s" to "%s": %s' % ( self.src, self.dest, e ) )
+            pass
 
 class ChdirWork( Work ) :
     def __init__( self, directory ) :
@@ -546,51 +436,43 @@ class HTTPGetWork( Work ) :
         self.md5sum = md5sum
 
     def execute( self, context ) :
-        address = context.replace_definitions(self.address)
-        dest = context.replace_definitions(self.dest)
-        md5sum = context.replace_definitions(self.md5sum)
-
-        if os.path.isfile(dest) :
+        if os.path.isfile( self.dest ) :
             m = hashlib.md5()
 
-            localfile = open(dest, "r")
+            localfile = open( self.dest, "r" )
             data = localfile.read( 4096 )
 
             while data :
                 m.update( data )
                 data = localfile.read( 4096 )
 
-            if m.hexdigest() == md5sum :
-                logging.info( "File %s already exists." % dest )
+            if m.hexdigest() == self.md5sum :
+                print "File %s already exists." % self.dest
                 return
 
-        logging.info( "Downloading " + address )
+        print "Downloading " + self.address
 
-        try:
-            urlfile = urllib.urlopen(address)
-            urlfile_size = int( urlfile.headers.getheader( "Content-Length" ) )
-            localfile = open(dest, "w")
+        urlfile = urllib.urlopen( self.address )
+        urlfile_size = int( urlfile.headers.getheader( "Content-Length" ) )
+        localfile = open( self.dest, "w" )
 
-            size = 0
+        size = 0
+        data = urlfile.read( 4096 )
+
+        while data :
+            localfile.write( data )
+
+            size += len( data )
+            percent = "%.1f" % ( float(size) / urlfile_size * 100 )
+            sys.stdout.write( "\r" + percent + "% done [" + self.format_size( size ) + "/" + self.format_size( urlfile_size ) + "]      \b\b\b\b\b\b" )
+            sys.stdout.flush()
+
             data = urlfile.read( 4096 )
 
-            while data :
-                localfile.write( data )
+        urlfile.close()
+        localfile.close()
 
-                size += len( data )
-                percent = "%.1f" % ( float(size) / urlfile_size * 100 )
-                sys.stdout.write( "\r" + percent + "% done [" + self.format_size( size ) + "/" + self.format_size( urlfile_size ) + "]      \b\b\b\b\b\b" )
-                sys.stdout.flush()
-
-                data = urlfile.read( 4096 )
-
-            urlfile.close()
-            localfile.close()
-
-            sys.stdout.write( "\n" )
-        except IOError, e:
-            logging.error( 'Failed to httpget "%s": %s' % ( address, e ) )
-            return False
+        sys.stdout.write( "\n" )
 
     def format_size( self, size ) :
         if size < 1024 : return "%d b" % size

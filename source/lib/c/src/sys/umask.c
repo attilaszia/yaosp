@@ -17,12 +17,8 @@
  */
 
 #include <sys/stat.h>
-#include <yaosp/debug.h>
 
 mode_t umask( mode_t mask ) {
     /* TODO */
-
-    dbprintf( "TODO: umask() not yet implemented!\n" );
-
     return 0666;
 }

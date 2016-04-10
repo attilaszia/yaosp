@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,17 +19,6 @@
 #ifndef _STDLIB_H_
 #define _STDLIB_H_
 
-#ifndef __THROW
-# ifndef __GNUC_PREREQ
-#  define __GNUC_PREREQ(maj, min) (0)
-# endif
-# if defined __cplusplus && __GNUC_PREREQ (2,8)
-#  define __THROW   throw ()
-# else
-#  define __THROW
-# endif
-#endif
-
 #define __need_size_t
 #define __need_NULL
 #include <stddef.h>
@@ -44,30 +33,11 @@
 
 #define WIFEXITED(status)   (WTERMSIG(status) == 0)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct {
-    int quot;
-    int rem;
-} div_t;
-
-typedef struct {
-    long int quot;
-    long int rem;
-} ldiv_t;
-
 int abs( int j );
 long labs( long j );
 long long llabs( long long j );
 
-div_t div( int num, int denom );
-ldiv_t ldiv( long num, long denom );
-
-int system( const char* command );
-
-void exit( int status ) __THROW __attribute__(( __noreturn__ ));
+void exit( int status );
 int atexit( void ( *function )( void ) );
 
 char* getenv( const char* name );
@@ -99,11 +69,7 @@ void srandom( unsigned int seed );
 int rand( void );
 void srand( unsigned int seed );
 
-char* mktemp( char* tmpl );
-int mkstemp( char* tmpl );
-
-#ifdef __cplusplus
-}
-#endif
+char* mktemp( char* template );
+int mkstemp( char* template );
 
 #endif /* _STDLIB_H_ */

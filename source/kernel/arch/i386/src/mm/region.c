@@ -1,6 +1,6 @@
 /* Memory region handling
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -52,11 +52,10 @@ int arch_memory_region_remap_pages( memory_region_t* region, ptr_t physical_addr
         page_directory,
         curr_pt,
         last_pt,
-        paging_flags | PAGE_WRITE,
-        0
+        paging_flags | PAGE_WRITE
     );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
     }
 
@@ -71,7 +70,7 @@ int arch_memory_region_remap_pages( memory_region_t* region, ptr_t physical_addr
         last_page, paging_flags
     );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
     }
 
@@ -99,7 +98,7 @@ int arch_memory_region_remap_pages( memory_region_t* region, ptr_t physical_addr
             PT_INDEX( region->address + region->size - 1 ), paging_flags
         );
 
-        if ( error < 0 ) {
+        if ( __unlikely( error < 0 ) ) {
             return error;
         }
     }
@@ -126,11 +125,10 @@ int arch_memory_region_alloc_pages( memory_region_t* region, ptr_t virtual, uint
 
     error = paging_alloc_table_entries(
         page_directory, curr_pt,
-        last_pt, paging_flags | PAGE_WRITE,
-        0
+        last_pt, paging_flags | PAGE_WRITE
     );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
     }
 
@@ -141,12 +139,11 @@ int arch_memory_region_alloc_pages( memory_region_t* region, ptr_t virtual, uint
 
     error = paging_alloc_table_entries(
         ( uint32_t* )( page_directory[ curr_pt ] & PAGE_MASK ),
-        first_page, last_page, paging_flags,
-        1
+        first_page, last_page, paging_flags
     );
 
-    if ( error < 0 ) {
-        goto error1;
+    if ( __unlikely( error < 0 ) ) {
+        return error;
     }
 
     curr_pt++;
@@ -154,34 +151,26 @@ int arch_memory_region_alloc_pages( memory_region_t* region, ptr_t virtual, uint
     for ( ; curr_pt < last_pt; curr_pt++ ) {
         error = paging_alloc_table_entries(
             ( uint32_t* )( page_directory[ curr_pt ] & PAGE_MASK ),
-            0, 1023, paging_flags,
-            1
+            0, 1023, paging_flags
         );
 
         if ( __unlikely( error < 0 ) ) {
-            goto error2;
+            return error;
         }
     }
 
     if ( curr_pt == last_pt ) {
         error = paging_alloc_table_entries(
             ( uint32_t* )( page_directory[ curr_pt ] & PAGE_MASK ),
-            0, PT_INDEX( virtual + size - 1 ), paging_flags,
-            1
+            0, PT_INDEX( virtual + size - 1 ), paging_flags
         );
 
-        if ( error < 0 ) {
+        if ( __unlikely( error < 0 ) ) {
             return error;
         }
     }
 
     return 0;
-
- error2:
-    /* todo */
-
- error1:
-    return error;
 }
 
 typedef int table_unmap_func_t( uint32_t* table, uint32_t from, uint32_t to );
@@ -207,14 +196,10 @@ int arch_memory_region_unmap_pages( memory_region_t* region, ptr_t virtual, uint
             unmap_function = paging_free_table_entries;
             break;
 
-        case 0 :
-            /* Nothing has been mapped to this region, so we don't have to unmap anything. */
-            return 0;
-
         default :
             kprintf(
-                WARNING, "arch_memory_region_unmap_pages(): invalid mapping mode (%x) for region %s.\n",
-                region->flags & REGION_MAPPING_FLAGS, region->name
+                WARNING, "arch_memory_region_unmap_pages(): invalid mapping mode: %x\n",
+                region->flags & REGION_MAPPING_FLAGS
             );
             return -1;
     }
@@ -249,7 +234,7 @@ int arch_memory_region_unmap_pages( memory_region_t* region, ptr_t virtual, uint
 
     spinunlock_enable( &pages_lock );
 
-    flush_tlb_global();
+    flush_tlb();
 
     return 0;
 }
@@ -279,11 +264,10 @@ static int do_clone_allocated_region_pages( memory_region_t* old_region, memory_
         new_page_directory,
         curr_pt,
         last_pt,
-        paging_flags | PAGE_WRITE,
-        0
+        paging_flags | PAGE_WRITE
     );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
     }
 
@@ -325,7 +309,7 @@ static int do_clone_allocated_region_pages( memory_region_t* old_region, memory_
        from the pages of the currently running process. */
 
     if ( remove_write ) {
-        flush_tlb_global();
+        flush_tlb();
     }
 
     return 0;
@@ -352,11 +336,10 @@ static int do_clone_region_pages( memory_region_t* old_region, memory_region_t* 
         new_page_directory,
         PGD_INDEX( new_region->address ),
         PGD_INDEX( new_region->address + new_region->size - 1 ),
-        paging_flags | PAGE_WRITE,
-        0
+        paging_flags | PAGE_WRITE
     );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
     }
 
@@ -369,7 +352,7 @@ static int do_clone_region_pages( memory_region_t* old_region, memory_region_t* 
 
     for ( ;
           old_address < old_region->address + old_region->size;
-          old_address += PAGE_SIZE, new_address += PAGE_SIZE ) {
+          old_region += PAGE_SIZE, new_region += PAGE_SIZE ) {
         uint32_t* old_pt = ( uint32_t* )( old_page_directory[ PGD_INDEX( old_address ) ] & PAGE_MASK );
         uint32_t* new_pt = ( uint32_t* )( new_page_directory[ PGD_INDEX( new_address ) ] & PAGE_MASK );
 
@@ -388,86 +371,21 @@ static int do_clone_region_pages( memory_region_t* old_region, memory_region_t* 
     return 0;
 }
 
-static int do_clone_remapped_region_pages( memory_region_t* old_region, memory_region_t* new_region ) {
-    int error;
-    uint32_t curr_pt;
-    uint32_t last_pt;
-    uint32_t paging_flags;
-    uint32_t* old_page_directory;
-    uint32_t* new_page_directory;
-    i386_memory_context_t* arch_context;
-
-    paging_flags = get_paging_flags_for_region( new_region );
-
-    arch_context = ( i386_memory_context_t* )old_region->context->arch_data;
-    old_page_directory = arch_context->page_directory;
-    arch_context = ( i386_memory_context_t* )new_region->context->arch_data;
-    new_page_directory = arch_context->page_directory;
-
-    /* Allocate possibly missing page tables */
-
-    curr_pt = PGD_INDEX( new_region->address );
-    last_pt = PGD_INDEX( new_region->address + new_region->size - 1 );
-
-    error = paging_alloc_table_entries(
-        new_page_directory,
-        curr_pt,
-        last_pt,
-        paging_flags | PAGE_WRITE,
-        0
-    );
-
-    if ( error < 0 ) {
-        return error;
-    }
-
-    uint32_t first_page = PT_INDEX( new_region->address );
-    uint32_t last_page = ( curr_pt == last_pt ? PT_INDEX( new_region->address + new_region->size - 1 ) : 1023 );
-
-    /* Copy the page table entries of the region. */
-
-    paging_copy_table_entries(
-        ( uint32_t* )( old_page_directory[ curr_pt ] & PAGE_MASK ),
-        ( uint32_t* )( new_page_directory[ curr_pt ] & PAGE_MASK ),
-        first_page, last_page
-    );
-
-    curr_pt++;
-
-    for ( ; curr_pt < last_pt; curr_pt++ ) {
-        paging_copy_table_entries(
-            ( uint32_t* )( old_page_directory[ curr_pt ] & PAGE_MASK ),
-            ( uint32_t* )( new_page_directory[ curr_pt ] & PAGE_MASK ),
-            0, 1023
-        );
-    }
-
-    if ( curr_pt == last_pt ) {
-        paging_copy_table_entries(
-            ( uint32_t* )( old_page_directory[ curr_pt ] & PAGE_MASK ),
-            ( uint32_t* )( new_page_directory[ curr_pt ] & PAGE_MASK ),
-            0, PT_INDEX( new_region->address + new_region->size - 1 )
-        );
-    }
-
-    return 0;
-}
-
 int arch_memory_region_clone_pages( memory_region_t* old_region, memory_region_t* new_region ) {
     ASSERT( old_region->size == new_region->size );
 
     switch ( new_region->flags & REGION_MAPPING_FLAGS ) {
         case REGION_REMAPPED :
-            return do_clone_remapped_region_pages( old_region, new_region );
+            kprintf( WARNING, "%s(): REGION_REMAPPED not yet supported!\n", __FUNCTION__ );
+            return -1;
 
         case REGION_ALLOCATED :
         case REGION_CLONED :
             if ( old_region->address == new_region->address ) {
                 return do_clone_allocated_region_pages( old_region, new_region );
-            }
+            };
 
             ASSERT( ( new_region->flags & REGION_MAPPING_FLAGS ) != REGION_ALLOCATED );
-
             return do_clone_region_pages( old_region, new_region );
 
         default :

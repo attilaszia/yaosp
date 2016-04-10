@@ -28,7 +28,6 @@
 #include <vfs/rootfs.h>
 #include <vfs/inode.h>
 #include <vfs/devfs.h>
-#include <vfs/kdebugfs.h>
 #include <lib/string.h>
 
 io_context_t kernel_io_context;
@@ -326,11 +325,9 @@ static int do_open( io_context_t* io_context, const char* path, int flags, int p
 
     /* Check if the filesystem if writable and we want to create a file*/
 
-    if ( ( parent->mount_point->flags & MOUNT_RO ) &&
-         ( ( flags & O_RDWR ) ||
-           ( flags & O_WRONLY ) ||
-           ( flags & O_CREAT ) ) ) {
-        put_inode( parent );
+    /* TODO: check the values of O_RDWR, O_WRONLY */
+    if ( flags & O_CREAT && parent->mount_point->flags & MOUNT_RO ) {
+        put_inode ( parent);
         return -EROFS;
     }
 
@@ -347,8 +344,7 @@ static int do_open( io_context_t* io_context, const char* path, int flags, int p
 
     error = do_open_helper1( io_context, file, &parent, name, length, flags );
 
-    if ( ( error == -ENOENT ) &&
-         ( ( flags & O_CREAT ) != 0 ) ) {
+    if ( ( error == -ENOENT ) && ( ( flags & O_CREAT ) != 0 ) ) {
         error = do_open_helper2( file, parent, name, length, flags, perms );
     }
 
@@ -366,7 +362,7 @@ static int do_open( io_context_t* io_context, const char* path, int flags, int p
         return error;
     }
 
-    if ( S_ISDIR( st.st_mode ) ) {
+    if ( ( st.st_mode & S_IFMT ) == S_IFDIR ) {
         file->type = TYPE_DIRECTORY;
     } else {
         file->type = TYPE_FILE;
@@ -735,8 +731,9 @@ static int do_isatty( io_context_t* io_context, int fd ) {
         return -EBADF;
     }
 
-    if ( ( file->type == TYPE_DIRECTORY ) ||
-         ( file->inode->mount_point->fs_calls->isatty == NULL ) ) {
+    /* TODO: check file type */
+
+    if ( file->inode->mount_point->fs_calls->isatty == NULL ) {
         error = 0;
     } else {
         error = file->inode->mount_point->fs_calls->isatty(
@@ -830,9 +827,7 @@ static int do_rmdir( io_context_t* io_context, const char* path ) {
         return -EINVAL;
     }
 
-    if ( parent->mount_point->flags & MOUNT_RO ) {
-        error = -EROFS;
-    } else if ( parent->mount_point->fs_calls->rmdir == NULL ) {
+    if ( parent->mount_point->fs_calls->rmdir == NULL ) {
         error = -ENOSYS;
     } else {
         error = parent->mount_point->fs_calls->rmdir(
@@ -888,9 +883,7 @@ static int do_unlink( io_context_t* io_context, const char* path ) {
         return -EINVAL;
     }
 
-    if ( parent->mount_point->flags & MOUNT_RO ) {
-        error = -EROFS;
-    } else if ( parent->mount_point->fs_calls->unlink == NULL ) {
+    if ( parent->mount_point->fs_calls->unlink == NULL ) {
         error = -ENOSYS;
     } else {
         error = parent->mount_point->fs_calls->unlink(
@@ -976,7 +969,7 @@ static int do_fchdir( io_context_t* io_context, int fd ) {
 
     put_inode( tmp );
 
- out:
+out:
     io_context_put_file( io_context, file );
 
     return error;
@@ -1685,9 +1678,7 @@ static int do_utime( io_context_t* io_context, const char* path, const struct ut
         return error;
     }
 
-    if ( inode->mount_point->flags & MOUNT_RO ) {
-        error = -EROFS;
-    } else if ( inode->mount_point->fs_calls->write_stat == NULL ) {
+    if ( inode->mount_point->fs_calls->write_stat == NULL ) {
         error = -ENOSYS;
     } else {
         error = inode->mount_point->fs_calls->write_stat(
@@ -1744,7 +1735,7 @@ __init int init_vfs( void ) {
         goto error1;
     }
 
-    error = mkdir( "/device", 0777 );
+    error = mkdir( "/device", 0 );
 
     if ( error < 0 ) {
         goto error1;
@@ -1753,31 +1744,11 @@ __init int init_vfs( void ) {
     error = do_mount( &kernel_io_context, "", "/device", "devfs", MOUNT_NONE );
 
     if ( error < 0 ) {
-        goto error1;
-    }
-
-    /* Initialize and mount the kernel debug filesystem */
-
-    error = init_kdebugfs();
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    error = mkdir( "/device/kernel", 0777 );
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    error = do_mount( &kernel_io_context, "", "/device/kernel", "kdebugfs", MOUNT_NONE );
-
-    if ( error < 0 ) {
-        goto error1;
+        return error;
     }
 
     return 0;
 
- error1:
+error1:
     return error;
 }

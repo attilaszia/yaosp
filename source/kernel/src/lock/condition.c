@@ -1,6 +1,6 @@
 /* Condition variable implementation
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -26,6 +26,8 @@
 #include <lock/common.h>
 #include <sched/scheduler.h>
 #include <lib/string.h>
+
+#include <arch/pit.h>
 
 int do_acquire_mutex( lock_context_t* context, mutex_t* mutex, thread_t* thread,
                       time_t timeout, bool try_lock, int flags );
@@ -103,6 +105,10 @@ static int do_wait_condition( lock_context_t* context, lock_id condition_id, loc
 
 int condition_wait( lock_id condition, lock_id mutex ) {
     return do_wait_condition( &kernel_lock_context, condition, mutex, INFINITE_TIMEOUT );
+}
+
+int condition_timedwait( lock_id condition, lock_id mutex, time_t timeout ) {
+    return do_wait_condition( &kernel_lock_context, condition, mutex, timeout );
 }
 
 static int do_signal_condition( lock_context_t* context, lock_id condition_id ) {
@@ -263,8 +269,8 @@ int sys_condition_wait( lock_id condition, lock_id mutex ) {
     return do_wait_condition( current_process()->lock_context, condition, mutex, INFINITE_TIMEOUT );
 }
 
-int sys_condition_timedwait( lock_id condition, lock_id mutex, time_t* wakeup_time ) {
-    return do_wait_condition( current_process()->lock_context, condition, mutex, *wakeup_time - get_system_time() );
+int sys_condition_timedwait( lock_id condition, lock_id mutex, time_t* timeout ) {
+    return do_wait_condition( current_process()->lock_context, condition, mutex, *timeout );
 }
 
 int sys_condition_signal( lock_id condition ) {

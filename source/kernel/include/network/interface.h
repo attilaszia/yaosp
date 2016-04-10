@@ -1,6 +1,6 @@
 /* Network interface handling
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,40 +19,35 @@
 #ifndef _NETWORK_INTERFACE_H_
 #define _NETWORK_INTERFACE_H_
 
-#include <network/socket.h>
+#include <types.h>
+#include <thread.h>
+#include <network/packet.h>
+#include <network/ipv4.h>
+#include <network/ethernet.h>
+#include <lib/hashtable.h>
 
-#define IFHWADDRLEN 6
-#define IFNAMSIZ    16
+#include <arch/atomic.h>
 
-#define IFF_UP      ( 1 << 2 )
+typedef struct net_interface {
+    hashitem_t hash;
 
-struct ifreq {
-    union {
-        char ifrn_name[ IFNAMSIZ ];
-    } ifr_ifrn;
+    char name[ 16 ];
+    atomic_t ref_count;
 
-    union {
-        struct sockaddr ifru_addr;
-        struct sockaddr ifru_dstaddr;
-        struct sockaddr ifru_broadaddr;
-        struct sockaddr ifru_netmask;
-        struct sockaddr ifru_hwaddr;
-        short ifru_flags;
+    int mtu;
+    uint8_t hw_address[ ETH_ADDR_LEN ];
+    uint8_t ip_address[ IPV4_ADDR_LEN ];
 
-        int ifru_ivalue;
-        int ifru_mtu;
-        char ifru_slave[ IFNAMSIZ ];
-        char ifru_newname[ IFNAMSIZ ];
-        char* ifru_data;
-    } ifr_ifru;
-};
+    int device;
+    uint32_t flags;
+    thread_id rx_thread;
+    packet_queue_t* input_queue;
+} net_interface_t;
 
-struct ifconf {
-    int ifc_len;
-    union  {
-        char* ifcu_buf;
-        struct ifreq* ifcu_req;
-    } ifc_ifcu;
-};
+int create_network_interfaces( void );
+
+int network_interface_ioctl( int command, void* buffer, bool from_kernel );
+
+int init_network_interfaces( void );
 
 #endif /* _NETWORK_INTERFACE_H_ */

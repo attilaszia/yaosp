@@ -1,6 +1,6 @@
 /* Signal handling functions
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -133,7 +133,9 @@ int send_signal( thread_t* thread, int signal ) {
     }
 
     scheduler_lock();
+
     error = do_send_signal( thread, signal );
+
     scheduler_unlock();
 
     return error;
@@ -205,9 +207,7 @@ int sys_sigprocmask( int how, sigset_t* set, sigset_t* oldset ) {
 
 int sys_kill( process_id pid, int signal ) {
     DEBUG_LOG( "sys_kill() called!\n" );
-    //debug_print_stack_trace();
-
-    while ( 1 ) ;
+    debug_print_stack_trace();
 
     return 0;
 }

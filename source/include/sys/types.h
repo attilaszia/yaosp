@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -32,14 +32,9 @@
 #endif /* __cplusplus */
 #endif /* NULL */
 
-#define SEEK_SET 0
-#define SEEK_CUR 1
-#define SEEK_END 2
-
 #define INFINITE_TIMEOUT 18446744073709551615ULL
 
 typedef unsigned char u_char;
-typedef unsigned int useconds_t;
 
 typedef int ssize_t;
 typedef int pid_t;
@@ -52,10 +47,5 @@ typedef int uid_t;
 typedef int gid_t;
 typedef int blksize_t;
 typedef int64_t blkcnt_t;
-
-typedef unsigned char u_char;
-typedef unsigned short int u_short;
-typedef unsigned int u_int;
-typedef unsigned long int u_long;
 
 #endif /* _SYS_TYPES_H_ */

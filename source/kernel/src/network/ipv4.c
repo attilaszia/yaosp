@@ -16,10 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <config.h>
-
-#ifdef ENABLE_NETWORK
-
 #include <types.h>
 #include <console.h>
 #include <errno.h>
@@ -31,7 +27,6 @@
 #include <network/arp.h>
 #include <network/device.h>
 #include <network/tcp.h>
-#include <network/udp.h>
 #include <lib/string.h>
 
 #include <arch/network/network.h>
@@ -70,19 +65,17 @@ int ipv4_send_packet( uint8_t* dest_ip, packet_t* packet, uint8_t protocol ) {
     route_t* route;
     ipv4_header_t* ip_header;
 
-    route = route_find( dest_ip );
+    route = find_route( dest_ip );
 
     if ( route == NULL ) {
-        kprintf(
-            WARNING, "net: no route to address: %d.%d.%d.%d.\n",
-            dest_ip[0], dest_ip[1], dest_ip[2], dest_ip[3]
-        );
+        kprintf( WARNING, "NET: No route to address: %d.%d.%d.%d\n", dest_ip[ 0 ], dest_ip[ 1 ], dest_ip[ 2 ], dest_ip[ 3 ] );
         return -EINVAL;
     }
 
     /* TODO: check MTU */
 
     ip_header = ( ipv4_header_t* )( packet->transport_data - sizeof( ipv4_header_t ) );
+
     ASSERT( ( ptr_t )ip_header >= ( ptr_t )packet->data );
 
     packet->network_data = ( uint8_t* )ip_header;
@@ -95,52 +88,21 @@ int ipv4_send_packet( uint8_t* dest_ip, packet_t* packet, uint8_t protocol ) {
     ip_header->time_to_live = 255;
     ip_header->protocol = protocol;
 
-    memcpy( ip_header->src_address, route->device->ip_addr, IPV4_ADDR_LEN );
+    memcpy( ip_header->src_address, route->interface->ip_address, IPV4_ADDR_LEN );
     memcpy( ip_header->dest_address, dest_ip, IPV4_ADDR_LEN );
 
     ip_header->checksum = 0;
     ip_header->checksum = ip_checksum( ( uint16_t*)ip_header, sizeof( ipv4_header_t ) );
 
-    if ( route->flags & RTF_GATEWAY ) {
-        error = arp_send_packet( route->device, route->gateway_addr, packet );
+    if ( route->flags & ROUTE_GATEWAY ) {
+        error = arp_send_packet( route->interface, route->gateway_addr, packet );
     } else {
-        error = arp_send_packet( route->device, dest_ip, packet );
+        error = arp_send_packet( route->interface, dest_ip, packet );
     }
 
-    route_put( route );
+    put_route( route );
 
     return error;
-}
-
-int ipv4_send_packet_via_route( route_t* route, uint8_t* dest_ip, packet_t* packet, uint8_t protocol ) {
-    ipv4_header_t* ip_header;
-
-    /* TODO: check MTU */
-
-    ip_header = ( ipv4_header_t* )( packet->transport_data - sizeof( ipv4_header_t ) );
-    ASSERT( ( ptr_t )ip_header >= ( ptr_t )packet->data );
-
-    packet->network_data = ( uint8_t* )ip_header;
-
-    ip_header->version_and_size = IPV4_HDR_MK_VER_AND_SIZE( 4, 5 );
-    ip_header->type_of_service = 0;
-    ip_header->packet_size = htonw( packet->size - ( ( uint32_t )ip_header - ( uint32_t )packet->data ) );
-    ip_header->packet_id = 0; /* TODO ??? */
-    ip_header->fragment_offset = htonw( IPV4_DONT_FRAGMENT );
-    ip_header->time_to_live = 255;
-    ip_header->protocol = protocol;
-
-    memcpy( ip_header->src_address, route->device->ip_addr, IPV4_ADDR_LEN );
-    memcpy( ip_header->dest_address, dest_ip, IPV4_ADDR_LEN );
-
-    ip_header->checksum = 0;
-    ip_header->checksum = ip_checksum( ( uint16_t*)ip_header, sizeof( ipv4_header_t ) );
-
-    if ( route->flags & RTF_GATEWAY ) {
-        return arp_send_packet( route->device, route->gateway_addr, packet );
-    } else {
-        return arp_send_packet( route->device, dest_ip, packet );
-    }
 }
 
 static int ipv4_handle_packet( packet_t* packet ) {
@@ -155,16 +117,14 @@ static int ipv4_handle_packet( packet_t* packet ) {
             return tcp_input( packet );
 
         case IP_PROTO_UDP :
-            return udp_input( packet );
+            DEBUG_LOG( "UDP packet\n" );
+            break;
 
         case IP_PROTO_ICMP :
             return icmp_input( packet );
-
-        default :
-            kprintf( WARNING, "ipv4_handle_packet(): Unknown protocol: %x\n", ip_header->protocol );
-            delete_packet( packet );
-            break;
     }
+
+    delete_packet( packet );
 
     return 0;
 }
@@ -174,10 +134,10 @@ int ipv4_input( packet_t* packet ) {
 
     ip_header = ( ipv4_header_t* )( packet->data + ETH_HEADER_LEN );
 
-    /* Make sure that the IP packet is valid */
+    /* Make sure the IP packet is valid */
 
     if ( ip_checksum( ( uint16_t* )ip_header, IPV4_HDR_SIZE( ip_header->version_and_size ) * 4 ) != 0 ) {
-        kprintf( WARNING, "net: invalid IP checksum!\n" );
+        kprintf( WARNING, "NET: Invalid IP checksum!\n" );
         delete_packet( packet );
         return -EINVAL;
     }
@@ -186,5 +146,3 @@ int ipv4_input( packet_t* packet ) {
 
     return ipv4_handle_packet( packet );
 }
-
-#endif /* ENABLE_NETWORK */

@@ -31,11 +31,11 @@ int init_module( void ) {
     error = pata_detect_controllers();
 
     if ( error < 0 ) {
-        kprintf( ERROR, "pata: Failed to detect controllers!\n" );
+        kprintf( ERROR, "PATA: Failed to detect controllers!\n" );
         return error;
     }
 
-    kprintf( INFO, "pata: Detected %d controller(s)\n", controller_count );
+    kprintf( INFO, "PATA: Detected %d controller(s)\n", controller_count );
 
     controller = controllers;
 
@@ -45,7 +45,7 @@ int init_module( void ) {
         if ( error < 0 ) {
             kprintf(
                 ERROR,
-                "pata: Failed to initialize controller at %d:%d:%d\n",
+                "PATA: Failed to initialize controller at %d:%d:%d\n",
                 controller->pci_device.bus,
                 controller->pci_device.dev,
                 controller->pci_device.func

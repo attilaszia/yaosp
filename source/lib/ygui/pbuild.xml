@@ -1,0 +1,116 @@
+<!--
+
+This file is part of the yaosp build system
+
+Copyright (c) 2009 Zoltan Kovacs
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 2 of the GNU General Public License
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+
+<build default="all">
+    <array name="files">
+        <item>src/application.c</item>
+        <item>src/window.c</item>
+        <item>src/widget.c</item>
+        <item>src/panel.c</item>
+        <item>src/label.c</item>
+        <item>src/font.c</item>
+        <item>src/button.c</item>
+        <item>src/textfield.c</item>
+        <item>src/desktop.c</item>
+        <item>src/scrollpanel.c</item>
+        <item>src/gc.c</item>
+        <item>src/bitmap.c</item>
+        <item>src/image.c</item>
+        <item>src/menu.c</item>
+        <item>src/menuitem.c</item>
+        <item>src/menubar.c</item>
+        <item>src/textarea.c</item>
+        <item>src/dirview.c</item>
+        <item>src/layout/layout.c</item>
+        <item>src/layout/borderlayout.c</item>
+        <item>src/layout/flowlayout.c</item>
+        <item>src/render/render.c</item>
+        <item>src/image/imageloader.c</item>
+        <item>src/image/png.c</item>
+        <item>src/dialog/filechooser.c</item>
+        <item>src/border/border.c</item>
+        <item>src/border/lineborder.c</item>
+    </array>
+
+    <array name="images">
+        <item>folder.png</item>
+        <item>file.png</item>
+    </array>
+
+    <target name="clean">
+        <delete>objs/*</delete>
+        <rmdir>objs</rmdir>
+    </target>
+
+    <target name="prepare" type="private">
+        <mkdir>objs</mkdir>
+    </target>
+
+    <target name="compile">
+        <call target="prepare"/>
+
+        <echo></echo>
+        <echo>Compiling ygui library</echo>
+        <echo></echo>
+
+        <for var="i" array="${files}">
+            <echo>[GCC    ] source/lib/ygui/${i}</echo>
+            <gcc>
+                <input>${i}</input>
+                <output>objs/filename(${i}).o</output>
+                <include>../../include</include>
+                <include>../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
+            </gcc>
+        </for>
+
+        <echo></echo>
+        <echo>Linking ygui library</echo>
+        <echo></echo>
+        <echo>[AR     ] source/lib/ygui/objs/libygui.a</echo>
+
+        <exec executable="ar">
+            <arg>-rc</arg>
+            <arg>objs/libygui.a</arg>
+            <arg>objs/*.o</arg>
+        </exec>
+    </target>
+
+    <target name="install">
+        <mkdir>../../../build/image/system/images</mkdir>
+
+        <for var="i" array="${images}">
+            <copy from="images/${i}" to="../../../build/image/system/images/${i}"/>
+        </for>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
+    </target>
+</build>

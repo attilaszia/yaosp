@@ -1,6 +1,6 @@
 /* mkstemp function
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -26,15 +26,15 @@
 #define O_NOFOLLOW 0
 #endif
 
-int mkstemp( char* tmpl ) {
+int mkstemp( char* template ) {
     int i;
     char* tmp;
     int result;
     unsigned int rnd;
 
-    tmp = tmpl + strlen( tmpl ) - 6;
+    tmp = template + strlen( template ) - 6;
 
-    if ( tmp < tmpl ) {
+    if ( tmp < template ) {
         errno = EINVAL;
         return -1;
     }
@@ -55,7 +55,7 @@ int mkstemp( char* tmpl ) {
             tmp[ i ] = hexdigit > 9 ? ( hexdigit + 'a' - 10 ) : ( hexdigit + '0' );
         }
 
-        result = open( tmpl, O_CREAT | O_RDWR | O_EXCL | O_NOFOLLOW, 0600 );
+        result = open( template, O_CREAT | O_RDWR | O_EXCL | O_NOFOLLOW, 0600 );
 
         if ( ( result >= 0 ) ||
              ( errno != EEXIST ) ) {

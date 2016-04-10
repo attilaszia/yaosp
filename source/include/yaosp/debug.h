@@ -1,6 +1,6 @@
 /* Debug functions
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,10 +19,6 @@
 #ifndef _YAOSP_DEBUG_H_
 #define _YAOSP_DEBUG_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * Writes a string to the kernel debug console.
  *
@@ -31,15 +27,4 @@ extern "C" {
  */
 int dbprintf( const char* format, ... );
 
-/**
- * Writes the current stacktrace to the kernel debug console.
- *
- * @return On success 0 is returned
- */
-int dbtrace( void );
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* _YAOSP_DEBUG_H_ */
+#endif // _YAOSP_DEBUG_H_

@@ -1,6 +1,6 @@
 /* Memory context handling code
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -233,8 +233,7 @@ memory_context_t* memory_context_clone( memory_context_t* old_context, process_t
             continue;
         }
 
-        new_region = memory_region_allocate( new_context, old_region->name, old_region->address,
-                                             old_region->size, old_region->flags );
+        new_region = memory_region_allocate( new_context, old_region->name, old_region->address, old_region->size, old_region->flags );
 
         if ( new_region == NULL ) {
             goto error;
@@ -273,7 +272,7 @@ memory_context_t* memory_context_clone( memory_context_t* old_context, process_t
 
     return new_context;
 
- error:
+error:
     /* TODO: cleanup! */
 
     mutex_unlock( old_context->mutex );
@@ -327,6 +326,7 @@ int memory_context_delete_regions( memory_context_t* context ) {
     return 0;
 }
 
+#ifdef ENABLE_DEBUGGER
 int memory_context_translate_address( memory_context_t* context, ptr_t linear, ptr_t* physical ) {
     if ( linear < FIRST_USER_ADDRESS ) {
         *physical = linear;
@@ -336,6 +336,7 @@ int memory_context_translate_address( memory_context_t* context, ptr_t linear, p
 
     return arch_memory_context_translate_address( context, linear, physical );
 }
+#endif /* ENABLE_DEBUGGER */
 
 void memory_context_dump( memory_context_t* context ) {
     int i;

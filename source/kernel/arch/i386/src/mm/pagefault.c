@@ -1,6 +1,6 @@
 /* Page fault handler
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -23,7 +23,6 @@
 #include <macros.h>
 #include <debug.h>
 #include <signal.h>
-#include <kernel.h>
 #include <sched/scheduler.h>
 #include <mm/region.h>
 #include <mm/context.h>
@@ -46,9 +45,6 @@ static void invalid_page_fault( thread_t* thread, registers_t* regs, uint32_t cr
 
     if ( __likely( thread != NULL ) ) {
         kprintf( ERROR, "Process: %s thread: %s\n", thread->process->name, thread->name );
-#ifdef ENABLE_SMP
-        kprintf( ERROR, "Processor: %d\n", get_processor_index() );
-#endif /* ENABLE_SMP */
         memory_context_dump( thread->process->memory_context );
 
         if ( regs->error_code & 0x4 ) {
@@ -163,8 +159,7 @@ static int handle_file_mapping( memory_region_t* region, uint32_t address ) {
         page_directory,
         PGD_INDEX( address ),
         PGD_INDEX( address ),
-        paging_flags | PAGE_WRITE,
-        0
+        paging_flags | PAGE_WRITE
     );
 
     if ( __unlikely( error < 0 ) ) {
@@ -192,13 +187,7 @@ static int handle_file_mapping( memory_region_t* region, uint32_t address ) {
         }
     }
 
-    /* Maybe a different thread tried to access the same
-       page and already loaded it. */
-    if (i == 0) {
-        mutex_unlock(context->mutex);
-        return 0;
-    }
-
+    ASSERT( i > 0 );
     page_count = i;
 
     /* Allocate memory for the new pages */
@@ -269,11 +258,6 @@ int handle_page_fault( registers_t* regs ) {
     memory_region_t* region;
 
     cr2 = get_cr2();
-
-    if ( __unlikely( !kernel_running ) ) {
-        invalid_page_fault( NULL, regs, cr2, "?" );
-    }
-
     thread = current_thread();
 
     region = memory_context_get_region_for( thread->process->memory_context, cr2 );
@@ -302,15 +286,7 @@ int handle_page_fault( registers_t* regs ) {
     /* In case of any error, this is an invalid page fault */
 
     if ( error != 0 ) {
-        char* error_msg;
-
-        switch ( error ) {
-            case -ENOMEM : error_msg = "not enough memory"; break;
-            case -EIO : error_msg = "I/O error"; break;
-            default : error_msg = "unknown error"; break;
-        }
-
-        invalid_page_fault( thread, regs, cr2, error_msg );
+        invalid_page_fault( thread, regs, cr2, "???" );
     }
 
     return 0;

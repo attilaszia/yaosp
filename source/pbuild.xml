@@ -29,7 +29,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <array name="subdirs_after">
         <item>lib</item>
         <item>thirdparty</item>
-        <item>servers</item>
         <item>applications</item>
     </array>
 
@@ -45,16 +44,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </for>
     </target>
 
-    <target name="all-installer">
-        <call target="all-installer" directory="applications"/>
-        <call target="all-installer" directory="thirdparty"/>
-    </target>
-
     <target name="clean">
         <for var="i" array="${subdirs_before}">
             <call target="clean" directory="${i}"/>
         </for>
-
+        
         <for var="i" array="${subdirs_after}">
             <call target="clean" directory="${i}"/>
         </for>

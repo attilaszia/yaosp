@@ -29,18 +29,21 @@
 static ramfs_inode_t* ramfs_create_inode( ramfs_cookie_t* cookie, ramfs_inode_t* parent, const char* name, int name_length, bool is_directory ) {
     ramfs_inode_t* inode;
 
-    if (name_length == -1) {
-        name_length = strlen(name);
-    }
-
-    inode = ( ramfs_inode_t* )kmalloc(sizeof(ramfs_inode_t) + name_length + 1);
+    inode = ( ramfs_inode_t* )kmalloc( sizeof( ramfs_inode_t ) );
 
     if ( inode == NULL ) {
         goto error1;
     }
 
-    inode->name = (char*)(inode + 1);
-    strncpy(inode->name, name, name_length);
+    if ( name_length == -1 ) {
+        inode->name = strdup( name );
+    } else {
+        inode->name = strndup( name, name_length );
+    }
+
+    if ( inode->name == NULL ) {
+        goto error2;
+    }
 
     inode->data = NULL;
     inode->size = 0;
@@ -76,6 +79,9 @@ static ramfs_inode_t* ramfs_create_inode( ramfs_cookie_t* cookie, ramfs_inode_t*
     hashtable_add( &cookie->inode_table, ( hashitem_t* )inode );
 
     return inode;
+
+error2:
+    kfree( inode );
 
 error1:
     return NULL;
@@ -331,48 +337,31 @@ static int ramfs_open_directory( ramfs_inode_t* inode, void** _cookie ) {
 }
 
 static int ramfs_open_file( ramfs_inode_t* inode, void** _cookie, int flags ) {
-    ramfs_file_cookie_t* file_cookie;
+    ramfs_file_cookie_t* cookie;
 
-    file_cookie = ( ramfs_file_cookie_t* )kmalloc( sizeof( ramfs_file_cookie_t ) );
+    cookie = ( ramfs_file_cookie_t* )kmalloc( sizeof( ramfs_file_cookie_t ) );
 
-    if ( file_cookie == NULL ) {
+    if ( cookie == NULL ) {
         return -ENOMEM;
     }
 
-    file_cookie->open_flags = flags;
+    cookie->open_flags = flags;
 
-    if ( ( flags & ( O_RDWR | O_WRONLY ) ) &&
-         ( flags & O_TRUNC ) ) {
-        if ( inode->data ) {
-            kfree( inode->data );
-            inode->data = NULL;
-        }
-
-        inode->size = 0;
-    }
-
-    *_cookie = ( void* )file_cookie;
+    *_cookie = ( void* )cookie;
 
     return 0;
 }
 
 static int ramfs_open( void* fs_cookie, void* node, int mode, void** file_cookie ) {
-    int ret;
     ramfs_inode_t* inode;
-    ramfs_cookie_t* cookie;
 
     inode = ( ramfs_inode_t* )node;
-    cookie = ( ramfs_cookie_t* )fs_cookie;
 
     if ( inode->is_directory ) {
-        ret = ramfs_open_directory( inode, file_cookie );
+        return ramfs_open_directory( inode, file_cookie );
     } else {
-        mutex_lock( cookie->lock, LOCK_IGNORE_SIGNAL );
-        ret = ramfs_open_file( inode, file_cookie, mode );
-        mutex_unlock( cookie->lock );
+        return ramfs_open_file( inode, file_cookie, mode );
     }
-
-    return ret;
 }
 
 static int ramfs_close( void* fs_cookie, void* node, void* file_cookie ) {
@@ -861,7 +850,7 @@ static filesystem_calls_t ramfs_calls = {
 int init_module( void ) {
     int error;
 
-    kprintf( INFO, "ramfs: Registering filesystem driver.\n" );
+    kprintf( INFO, "ramfs: Registering filesystem driver\n" );
 
     error = register_filesystem( "ramfs", &ramfs_calls );
 

@@ -1,6 +1,6 @@
 /* 32bit ELF object functions
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,34 +18,28 @@
  */
 
 #include <types.h>
+#include <multiboot.h>
 #include <console.h>
 #include <macros.h>
+#include <symbols.h>
 #include <errno.h>
 #include <mm/kmalloc.h>
-#include <vfs/vfs.h>
 #include <linker/elf32.h>
 #include <lib/string.h>
 
-static inline uint32_t elf32_symbol_name_hash( const char* name ) {
-    uint32_t g;
-    uint32_t hash = 0;
-
-    while ( *name != 0 ) {
-        hash = ( hash << 4 ) + *name++;
-        g = hash & 0xF0000000;
-
-        if ( g != 0 ) {
-            hash ^= g >> 24;
-        }
-
-        hash &= ~g;
-    }
-
-    return hash;
-}
+extern multiboot_header_t mb_header;
 
 int elf32_load_and_validate_header( elf32_image_info_t* info, binary_loader_t* loader, uint16_t type ) {
-    if ( loader->read( loader->private, &info->header, 0, sizeof( elf_header_t ) ) != sizeof( elf_header_t ) ) {
+    int error;
+
+    error = loader->read(
+        loader->private,
+        ( void* )&info->header,
+        0x0,
+        sizeof( elf_header_t )
+    );
+
+    if ( __unlikely( error != sizeof( elf_header_t ) ) ) {
         return -EIO;
     }
 
@@ -63,11 +57,8 @@ int elf32_load_section_headers( elf32_image_info_t* info, binary_loader_t* loade
 
     /* Load the section headers */
 
-    if ( info->header.shnum == 0 ) {
-        return -EINVAL;
-    }
-
     sh_table_size = sizeof( elf_section_header_t ) * info->header.shnum;
+
     info->section_headers = ( elf_section_header_t* )kmalloc( sh_table_size );
 
     if ( info->section_headers == NULL ) {
@@ -75,7 +66,14 @@ int elf32_load_section_headers( elf32_image_info_t* info, binary_loader_t* loade
         goto error1;
     }
 
-    if ( loader->read( loader->private, info->section_headers, info->header.shoff, sh_table_size ) != sh_table_size ) {
+    error = loader->read(
+        loader->private,
+        info->section_headers,
+        info->header.shoff,
+        sh_table_size
+    );
+
+    if ( __unlikely( error != sh_table_size ) ) {
         error = -EIO;
         goto error2;
     }
@@ -84,11 +82,6 @@ int elf32_load_section_headers( elf32_image_info_t* info, binary_loader_t* loade
 
     shstrtab = &info->section_headers[ info->header.shstrndx ];
 
-    if ( shstrtab->size == 0 ) {
-        error = -EINVAL;
-        goto error2;
-    }
-
     info->sh_string_table = ( char* )kmalloc( shstrtab->size );
 
     if ( info->sh_string_table == NULL ) {
@@ -96,22 +89,29 @@ int elf32_load_section_headers( elf32_image_info_t* info, binary_loader_t* loade
         goto error2;
     }
 
-    if ( loader->read( loader->private, info->sh_string_table, shstrtab->offset, shstrtab->size ) != shstrtab->size ) {
+    error = loader->read(
+        loader->private,
+        info->sh_string_table,
+        shstrtab->offset,
+        shstrtab->size
+    );
+
+    if ( __unlikely( error != shstrtab->size ) ) {
         error = -EIO;
         goto error3;
     }
 
     return 0;
 
- error3:
+error3:
     kfree( info->sh_string_table );
     info->sh_string_table = NULL;
 
- error2:
+error2:
     kfree( info->section_headers );
     info->section_headers = NULL;
 
- error1:
+error1:
     return error;
 }
 
@@ -125,50 +125,88 @@ static int elf32_load_strtab_section( elf32_image_info_t* info, binary_loader_t*
         goto error1;
     }
 
-    if ( loader->read( loader->private, ( void* )info->string_table, strtab->offset, strtab->size ) != strtab->size ) {
+    error = loader->read(
+        loader->private,
+        ( void* )info->string_table,
+        strtab->offset,
+        strtab->size
+    );
+
+    if ( __unlikely( error != strtab->size ) ) {
         error = -EIO;
         goto error2;
     }
 
     return 0;
 
- error2:
+error2:
     kfree( info->string_table );
     info->string_table = NULL;
 
- error1:
+error1:
     return error;
 }
 
 static int elf32_load_symtab_section( elf32_image_info_t* info, binary_loader_t* loader, elf_section_header_t* symtab ) {
     int error;
+    uint32_t i;
+    uint32_t symbol_count;
+    elf_symbol_t* elf_symbol;
+    elf_symbol_t* elf_symbols;
+    my_elf_symbol_t* my_elf_symbol;
 
-    info->symbol_table = ( elf_symbol_t* )kmalloc( symtab->size );
+    symbol_count = symtab->size / sizeof( elf_symbol_t );
 
-    if ( info->symbol_table == NULL ) {
+    elf_symbols = ( elf_symbol_t* )kmalloc( symtab->size );
+
+    if ( elf_symbols == NULL ) {
         error = -ENOMEM;
         goto error1;
     }
 
-    if ( loader->read( loader->private, info->symbol_table, symtab->offset, symtab->size ) != symtab->size ) {
+    error = loader->read(
+        loader->private,
+        elf_symbols,
+        symtab->offset,
+        symtab->size
+    );
+
+    if ( __unlikely( error != symtab->size ) ) {
         error = -EIO;
         goto error2;
     }
 
-    info->symbol_count = symtab->size / sizeof( elf_symbol_t );
+    info->symbol_table = ( my_elf_symbol_t* )kmalloc( sizeof( my_elf_symbol_t ) * symbol_count );
+
+    if ( info->symbol_table == NULL ) {
+        error = -ENOMEM;
+        goto error2;
+    }
+
+    for ( i = 0, elf_symbol = &elf_symbols[ 0 ], my_elf_symbol = &info->symbol_table[ 0 ];
+          i < symbol_count;
+          i++, elf_symbol++, my_elf_symbol++ ) {
+        my_elf_symbol->name = info->string_table + elf_symbol->name;
+        my_elf_symbol->address = elf_symbol->value;
+        my_elf_symbol->info = elf_symbol->info;
+
+        hashtable_add( &info->symbol_hash_table, ( hashitem_t* )my_elf_symbol );
+    }
+
+    kfree( elf_symbols );
+
+    info->symbol_count = symbol_count;
 
     return 0;
 
  error2:
-    kfree( info->symbol_table );
-    info->symbol_table = 0;
+    kfree( elf_symbols );
 
  error1:
     return error;
 }
 
-static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t* loader,
-                                       elf_section_header_t* dynamic_section ) {
+static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t* loader, elf_section_header_t* dynamic_section ) {
     int error;
     uint32_t i;
     uint32_t dynamic_count;
@@ -187,8 +225,14 @@ static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t
         goto error1;
     }
 
-    if ( loader->read( loader->private, dynamic_table, dynamic_section->offset,
-                       dynamic_section->size ) != dynamic_section->size ) {
+    error = loader->read(
+        loader->private,
+        dynamic_table,
+        dynamic_section->offset,
+        dynamic_section->size
+    );
+
+    if ( __unlikely( error != dynamic_section->size ) ) {
         error = -EIO;
         goto error2;
     }
@@ -197,43 +241,21 @@ static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t
 
     for ( i = 0, dynamic = &dynamic_table[ 0 ]; i < dynamic_count; i++, dynamic++ ) {
         switch ( dynamic->tag ) {
-            case DT_REL :
+            case DYN_REL :
                 rel_address = dynamic->value;
                 break;
 
-            case DT_RELSZ :
+            case DYN_RELSZ :
                 rel_size = dynamic->value;
                 break;
 
-            case DT_JMPREL :
+            case DYN_JMPREL :
                 pltrel_address = dynamic->value;
                 break;
 
-            case DT_PLTRELSZ :
+            case DYN_PLTRELSZ :
                 pltrel_size = dynamic->value;
                 break;
-
-            case DT_NEEDED :
-                info->needed_count++;
-                break;
-        }
-    }
-
-    /* Build the table of the needed subimages if it's not empty. */
-
-    if ( info->needed_count > 0 ) {
-        uint32_t needed_index = 0;
-
-        info->needed_table = ( char** )kmalloc( sizeof( char* ) * info->needed_count );
-
-        if ( info->needed_table == NULL ) {
-            goto error2;
-        }
-
-        for ( i = 0, dynamic = &dynamic_table[0]; i < dynamic_count; i++, dynamic++ ) {
-            if ( dynamic->tag == DT_NEEDED ) {
-                info->needed_table[ needed_index++ ] = info->dyn_string_table + dynamic->value;
-            }
         }
     }
 
@@ -255,7 +277,7 @@ static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t
             error = loader->read(
                 loader->private,
                 ( void* )info->reloc_table,
-                rel_address - info->virtual_address,
+                rel_address,
                 rel_size
             );
 
@@ -269,7 +291,7 @@ static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t
             error = loader->read(
                 loader->private,
                 ( char* )info->reloc_table + rel_size,
-                pltrel_address - info->virtual_address,
+                pltrel_address,
                 pltrel_size
             );
 
@@ -283,12 +305,6 @@ static int elf32_load_dynamic_section( elf32_image_info_t* info, binary_loader_t
     return 0;
 
  error3:
-    if ( info->needed_count > 0 ) {
-        info->needed_count = 0;
-        kfree( info->needed_table );
-        info->needed_table = NULL;
-    }
-
     info->reloc_count = 0;
     kfree( info->reloc_table );
     info->reloc_table = NULL;
@@ -312,18 +328,25 @@ static int elf32_load_dynstr_section( elf32_image_info_t* info, binary_loader_t*
         goto error1;
     }
 
-    if ( loader->read( loader->private, ( void* )info->dyn_string_table, dynstr->offset, dynstr->size ) != dynstr->size ) {
+    error = loader->read(
+        loader->private,
+        ( void* )info->dyn_string_table,
+        dynstr->offset,
+        dynstr->size
+    );
+
+    if ( __unlikely( error != dynstr->size ) ) {
         error = -EIO;
         goto error2;
     }
 
     return 0;
 
- error2:
+error2:
     kfree( info->dyn_string_table );
     info->dyn_string_table = NULL;
 
- error1:
+error1:
     return error;
 }
 
@@ -344,7 +367,14 @@ static int elf32_load_dynsym_section( elf32_image_info_t* info, binary_loader_t*
         goto error1;
     }
 
-    if ( loader->read( loader->private, elf_symbols, dynsym->offset, dynsym->size ) != dynsym->size ) {
+    error = loader->read(
+        loader->private,
+        elf_symbols,
+        dynsym->offset,
+        dynsym->size
+    );
+
+    if ( __unlikely( error != dynsym->size ) ) {
         error = -EIO;
         goto error2;
     }
@@ -356,14 +386,12 @@ static int elf32_load_dynsym_section( elf32_image_info_t* info, binary_loader_t*
         goto error2;
     }
 
-    for ( i = 0, elf_symbol = &elf_symbols[0], my_elf_symbol = &info->dyn_symbol_table[0];
+    for ( i = 0, elf_symbol = &elf_symbols[ 0 ], my_elf_symbol = &info->dyn_symbol_table[ 0 ];
           i < symbol_count;
           i++, elf_symbol++, my_elf_symbol++ ) {
         my_elf_symbol->name = info->dyn_string_table + elf_symbol->name;
         my_elf_symbol->address = elf_symbol->value;
-        my_elf_symbol->size = elf_symbol->size;
         my_elf_symbol->info = elf_symbol->info;
-        my_elf_symbol->section = elf_symbol->shndx;
     }
 
     kfree( elf_symbols );
@@ -372,38 +400,10 @@ static int elf32_load_dynsym_section( elf32_image_info_t* info, binary_loader_t*
 
     return 0;
 
- error2:
+error2:
     kfree( elf_symbols );
 
- error1:
-    return error;
-}
-
-static int elf32_load_hash_section( elf32_image_info_t* info, binary_loader_t* loader, elf_section_header_t* hashtab ) {
-    int error;
-
-    info->symhash = ( elf_hashtable_t* )kmalloc( hashtab->size );
-
-    if ( info->symhash == NULL ) {
-        error = -ENOMEM;
-        goto error1;
-    }
-
-    if ( loader->read( loader->private, info->symhash, hashtab->offset, hashtab->size ) != hashtab->size ) {
-        error = -EIO;
-        goto error2;
-    }
-
-    info->sym_bucket = ( uint32_t* )( info->symhash + 1 );
-    info->sym_chain = info->sym_bucket + info->symhash->bucket_cnt;
-
-    return 0;
-
- error2:
-    kfree( info->symhash );
-    info->symhash = NULL;
-
- error1:
+error1:
     return error;
 }
 
@@ -416,18 +416,16 @@ int elf32_parse_section_headers( elf32_image_info_t* info, binary_loader_t* load
     elf_section_header_t* dynamic;
     elf_section_header_t* dynsym;
     elf_section_header_t* dynstr;
-    elf_section_header_t* hashtab;
 
     strtab = NULL;
     symtab = NULL;
     dynamic = NULL;
     dynsym = NULL;
     dynstr = NULL;
-    hashtab = NULL;
 
-    for ( i = 0, current = &info->section_headers[0]; i < info->header.shnum; i++, current++ ) {
+    for ( i = 0, current = &info->section_headers[ i ]; i < info->header.shnum; i++, current++ ) {
         switch ( current->type ) {
-            case SHT_STRTAB : {
+            case SECTION_STRTAB : {
                 char* section_name;
 
                 section_name = info->sh_string_table + current->name;
@@ -441,20 +439,16 @@ int elf32_parse_section_headers( elf32_image_info_t* info, binary_loader_t* load
                 break;
             }
 
-            case SHT_SYMTAB :
+            case SECTION_SYMTAB :
                 symtab = current;
                 break;
 
-            case SHT_DYNAMIC :
+            case SECTION_DYNAMIC :
                 dynamic = current;
                 break;
 
-            case SHT_DYNSYM :
+            case SECTION_DYNSYM :
                 dynsym = current;
-                break;
-
-            case SHT_HASH :
-                hashtab = current;
                 break;
         }
     }
@@ -466,28 +460,28 @@ int elf32_parse_section_headers( elf32_image_info_t* info, binary_loader_t* load
 
     error = elf32_load_strtab_section( info, loader, strtab );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
     }
 
     error = elf32_load_symtab_section( info, loader, symtab );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         return error;
-    }
-
-    if ( dynstr != NULL ) {
-        error = elf32_load_dynstr_section( info, loader, dynstr );
-
-        if ( error < 0 ) {
-            return error;
-        }
     }
 
     if ( dynamic != NULL ) {
         error = elf32_load_dynamic_section( info, loader, dynamic );
 
-        if ( error < 0 ) {
+        if ( __unlikely( error < 0 ) ) {
+            return error;
+        }
+    }
+
+    if ( dynstr != NULL ) {
+        error = elf32_load_dynstr_section( info, loader, dynstr );
+
+        if ( __unlikely( error < 0 ) ) {
             return error;
         }
     }
@@ -495,82 +489,29 @@ int elf32_parse_section_headers( elf32_image_info_t* info, binary_loader_t* load
     if ( dynsym != NULL ) {
         error = elf32_load_dynsym_section( info, loader, dynsym );
 
-        if ( error < 0 ) {
+        if ( __unlikely( error < 0 ) ) {
             return error;
         }
     }
-
-    if ( hashtab != NULL ) {
-        error = elf32_load_hash_section( info, loader, hashtab );
-
-        if ( error < 0 ) {
-            return error;
-        }
-    }
-
-    return 0;
-}
-
-int elf32_free_section_headers( elf32_image_info_t* info ) {
-    kfree( info->sh_string_table );
-    info->sh_string_table = NULL;
-    kfree( info->section_headers );
-    info->section_headers = NULL;
-
-    return 0;
-}
-
-int elf32_free_reloc_table( elf32_image_info_t* info ) {
-    kfree( info->reloc_table );
-    info->reloc_table = NULL;
-    info->reloc_count = 0;
 
     return 0;
 }
 
 my_elf_symbol_t* elf32_get_symbol( elf32_image_info_t* info, const char* name ) {
-    uint32_t hash = elf32_symbol_name_hash( name );
-    uint32_t index = info->sym_bucket[ hash % info->symhash->bucket_cnt ];
-
-    do {
-        my_elf_symbol_t* symbol;
-
-        symbol = &info->dyn_symbol_table[ index ];
-
-        if ( ( symbol->section != SHN_UNDEF ) &&
-             ( strcmp( symbol->name, name ) == 0 ) ) {
-            return symbol;
-        }
-
-        index = info->sym_chain[ index ];
-    } while ( index != STN_UNDEF );
-
-    return NULL;
-}
-
-elf_symbol_t* elf32_get_symbol2( elf32_image_info_t* info, const char* name ) {
-    uint32_t i;
-    elf_symbol_t* symbol;
-
-    symbol = info->symbol_table;
-
-    for ( i = 0; i < info->symbol_count; i++, symbol++ ) {
-        if ( strcmp( info->string_table + symbol->name, name ) == 0 ) {
-            return symbol;
-        }
-    }
-
-    return NULL;
+    return ( my_elf_symbol_t* )hashtable_get( &info->symbol_hash_table, ( const void* )name );
 }
 
 int elf32_get_symbol_info( elf32_image_info_t* info, ptr_t address, symbol_info_t* symbol_info ) {
     uint32_t i;
-    elf_symbol_t* symbol;
+    my_elf_symbol_t* symbol;
 
     /* Image without symbols?! */
-    if (info->symbol_count == 0) {
-        return -ENOENT;
+
+    if ( info->symbol_count == 0 ) {
+        return false;
     }
+
+    /* Make sure that the specified address is inside of this module */
 
     symbol_info->name = NULL;
     symbol_info->address = 0;
@@ -578,27 +519,23 @@ int elf32_get_symbol_info( elf32_image_info_t* info, ptr_t address, symbol_info_
     symbol = info->symbol_table;
 
     for ( i = 0; i < info->symbol_count; i++, symbol++ ) {
-        char* name;
-
-        if ( symbol->value > address ) {
+        if ( symbol->address > address ) {
             continue;
         }
 
-        name = info->string_table + symbol->name;
-
         if ( symbol_info->name == NULL ) {
-            symbol_info->name = name;
-            symbol_info->address = symbol->value;
+            symbol_info->name = symbol->name;
+            symbol_info->address = symbol->address;
         } else {
             int last_diff;
             int curr_diff;
 
             last_diff = address - symbol_info->address;
-            curr_diff = address - symbol->value;
+            curr_diff = address - symbol->address;
 
-            if ( curr_diff <= last_diff ) {
-                symbol_info->name = name;
-                symbol_info->address = symbol->value;
+            if ( curr_diff < last_diff ) {
+                symbol_info->name = symbol->name;
+                symbol_info->address = symbol->address;
             }
         }
     }
@@ -610,15 +547,46 @@ int elf32_get_symbol_info( elf32_image_info_t* info, ptr_t address, symbol_info_
     return 0;
 }
 
-int elf32_init_image_info( elf32_image_info_t* info, ptr_t virtual_address ) {
-    memset( info, 0, sizeof( elf32_image_info_t ) );
+static void* symbol_key( hashitem_t* item ) {
+    my_elf_symbol_t* symbol;
 
-    info->virtual_address = virtual_address;
+    symbol = ( my_elf_symbol_t* )item;
+
+    return ( void* )symbol->name;
+}
+
+int elf32_init_image_info( elf32_image_info_t* info ) {
+    int error;
+
+    error = init_hashtable(
+        &info->symbol_hash_table,
+        256,
+        symbol_key,
+        hash_str,
+        compare_str
+    );
+
+    if ( error < 0 ) {
+        return error;
+    }
+
+    info->section_headers = NULL;
+    info->string_table = NULL;
+    info->sh_string_table = NULL;
+    info->dyn_string_table = NULL;
+    info->symbol_count = 0;
+    info->symbol_table = NULL;
+    info->dyn_symbol_count = 0;
+    info->dyn_symbol_table = NULL;
+    info->reloc_count = 0;
+    info->reloc_table = NULL;
 
     return 0;
 }
 
 int elf32_destroy_image_info( elf32_image_info_t* info ) {
+    destroy_hashtable( &info->symbol_hash_table );
+
     kfree( info->section_headers );
     info->section_headers = NULL;
 
@@ -641,14 +609,66 @@ int elf32_destroy_image_info( elf32_image_info_t* info ) {
     info->reloc_table = NULL;
     info->reloc_count = 0;
 
-    kfree( info->needed_table );
-    info->needed_table = NULL;
-    info->needed_count = 0;
+    return 0;
+}
 
-    kfree( info->symhash );
-    info->symhash = NULL;
-    info->sym_bucket = NULL;
-    info->sym_chain = NULL;
+__init int init_elf32_kernel_symbols( void ) {
+    uint32_t i;
+    elf_symbol_t* symbol;
+    const char* string_table = NULL;
+    const char* tmp_string_table;
+    elf_section_header_t* strtab;
+    elf_section_header_t* symtab;
+
+    /* Do we have ELF information from the multiboot header? */
+
+    if ( ( mb_header.flags & MB_FLAG_ELF_SYM_INFO ) == 0 ) {
+        kprintf( WARNING, "ELF symbol information not provided for the kernel!\n" );
+
+        return 0;
+    }
+
+    /* Get the string table */
+
+    strtab = ( elf_section_header_t* )( mb_header.elf_info.addr + mb_header.elf_info.shndx * mb_header.elf_info.size );
+    tmp_string_table = ( const char* )strtab->address;
+
+    /* Get the symbol table */
+
+    symtab = NULL;
+
+    for ( i = 1; i < mb_header.elf_info.num; i++ ) {
+        const char* section_name;
+        elf_section_header_t* tmp;
+
+        tmp = ( elf_section_header_t* )( mb_header.elf_info.addr + i * mb_header.elf_info.size );
+        section_name = tmp_string_table + tmp->name;
+
+        if ( strcmp( section_name, ".symtab" ) == 0 ) {
+            symtab = tmp;
+        } else if ( strcmp( section_name, ".strtab" ) == 0 ) {
+            string_table = ( const char* )tmp->address;
+        }
+    }
+
+    if ( ( symtab == NULL ) ||
+         ( string_table == NULL ) ) {
+        kprintf( WARNING, "ELF symbol table not found for the kernel!\n" );
+
+        return 0;
+    }
+
+    for ( i = 0, symbol = ( elf_symbol_t* )symtab->address; i < ( symtab->size / sizeof( elf_symbol_t ) ); i++, symbol++ ) {
+        switch ( ELF32_ST_TYPE( symbol->info ) ) {
+            case STT_FUNC :
+                add_kernel_symbol(
+                    string_table + symbol->name,
+                    symbol->value
+                );
+
+                break;
+        }
+    }
 
     return 0;
 }

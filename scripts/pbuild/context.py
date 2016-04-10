@@ -1,7 +1,6 @@
 # Python build system
 #
-# Copyright (c) 2008, 2010 Zoltan Kovacs
-# Copyright (c) 2010 Kornel Csernai
+# Copyright (c) 2008 Zoltan Kovacs
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License
@@ -20,68 +19,9 @@ import re
 import os
 import functions
 import definitions
-import logging
-
-class ProjectContext :
-    TOPLEVEL_FILE = "pbuild.toplevel"
-
-    def __init__( self ) :
-        self.toplevel = None
-        self.gcc_profiles = {}
-        self.executables = {
-            "gcc" : "gcc",
-            "g++" : "g++",
-            "ld" : "ld",
-            "ar" : "ar"
-        }
-
-    def init( self ) :
-        cwd = os.getcwd()
-        if cwd[-1] == os.path.sep :
-            cwd = cwd[:-1]
-
-        while not os.path.isfile( cwd + os.path.sep + self.TOPLEVEL_FILE ) :
-            if cwd == "":
-                logging.error("Can't find toplevel.")
-                return False
-
-            index = cwd.rfind( os.path.sep )
-            cwd = cwd[:index]
-
-        self.toplevel = cwd
-
-        return True
-
-    def get_toplevel( self ) :
-        return self.toplevel
-
-    def add_gcc_profile( self, name, flags, includes ) :
-        if name in self.gcc_profiles :
-            return
-
-        self.gcc_profiles[name] = {
-            "flags" : flags,
-            "includes" : includes
-        }
-
-    def get_gcc_profile( self, name ) :
-        if name in self.gcc_profiles :
-            return self.gcc_profiles[name]
-
-        return { "flags" : "", "includes" : [] }
-
-    def get_executable(self, name) :
-        if name in self.executables :
-            return self.executables[name]
-
-        return ""
-
-    def set_executable(self, name, e) :
-        self.executables[name] = e
 
 class BuildContext :
-    def __init__( self, pctx ) :
-        self.pctx = pctx
+    def __init__( self ) :
         self.targets = []
         self.default_target = None
         self.definition_manager = definitions.DefinitionManager()
@@ -103,47 +43,14 @@ class BuildContext :
 
         return None
 
-    def get_targets( self ) :
-        return self.targets
-
     def get_definition( self, name ) :
-        # handle special definitions first
-        if name == "toplevel" :
-            toplevel = self.pctx.get_toplevel()
-
-            if toplevel == None :
-                raise BaseException # todo
-            else :
-                return definitions.String( "", toplevel )
-
-        # Try to find a user-defined stuff
         return self.definition_manager.get_definition( name )
-
-    def get_definition_manager( self ) :
-        return self.definition_manager
 
     def get_default_target( self ) :
         return self.default_target
 
-    def get_project_context( self ) :
-        return self.pctx
-
     def set_default_target( self, target ) :
         self.default_target = target
-
-    def include_definitions( self, context, defs = None ) :
-        if defs :
-            for d in context.get_definition_manager().get_definitions() :
-                if d.get_name() in defs :
-                    self.definition_manager.add_definition(d)
-        else :
-            for d in context.get_definition_manager().get_definitions() :
-                self.definition_manager.add_definition(d)
-
-    def include_targets( self, context, targets ) :
-        for t in context.get_targets() :
-            if t.get_name() in targets :
-                self.targets += [t]
 
     def replace_definitions( self, text ) :
         while True :

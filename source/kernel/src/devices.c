@@ -1,6 +1,6 @@
 /* Device management
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -30,25 +30,27 @@ static lock_id bus_table_mutex;
 
 int register_bus_driver( const char* name, void* bus ) {
     int error;
-    size_t name_length;
     bus_driver_t* driver;
 
-    name_length = strlen( name );
+    driver = ( bus_driver_t* )kmalloc( sizeof( bus_driver_t ) );
 
-    driver = ( bus_driver_t* )kmalloc( sizeof( bus_driver_t ) + name_length + 1 );
-
-    if ( driver == NULL ) {
+    if ( __unlikely( driver == NULL ) ) {
         error = -ENOMEM;
         goto error1;
     }
 
+    driver->name = strdup( name );
+
+    if ( __unlikely( driver->name == NULL ) ) {
+        error = -ENOMEM;
+        goto error2;
+    }
+
     driver->bus = bus;
-    driver->name = ( char* )( driver + 1 );
-    strcpy( driver->name, name );
 
     error = mutex_lock( bus_table_mutex, LOCK_IGNORE_SIGNAL );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         goto error2;
     }
 
@@ -60,16 +62,16 @@ int register_bus_driver( const char* name, void* bus ) {
 
     mutex_unlock( bus_table_mutex );
 
-    if ( error < 0 ) {
+    if ( __unlikely( error < 0 ) ) {
         goto error2;
     }
 
     return 0;
 
- error2:
+error2:
     kfree( driver );
 
- error1:
+error1:
     return error;
 }
 

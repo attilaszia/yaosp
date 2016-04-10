@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs, Kornel Csernai
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -22,20 +22,14 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 
-#define O_ACCMODE    0003
-#define O_RDONLY       00
-#define O_WRONLY       01
-#define O_RDWR         02
-#define O_CREAT      0100
-#define O_EXCL       0200
-#define O_NOCTTY     0400
-#define O_TRUNC     01000
-#define O_APPEND    02000
-#define O_NONBLOCK  04000
-#define O_NDELAY   O_NONBLOCK
-#define O_SYNC     010000
-#define O_FSYNC    O_SYNC
-#define O_ASYNC    020000
+#define O_RDONLY   0x01
+#define O_WRONLY   0x02
+#define O_RDWR     0x03
+#define O_CREAT    0x04
+#define O_TRUNC    0x08
+#define O_APPEND   0x10
+#define O_EXCL     0x20
+#define O_NONBLOCK 0x40
 
 #define F_DUPFD 0
 #define F_GETFD 1
@@ -45,21 +39,8 @@
 
 #define FD_CLOEXEC 1
 
-#define F_ULOCK 0  /* Unlock a previously locked region.  */
-#define F_LOCK  1  /* Lock a region for exclusive use.  */
-#define F_TLOCK 2  /* Test and lock a region for exclusive use.  */
-#define F_TEST  3  /* Test a region for other processes locks.  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int open( const char* filename, int flags, ... ) __nonnull((1));
 int creat( const char* pathname, mode_t mode ) __nonnull((1));
 int fcntl( int fd, int cmd, ... );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _FCNTL_H_ */

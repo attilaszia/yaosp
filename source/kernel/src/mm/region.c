@@ -1,6 +1,6 @@
 /* Memory region handling
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -36,8 +36,7 @@ hashtable_t region_table;
 
 static int region_id_counter = 0;
 
-memory_region_t* memory_region_allocate( memory_context_t* context, const char* name,
-                                         ptr_t address, uint64_t size, uint32_t flags ) {
+memory_region_t* memory_region_allocate( memory_context_t* context, const char* name, ptr_t address, uint64_t size, uint32_t flags ) {
     size_t name_length;
     memory_region_t* region;
 
@@ -59,7 +58,7 @@ memory_region_t* memory_region_allocate( memory_context_t* context, const char* 
     region->flags = flags;
     region->context = context;
 
-    strcpy( region->name, name );
+    memcpy( region->name, name, name_length + 1 );
 
     return region;
 }
@@ -114,25 +113,6 @@ memory_region_t* memory_region_get( region_id id ) {
     return region;
 }
 
-int do_memory_region_put( memory_region_t* region ) {
-    memory_context_t* context;
-
-    if ( --region->ref_count > 0 ) {
-        return 0;
-    }
-
-    context = region->context;
-
-    if ( context != NULL ) {
-        memory_context_remove_region( context, region );
-    }
-
-    arch_memory_region_unmap_pages( region, region->address, region->size );
-    memory_region_destroy( region );
-
-    return 0;
-}
-
 static int do_memory_region_put_times( memory_region_t* region, int times ) {
     int do_delete = 0;
 
@@ -158,9 +138,9 @@ static int do_memory_region_put_times( memory_region_t* region, int times ) {
 
         mutex_lock( context->mutex, LOCK_IGNORE_SIGNAL );
         memory_context_remove_region( context, region );
-        arch_memory_region_unmap_pages( region, region->address, region->size );
         mutex_unlock( context->mutex );
 
+        arch_memory_region_unmap_pages( region, region->address, region->size );
         memory_region_destroy( region );
     }
 
@@ -495,8 +475,11 @@ int sys_memory_region_clone_pages( region_id id, void** address ) {
 
 void memory_region_dump( memory_region_t* region, int index ) {
     kprintf(
-        INFO, "  %08p-%08p ",
-        region->address, region->address + region->size - 1
+        INFO,
+        "  id: %2d region: %08p-%08p flags: ",
+        region->id,
+        region->address,
+        region->address + region->size - 1
     );
 
     if ( region->flags & REGION_READ ) { kprintf( INFO, "r" ); } else { kprintf( INFO, "-" ); }

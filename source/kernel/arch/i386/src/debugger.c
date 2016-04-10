@@ -52,26 +52,7 @@ static uint8_t dbg_keymap[ 128 ] = {
 
 #endif /* ENABLE_DEBUGGER */
 
-static int info_trace_printer( ptr_t ip, ptr_t symbol_address, const char* symbol_name, void* data ) {
-    kprintf( INFO, "    0x%08x", ip );
-
-    if ((symbol_address != 0) &&
-        (symbol_name != NULL)) {
-        kprintf( INFO, " (%s+0x%x)", symbol_name, ip - symbol_address );
-    }
-
-    kprintf( INFO, "\n" );
-
-    return 0;
-}
-
 int debug_print_stack_trace( void ) {
-    kprintf( INFO, "Stack trace:\n" );
-    debug_print_stack_trace_cb( info_trace_printer, NULL );
-    return 0;
-}
-
-int debug_print_stack_trace_cb( trace_callback_t* callback, void* data ) {
     int error;
     thread_t* thread;
     symbol_info_t symbol_info;
@@ -80,25 +61,14 @@ int debug_print_stack_trace_cb( trace_callback_t* callback, void* data ) {
     thread = current_thread();
     stack_frame = ( i386_stack_frame_t* )get_ebp();
 
+    kprintf( INFO, "Stack trace:\n" );
+
     while ( stack_frame != NULL ) {
         register_t eip;
 
-        /* Validate the stack frame pointer if it is possible. */
-
-        if ( thread != NULL ) {
-            ptr_t physical;
-
-            error = memory_context_translate_address(
-                thread->process->memory_context,
-                ( ptr_t )&stack_frame->eip, &physical
-            );
-
-            if ( error != 0 ) {
-                return 0;
-            }
-        }
-
         eip = stack_frame->eip;
+
+        kprintf( INFO, "  0x%08x", eip );
 
         if ( ( eip >= 0x100000 ) &&
              ( eip < ( ptr_t )&__kernel_end ) ) {
@@ -112,10 +82,10 @@ int debug_print_stack_trace_cb( trace_callback_t* callback, void* data ) {
         }
 
         if ( error >= 0 ) {
-            callback( eip, symbol_info.address, symbol_info.name, data );
-        } else {
-            callback( eip, 0, NULL, data );
+            kprintf( INFO, " (%s+0x%x)", symbol_info.name, eip - symbol_info.address );
         }
+
+        kprintf( INFO, "\n" );
 
         stack_frame = ( i386_stack_frame_t* )stack_frame->ebp;
     }

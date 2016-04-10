@@ -2,8 +2,7 @@
 
 This file is part of the yaosp build system
 
-Copyright (c) 2009, 2010 Zoltan Kovacs
-Copyright (c) 2009 Kornel Csernai
+Copyright (c) 2009 Zoltan Kovacs, Kornel Csernai
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License
@@ -21,16 +20,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -->
 
 <build default="all">
-    <pinclude file="${toplevel}/config/paths.xml"/>
-    <pinclude file="${toplevel}/config/targets.xml" targets="all"/>
-
     <array name="files_i386">
         <item>arch/i386/syscall.S</item>
         <item>arch/i386/getpagesize.c</item>
         <item>arch/i386/setjmp.S</item>
         <item>arch/i386/longjmp.S</item>
         <item>arch/i386/memcpy.S</item>
-        <item>arch/i386/atomic.S</item>
         <item>arch/i386/math/e_exp.S</item>
         <item>arch/i386/math/e_log.S</item>
         <item>arch/i386/math/s_sin.S</item>
@@ -46,12 +41,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>arch/i386/math/s_finite.S</item>
         <item>arch/i386/math/s_scalbn.S</item>
         <item>arch/i386/math/e_log10.S</item>
-        <item>arch/i386/math/s_tan.S</item>
-        <item>arch/i386/math/s_atan.S</item>
-        <item>arch/i386/math/e_sqrt.S</item>
-        <item>arch/i386/math/e_acos.S</item>
-        <item>arch/i386/math/e_asin.S</item>
-        <item>arch/i386/math/e_expl.c</item>
     </array>
 
     <array name="files">
@@ -60,6 +49,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/readdir.c</item>
         <item>src/closedir.c</item>
         <item>src/rewinddir.c</item>
+        <item>src/udivmoddi4.c</item>
         <item>src/stdlib/malloc.c</item>
         <item>src/stdlib/abort.c</item>
         <item>src/stdlib/getenv.c</item>
@@ -83,7 +73,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/stdlib/rand.c</item>
         <item>src/stdlib/srand.c</item>
         <item>src/stdlib/mktemp.c</item>
-        <item>src/stdlib/system.c</item>
         <item>src/string/memset.c</item>
         <item>src/string/memcpy.c</item>
         <item>src/string/memcmp.c</item>
@@ -97,7 +86,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/string/strncmp.c</item>
         <item>src/string/strcasecmp.c</item>
         <item>src/string/strncasecmp.c</item>
-        <item>src/string/strcoll.c</item>
         <item>src/string/strdup.c</item>
         <item>src/string/strndup.c</item>
         <item>src/string/strcpy.c</item>
@@ -112,9 +100,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/string/strcspn.c</item>
         <item>src/string/strtok_r.c</item>
         <item>src/string/strtok.c</item>
-        <item>src/string/strxfrm.c</item>
-        <item>src/string/strtof.c</item>
-        <item>src/string/ffs.c</item>
         <item>src/unistd/sync.c</item>
         <item>src/unistd/sbrk.c</item>
         <item>src/unistd/fork.c</item>
@@ -167,7 +152,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/unistd/setpgid.c</item>
         <item>src/unistd/getpgrp.c</item>
         <item>src/unistd/setpgrp.c</item>
-        <item>src/unistd/usleep.c</item>
         <item>src/fcntl/open.c</item>
         <item>src/fcntl/creat.c</item>
         <item>src/fcntl/fcntl.c</item>
@@ -188,8 +172,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/stdio/fdopen.c</item>
         <item>src/stdio/freopen.c</item>
         <item>src/stdio/fclose.c</item>
-        <item>src/stdio/popen.c</item>
-        <item>src/stdio/pclose.c</item>
         <item>src/stdio/putc.c</item>
         <item>src/stdio/setvbuf.c</item>
         <item>src/stdio/fseek.c</item>
@@ -203,13 +185,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/stdio/rename.c</item>
         <item>src/stdio/remove.c</item>
         <item>src/stdio/fpurge.c</item>
-        <item>src/stdio/fgetpos.c</item>
-        <item>src/stdio/fsetpos.c</item>
-        <item>src/stdio/getchar.c</item>
-        <item>src/stdio/gets.c</item>
-        <item>src/stdio/setbuf.c</item>
-        <item>src/stdio/tmpfile.c</item>
-        <item>src/stdio/tmpnam.c</item>
         <item>src/time/tzset.c</item>
         <item>src/time/time_int.c</item>
         <item>src/time/strftime.c</item>
@@ -233,7 +208,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/sys/fstat.c</item>
         <item>src/sys/stime.c</item>
         <item>src/sys/mkdir.c</item>
-        <item>src/sys/mknod.c</item>
         <item>src/sys/ioctl.c</item>
         <item>src/sys/select.c</item>
         <item>src/sys/mount.c</item>
@@ -249,20 +223,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/sys/waitpid.c</item>
         <item>src/sys/socket.c</item>
         <item>src/sys/connect.c</item>
-        <item>src/sys/bind.c</item>
-        <item>src/sys/listen.c</item>
-        <item>src/sys/accept.c</item>
-        <item>src/sys/recv.c</item>
-        <item>src/sys/recvfrom.c</item>
-        <item>src/sys/recvmsg.c</item>
-        <item>src/sys/send.c</item>
-        <item>src/sys/sendto.c</item>
-        <item>src/sys/sendmsg.c</item>
-        <item>src/sys/shutdown.c</item>
-        <item>src/sys/getsockopt.c</item>
-        <item>src/sys/setsockopt.c</item>
-        <item>src/sys/getsockname.c</item>
-        <item>src/sys/getpeername.c</item>
         <item>src/sys/getrusage.c</item>
         <item>src/ctype/isalpha.c</item>
         <item>src/ctype/isupper.c</item>
@@ -280,7 +240,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/ctype/isgraph.c</item>
         <item>src/ctype/ispunct.c</item>
         <item>src/ctype/isascii.c</item>
-        <item>src/ctype/ctype.c</item>
         <item>src/signal/signal.c</item>
         <item>src/signal/sigaction.c</item>
         <item>src/signal/kill.c</item>
@@ -304,15 +263,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/termios/tcsetpgrp.c</item>
         <item>src/math/s_ldexp.c</item>
         <item>src/math/s_modf.c</item>
-        <item>src/math/s_lround.c</item>
-        <item>src/math/math_dummy.c</item>
         <item>src/yaosp/debug.c</item>
         <item>src/yaosp/sysinfo.c</item>
         <item>src/yaosp/region.c</item>
         <item>src/yaosp/module.c</item>
         <item>src/yaosp/yaosp.c</item>
         <item>src/yaosp/ipc.c</item>
-        <item>src/yaosp/config.c</item>
         <item>src/trio/trio.c</item>
         <item>src/trio/trionan.c</item>
         <item>src/trio/triostr.c</item>
@@ -322,34 +278,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/pwd/endpwent.c</item>
         <item>src/pwd/setpwent.c</item>
         <item>src/network/inet_aton.c</item>
-        <item>src/network/inet_pton.c</item>
         <item>src/network/inet_ntoa.c</item>
-        <item>src/network/inet_ntop.c</item>
-        <item>src/network/inet_addr.c</item>
-        <item>src/network/gethostbyname.c</item>
-        <item>src/network/gethostbyaddr.c</item>
-        <item>src/network/getservbyport.c</item>
-        <item>src/network/getservbyname.c</item>
-        <item>src/network/getprotobyname.c</item>
-        <item>src/network/dns.c</item>
         <item>src/pthread/mutex.c</item>
         <item>src/pthread/mutexattr.c</item>
         <item>src/pthread/thread.c</item>
         <item>src/pthread/attr.c</item>
         <item>src/pthread/condition.c</item>
-        <item>src/pthread/once.c</item>
-        <item>src/pthread/key.c</item>
         <item>src/regex/collate.c</item>
         <item>src/regex/collcmp.c</item>
         <item>src/regex/regcomp.c</item>
         <item>src/regex/regerror.c</item>
         <item>src/regex/regexec.c</item>
         <item>src/regex/regfree.c</item>
-        <item>src/dl/dlopen.c</item>
-        <item>src/dl/dlsym.c</item>
-        <item>src/dl/dlclose.c</item>
-        <item>src/dl/dlerror.c</item>
-        <item>src/pty/openpty.c</item>
     </array>
 
     <target name="clean">
@@ -367,25 +307,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <target name="compile">
         <call target="prepare"/>
 
-        <echo/>
-        <echo>Generating system call table for C library</echo>
-        <echo/>
-
-        <python>
-            <args>${syscall_gen_py} ${kernelsrcdir}/syscall.c ${includedir}/yaosp/syscall_table.h</args>
-        </python>
-
+        <echo></echo>
         <echo>Compiling C library</echo>
-        <echo/>
+        <echo></echo>
 
         <for var="i" array="${files_i386}">
             <echo>[GCC    ] source/lib/c/${i}</echo>
             <gcc>
                 <input>${i}</input>
                 <output>objs/arch/filename(${i}).o</output>
+                <include>../../include</include>
+                <include>../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
                 <flag>-c</flag>
                 <flag>-O2</flag>
+                <flag>-m32</flag>
                 <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
             </gcc>
         </for>
 
@@ -394,32 +333,41 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <gcc>
                 <input>${i}</input>
                 <output>objs/filename(${i}).o</output>
+                <include>../../include</include>
+                <include>../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
                 <flag>-c</flag>
                 <flag>-O2</flag>
+                <flag>-m32</flag>
                 <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
                 <define key="HAVE_MMAP">0</define>
                 <define key="USE_LOCKS">1</define>
                 <define key="YAOSP"/>
                 <define key="TRIO_FEATURE_LOCALE">0</define>
-                <define key="TRIO_PLATFORM_UNIX"/>
             </gcc>
         </for>
 
-        <echo/>
+        <echo></echo>
         <echo>Linking C library</echo>
-        <echo/>
-        <echo>[LD     ] source/lib/c/objs/libc.so</echo>
+        <echo></echo>
+        <echo>[AR     ] source/lib/c/objs/libc.a</echo>
 
-        <ld>
-            <flag>-shared</flag>
-            <input>objs/*.o</input>
-            <input>objs/arch/*.o</input>
-            <output>objs/libc.so</output>
-        </ld>
+        <exec executable="ar">
+            <arg>-rc</arg>
+            <arg>objs/libc.a</arg>
+            <arg>objs/*.o</arg>
+            <arg>objs/arch/*.o</arg>
+        </exec>
     </target>
 
     <target name="install">
-        <copy from="objs/libc.so" to="${sharedlibdir}"/>
-        <copy from="objs/libc.so" to="${imagedir}/system/lib"/>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
     </target>
 </build>

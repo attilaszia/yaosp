@@ -28,7 +28,7 @@ typedef struct binary_loader {
     int ( *get_fd )( void* private );
 } binary_loader_t;
 
-binary_loader_t* get_app_binary_loader( char* name, int fd );
+binary_loader_t* get_app_binary_loader( int fd );
 void put_app_binary_loader( binary_loader_t* loader );
 
 /* Application loader calls */
@@ -43,7 +43,6 @@ struct thread;
 typedef bool check_application_t( binary_loader_t* loader );
 typedef int load_application_t( binary_loader_t* loader );
 typedef int execute_application_t( void );
-typedef int get_symbol_t( const char* name, ptr_t* address );
 typedef int get_symbol_info_t( struct thread* thread, ptr_t address, symbol_info_t* info );
 typedef int destroy_application_t( void* data );
 
@@ -53,7 +52,6 @@ typedef struct application_loader {
     check_application_t* check;
     load_application_t* load;
     execute_application_t* execute;
-    get_symbol_t* get_symbol;
     get_symbol_info_t* get_symbol_info;
     destroy_application_t* destroy;
 

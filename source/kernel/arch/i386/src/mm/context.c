@@ -99,6 +99,7 @@ int arch_memory_context_clone( memory_context_t* old_context, memory_context_t* 
     return 0;
 }
 
+#ifdef ENABLE_DEBUGGER
 int arch_memory_context_translate_address( memory_context_t* context, ptr_t linear, ptr_t* physical ) {
     uint32_t offset;
     uint32_t* pgd_entry;
@@ -126,3 +127,4 @@ int arch_memory_context_translate_address( memory_context_t* context, ptr_t line
 
     return 0;
 }
+#endif /* ENABLE_DEBUGGER */

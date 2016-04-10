@@ -47,9 +47,9 @@ int main( int argc, char** argv ) {
 
     printf( "Uptime:" );
 
-    if ( day > 0 ) {
-        printf( " %u day", day );
-        if ( day > 1 ) {
+    if ( uptime > 0 ) {
+        printf( " %u day", ( uint32_t )uptime );
+        if ( uptime > 1 ) {
             printf("s");
         }
     }

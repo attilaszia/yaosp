@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -35,10 +35,6 @@
 
 #define _D_EXACT_NAMLEN(d) (strlen((d)->d_name))
 #define _D_ALLOC_NAMLEN(d) (NAME_MAX+1)
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 enum {
     _PC_LINK_MAX,
@@ -90,8 +86,6 @@ struct dirent {
     char d_name[ NAME_MAX + 1 ];
 };
 
-extern char** environ;
-
 void _exit( int status );
 
 pid_t fork( void );
@@ -141,7 +135,6 @@ int getdtablesize( void );
 
 int gethostname( char* name, size_t len );
 
-int usleep( useconds_t usec );
 unsigned int sleep( unsigned int seconds );
 unsigned int alarm( unsigned int seconds );
 
@@ -165,9 +158,5 @@ int setpgid( pid_t pid, pid_t pgid );
 
 pid_t getpgrp( void );
 int setpgrp( void );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _UNISTD_H_ */

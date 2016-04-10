@@ -19,7 +19,5 @@
 #include <unistd.h>
 
 int getdtablesize( void ) {
-    /* TODO: stub */
-
     return 1024;
 }

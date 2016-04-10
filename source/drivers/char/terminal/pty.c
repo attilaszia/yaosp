@@ -49,11 +49,7 @@ static pty_node_t* pty_create_node( const char* name, int name_length, size_t bu
     char tmp[ 32 ];
     pty_node_t* node;
 
-    if ( name_length == -1 ) {
-        name_length = strlen( name );
-    }
-
-    node = ( pty_node_t* )kmalloc( sizeof( pty_node_t ) + name_length + 1 );
+    node = ( pty_node_t* )kmalloc( sizeof( pty_node_t ) );
 
     if ( node == NULL ) {
         goto error1;
@@ -61,14 +57,20 @@ static pty_node_t* pty_create_node( const char* name, int name_length, size_t bu
 
     memset( node, 0, sizeof( pty_node_t ) );
 
-    node->name = ( char* )( node + 1 );
-    strncpy( node->name, name, name_length );
-    node->name[ name_length ] = 0;
+    if ( name_length == -1 ) {
+        node->name = strdup( name );
+    } else {
+        node->name = strndup( name, name_length );
+    }
+
+    if ( node->name == NULL ) {
+        goto error2;
+    }
 
     node->buffer = ( uint8_t* )kmalloc( buffer_size );
 
     if ( node->buffer == NULL ) {
-        goto error2;
+        goto error3;
     }
 
     snprintf( tmp, sizeof( tmp ), "%s lock", name );
@@ -76,7 +78,7 @@ static pty_node_t* pty_create_node( const char* name, int name_length, size_t bu
     node->lock = mutex_create( tmp, MUTEX_NONE );
 
     if ( node->lock < 0 ) {
-        goto error3;
+        goto error4;
     }
 
     snprintf( tmp, sizeof( tmp ), "%s read queue", name );
@@ -84,7 +86,7 @@ static pty_node_t* pty_create_node( const char* name, int name_length, size_t bu
     node->read_queue = condition_create( tmp );
 
     if ( node->read_queue < 0 ) {
-        goto error4;
+        goto error5;
     }
 
     snprintf( tmp,  sizeof( tmp ), "%s write queue", name );
@@ -92,7 +94,7 @@ static pty_node_t* pty_create_node( const char* name, int name_length, size_t bu
     node->write_queue = condition_create( tmp );
 
     if ( node->write_queue < 0 ) {
-        goto error5;
+        goto error6;
     }
 
     node->mode = mode;
@@ -107,14 +109,17 @@ static pty_node_t* pty_create_node( const char* name, int name_length, size_t bu
 
     return node;
 
-error5:
+error6:
     condition_destroy( node->read_queue );
 
-error4:
+error5:
     mutex_destroy( node->lock );
 
-error3:
+error4:
     kfree( node->buffer );
+
+error3:
+    kfree( node->name );
 
 error2:
     kfree( node );
@@ -264,7 +269,7 @@ static int pty_read( void* fs_cookie, void* _node, void* file_cookie, void* buff
     select_request_t* request;
 
     if ( _node == ( void* )&root_inode ) {
-        return -EISDIR;
+        return -EINVAL;
     }
 
     read = 0;
@@ -491,13 +496,13 @@ static int pty_do_write_slave( pty_node_t* slave, const void* buffer, size_t siz
             goto write_and_echo;
         }
 
- write_and_echo:
+write_and_echo:
         pty_do_write( slave, &c, 1 );
 
- echo:
+echo:
         pty_echo_one_character( slave->partner, slave, c );
 
- no_echo:
+no_echo:
         ;
     }
 
@@ -554,8 +559,8 @@ static int pty_ioctl( void* fs_cookie, void* _node, void* file_cookie, int comma
             break;
 
         default :
-            kprintf( WARNING, "pty: unknown ioctl: %x\n", command );
-            error = -EINVAL;
+            kprintf( WARNING, "Terminal: Unknown pty ioctl: %x\n", command );
+            error = -ENOSYS;
             break;
     }
 
@@ -606,7 +611,7 @@ static int pty_read_directory( void* fs_cookie, void* node, void* file_cookie, s
     pty_read_dir_data_t data;
 
     if ( node != ( void* )&root_inode ) {
-        return -ENOTDIR;
+        return -EINVAL;
     }
 
     cookie = ( pty_dir_cookie_t* )file_cookie;
@@ -634,13 +639,23 @@ static int pty_rewind_directory( void* fs_cookie, void* node, void* file_cookie 
     pty_dir_cookie_t* cookie;
 
     cookie = ( pty_dir_cookie_t* )file_cookie;
+
     cookie->current = 0;
 
     return 0;
 }
 
-static int pty_create( void* fs_cookie, void* node, const char* name, int name_length,
-                       int mode, int permissions, ino_t* inode_number, void** file_cookie ) {
+static int pty_create(
+    void* fs_cookie,
+    void* node,
+    const char* name,
+    int name_length,
+    int mode,
+    int permissions,
+    ino_t* inode_number,
+    void** file_cookie
+) {
+    int error;
     ino_t dummy;
     char* tty_name;
     pty_node_t* master;
@@ -650,14 +665,15 @@ static int pty_create( void* fs_cookie, void* node, const char* name, int name_l
 
     /* Make sure this is a valid node */
 
-    if ( ( name_length < 4 ) ||
-         ( strncmp( name, "pty", 3 ) != 0 ) ) {
+    if ( ( name_length < 4 ) || ( strncmp( name, "pty", 3 ) != 0 ) ) {
         return -EINVAL;
     }
 
     /* Check if the node already exist */
 
-    if ( pty_lookup_inode( fs_cookie, node, name, name_length, &dummy ) == 0 ) {
+    error = pty_lookup_inode( fs_cookie, node, name, name_length, &dummy );
+
+    if ( error == 0 ) {
         return -EEXIST;
     }
 
@@ -697,6 +713,7 @@ static int pty_create( void* fs_cookie, void* node, const char* name, int name_l
     /* Initialize terminal info */
 
     term_info = ( struct termios* )kmalloc( sizeof( struct termios ) );
+
     memset( term_info, 0, sizeof( struct termios ) );
 
     term_info->c_iflag = BRKINT | IGNPAR | ISTRIP | ICRNL | IXON;
@@ -724,8 +741,8 @@ static int pty_create( void* fs_cookie, void* node, const char* name, int name_l
 
     win_size = ( struct winsize* )kmalloc( sizeof( struct winsize ) );
 
+    win_size->ws_row = 24;
     win_size->ws_col = 80;
-    win_size->ws_row = 25;
 
     master->window_size = win_size;
     slave->window_size = win_size;
@@ -922,7 +939,6 @@ int init_pty_filesystem( void ) {
     pty_lock = mutex_create( "PTY mutex", MUTEX_NONE );
 
     if ( pty_lock < 0 ) {
-        error = pty_lock;
         goto error2;
     }
 
@@ -934,12 +950,12 @@ int init_pty_filesystem( void ) {
 
     return 0;
 
- error3:
+error3:
     mutex_destroy( pty_lock );
 
- error2:
+error2:
     destroy_hashtable( &pty_node_table );
 
- error1:
+error1:
     return error;
 }

@@ -17,12 +17,7 @@
  */
 
 #include <signal.h>
-#include <yaosp/debug.h>
 
 int killpg( int pgrp, int signal ) {
-    /* TODO */
-
-    dbprintf( "TODO: killpg() not yet implemented!\n" );
-
     return -1;
 }

@@ -1,6 +1,6 @@
 /* ioctl constant values
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -24,19 +24,6 @@
 #define SIOCGIFADDR    0x89300005
 #define SIOCGIFNETMASK 0x89300006
 #define SIOCGIFHWADDR  0x89300007
-#define SIOCGIFFLAGS   0x89300013
-#define SIOCGIFBRDADDR 0x89300019
-#define SIOCGIFMTU     0x89300021
-#define SIOCGIFSTAT    0x89300022
-
-#define SIOCSIFADDR    0x89400005
-#define SIOCSIFNETMASK 0x89400006
-#define SIOCSIFFLAGS   0x89400013
-#define SIOCSIFBRDADDR 0x89400019
-
-#define SIOCADDRT      0x89500001
-#define SIOCDELRT      0x89500002
-#define SIOCGETRTAB    0x89500003
 
 /* PS/2 driver ioctls */
 
@@ -71,8 +58,6 @@
 
 /* Input device ioctls */
 
-#define IOCTL_INPUT_CREATE_DEVICE      0x00000600
-#define IOCTL_INPUT_KBD_GET_KEY_CODE   0x00000601
-#define IOCTL_INPUT_MOUSE_GET_MOVEMENT 0x00000602
+#define IOCTL_INPUT_CREATE_DEVICE 0x00000600
 
 #endif /* _IOCTL_H_ */

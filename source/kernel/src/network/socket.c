@@ -1,6 +1,6 @@
 /* Socket handling
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -16,10 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <config.h>
-
-#ifdef ENABLE_NETWORK
-
 #include <errno.h>
 #include <smp.h>
 #include <console.h>
@@ -28,9 +24,9 @@
 #include <lock/mutex.h>
 #include <vfs/vfs.h>
 #include <network/socket.h>
+#include <network/interface.h>
 #include <network/device.h>
 #include <network/tcp.h>
-#include <network/udp.h>
 
 static lock_id socket_mutex;
 static ino_t socket_inode_counter = 0;
@@ -38,21 +34,13 @@ static hashtable_t socket_inode_table;
 
 static mount_point_t* socket_mount_point;
 
-int socket_get_error( socket_t* socket ) {
-    return socket->so_error;
-}
-
-int socket_set_error( socket_t* socket, int error ) {
-    socket->so_error = error;
-
-    return 0;
-}
-
 static int socket_read_inode( void* fs_cookie, ino_t inode_number, void** node ) {
     socket_t* socket;
 
     mutex_lock( socket_mutex, LOCK_IGNORE_SIGNAL );
+
     socket = ( socket_t* )hashtable_get( &socket_inode_table, ( const void* )&inode_number );
+
     mutex_unlock( socket_mutex );
 
     *node = ( void* )socket;
@@ -70,7 +58,9 @@ static int socket_write_inode( void* fs_cookie, void* node ) {
     socket = ( socket_t* )node;
 
     mutex_lock( socket_mutex, LOCK_IGNORE_SIGNAL );
+
     hashtable_remove( &socket_inode_table, ( const void* )&socket->inode_number );
+
     mutex_unlock( socket_mutex );
 
     switch ( socket->type ) {
@@ -85,77 +75,53 @@ static int socket_write_inode( void* fs_cookie, void* node ) {
 }
 
 static int socket_close( void* fs_cookie, void* node, void* file_cookie ) {
-    socket_t* socket;
+    return -1;
+}
 
-    socket = ( socket_t* )node;
-
-    if ( socket->operations->close != NULL ) {
-        socket->operations->close( socket );
-    }
-
-    return 0;
+static int socket_free_cookie( void* fs_cookie, void* node, void* file_cookie ) {
+    return -1;
 }
 
 static int socket_read( void* fs_cookie, void* node, void* file_cookie, void* buffer, off_t pos, size_t size ) {
     int error;
     socket_t* socket;
-    struct msghdr msg;
-    struct iovec iov;
 
     socket = ( socket_t* )node;
 
-    if ( socket->operations->recvmsg == NULL ) {
+    if ( socket->operations->read != NULL ) {
+        error = socket->operations->read(
+            socket,
+            buffer,
+            size
+        );
+    } else {
         error = -ENOSYS;
-        goto out;
     }
 
-    iov.iov_base = buffer;
-    iov.iov_len = size;
-
-    msg.msg_iov = &iov;
-    msg.msg_iovlen = 1;
-
-    error = socket->operations->recvmsg( socket, &msg, 0 );
-
- out:
     return error;
 }
 
 static int socket_write( void* fs_cookie, void* node, void* file_cookie, const void* buffer, off_t pos, size_t size ) {
     int error;
     socket_t* socket;
-    struct msghdr msg;
-    struct iovec iov;
 
     socket = ( socket_t* )node;
 
-    if ( socket->operations->sendmsg == NULL ) {
+    if ( socket->operations->write != NULL ) {
+        error = socket->operations->write(
+            socket,
+            buffer,
+            size
+        );
+    } else {
         error = -ENOSYS;
-        goto out;
     }
 
-    iov.iov_base = ( void* )buffer;
-    iov.iov_len = size;
-
-    msg.msg_iov = &iov;
-    msg.msg_iovlen = 1;
-
-    error = socket->operations->sendmsg( socket, &msg, 0 );
-
- out:
     return error;
 }
 
 static int socket_ioctl( void* fs_cookie, void* node, void* file_cookie, int command, void* buffer, bool from_kernel ) {
-    int error;
-
-    switch ( command ) {
-        default :
-            error = net_device_ioctl( command, buffer, from_kernel );
-            break;
-    }
-
-    return error;
+    return network_interface_ioctl( command, buffer, from_kernel );
 }
 
 static int socket_read_stat( void* fs_cookie, void* node, struct stat* stat ) {
@@ -232,7 +198,7 @@ filesystem_calls_t socket_calls = {
     .lookup_inode = NULL,
     .open = NULL,
     .close = socket_close,
-    .free_cookie = NULL,
+    .free_cookie = socket_free_cookie,
     .read = socket_read,
     .write = socket_write,
     .ioctl = socket_ioctl,
@@ -251,58 +217,6 @@ filesystem_calls_t socket_calls = {
     .add_select_request = socket_add_select_request,
     .remove_select_request = socket_remove_select_request
 };
-
-static int socket_get( bool kernel, int sockfd, file_t** _file, socket_t** _socket ) {
-    int error;
-    file_t* file;
-    socket_t* socket;
-    io_context_t* io_context;
-
-    if ( kernel ) {
-        io_context = &kernel_io_context;
-    } else {
-        io_context = current_process()->io_context;
-    }
-
-    file = io_context_get_file( io_context, sockfd );
-
-    if ( file == NULL ) {
-        error = -EBADF;
-        goto error1;
-    }
-
-    socket = ( socket_t* )hashtable_get( &socket_inode_table, ( const void* )&file->inode->inode_number );
-
-    if ( socket == NULL ) {
-        error = -EINVAL;
-        goto error2;
-    }
-
-    *_file = file;
-    *_socket = socket;
-
-    return 0;
-
- error2:
-    io_context_put_file( io_context, file );
-
- error1:
-    return error;
-}
-
-static int socket_put( bool kernel, file_t* file, socket_t* socket ) {
-    io_context_t* io_context;
-
-    if ( kernel ) {
-        io_context = &kernel_io_context;
-    } else {
-        io_context = current_process()->io_context;
-    }
-
-    io_context_put_file( io_context, file );
-
-    return 0;
-}
 
 static int do_socket( bool kernel, int family, int type, int protocol ) {
     int error;
@@ -329,10 +243,6 @@ static int do_socket( bool kernel, int family, int type, int protocol ) {
     switch ( type ) {
         case SOCK_STREAM :
             error = tcp_create_socket( socket );
-            break;
-
-        case SOCK_DGRAM :
-            error = udp_create_socket( socket );
             break;
 
         default :
@@ -381,18 +291,18 @@ static int do_socket( bool kernel, int family, int type, int protocol ) {
 
     return error;
 
- error4:
+error4:
     mutex_lock( socket_mutex, LOCK_IGNORE_SIGNAL );
     hashtable_remove( &socket_inode_table, ( const void* )&socket->inode_number );
     mutex_unlock( socket_mutex );
 
- error3:
+error3:
     delete_file( file );
 
- error2:
+error2:
     kfree( socket );
 
- error1:
+error1:
     return -ENOMEM;
 }
 
@@ -404,15 +314,30 @@ int do_connect( bool kernel, int fd, struct sockaddr* address, socklen_t addrlen
     int error;
     file_t* file;
     socket_t* socket;
+    io_context_t* io_context;
     struct sockaddr_in* in_address;
 
-    error = socket_get( kernel, fd, &file, &socket );
-
-    if ( error < 0 ) {
-        goto error1;
+    if ( kernel ) {
+        io_context = &kernel_io_context;
+    } else {
+        io_context = current_process()->io_context;
     }
 
     in_address = ( struct sockaddr_in* )address;
+
+    file = io_context_get_file( io_context, fd );
+
+    if ( file == NULL ) {
+        error = -EBADF;
+        goto error1;
+    }
+
+    socket = ( socket_t* )hashtable_get( &socket_inode_table, ( const void* )&file->inode->inode_number );
+
+    if ( socket == NULL ) {
+        error = -EINVAL;
+        goto error2;
+    }
 
     memcpy( socket->dest_address, &in_address->sin_addr.s_addr, IPV4_ADDR_LEN );
     socket->dest_port = ntohw( in_address->sin_port );
@@ -427,226 +352,15 @@ int do_connect( bool kernel, int fd, struct sockaddr* address, socklen_t addrlen
         );
     }
 
-    socket_put( kernel, file, socket );
+error2:
+    io_context_put_file( io_context, file );
 
- error1:
+error1:
     return error;
 }
 
 int sys_connect( int fd, struct sockaddr* address, socklen_t addrlen ) {
     return do_connect( false, fd, address, addrlen );
-}
-
-static int do_bind( bool kernel, int sockfd, struct sockaddr* addr, socklen_t addrlen ) {
-    int error;
-    file_t* file;
-    socket_t* socket;
-
-    error = socket_get( kernel, sockfd, &file, &socket );
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    if ( socket->operations->bind == NULL ) {
-        error = -ENOSYS;
-    } else {
-        error = socket->operations->bind(
-            socket,
-            addr,
-            addrlen
-        );
-    }
-
-    socket_put( kernel, file, socket );
-
- error1:
-    return error;
-}
-
-int sys_bind( int sockfd, struct sockaddr* addr, socklen_t addrlen ) {
-    return do_bind( false, sockfd, addr, addrlen );
-}
-
-int sys_listen( int sockfd, int backlog ) {
-    DEBUG_LOG( "%s()\n", __FUNCTION__ );
-    return -ENOSYS;
-}
-
-int sys_accept( int sockfd, struct sockaddr* addr, socklen_t* addrlen ) {
-    DEBUG_LOG( "%s()\n", __FUNCTION__ );
-    return -ENOSYS;
-}
-
-static int do_getsockopt( bool kernel, int sockfd, int level, int optname, void* optval, socklen_t* optlen ) {
-    int error;
-    int* intval;
-    file_t* file;
-    socket_t* socket;
-
-    error = socket_get( kernel, sockfd, &file, &socket );
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    intval = ( int* )optval;
-
-    switch ( level ) {
-        case SOL_SOCKET :
-            switch ( optname ) {
-                case SO_ERROR :
-                    kprintf( INFO, "%s(): SO_ERROR: %d\n", __FUNCTION__, socket->so_error );
-                    *intval = socket->so_error;
-                    error = 0;
-                    break;
-
-                default :
-                    if ( socket->operations->getsockopt != NULL ) {
-                        error = socket->operations->getsockopt( socket, level, optname, optval, optlen );
-                    } else {
-                        error = -EINVAL;
-                    }
-
-                    break;
-            }
-
-            break;
-
-        default :
-            kprintf( WARNING, "do_getsockopt(): called on level = %d.\n", level );
-            error = -EINVAL;
-            break;
-    }
-
-    socket_put( kernel, file, socket );
-
- error1:
-    return error;
-}
-
-int sys_getsockopt( int s, int level, int optname, void* optval, socklen_t* optlen ) {
-    DEBUG_LOG( "%s() level=%d, optname=%d\n", __FUNCTION__, level, optname );
-    return do_getsockopt( false, s, level, optname, optval, optlen );
-}
-
-static int do_setsockopt( bool kernel, int sockfd, int level, int optname, void* optval, socklen_t optlen ) {
-    int error;
-    file_t* file;
-    socket_t* socket;
-
-    error = socket_get( kernel, sockfd, &file, &socket );
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    switch ( level ) {
-        case SOL_SOCKET :
-            switch ( optname ) {
-                case SO_ERROR :
-                    error = -EINVAL;
-                    break;
-
-                default :
-                    if ( socket->operations->setsockopt != NULL ) {
-                        error = socket->operations->setsockopt( socket, level, optname, optval, optlen );
-                    } else {
-                        error = -EINVAL;
-                    }
-
-                    break;
-            }
-
-            break;
-
-        default :
-            kprintf( WARNING, "do_setsockopt(): called on level = %d.\n", level );
-            error = -EINVAL;
-            break;
-    }
-
-    socket_put( kernel, file, socket );
-
- error1:
-    return error;
-}
-
-int sys_setsockopt( int s, int level, int optname, void* optval, socklen_t optlen ) {
-    DEBUG_LOG( "%s() level=%d, optname=%d\n", __FUNCTION__, level, optname );
-    return do_setsockopt( false, s, level, optname, optval, optlen );
-}
-
-int sys_getsockname( int s, struct sockaddr* name, socklen_t* namelen ) {
-    DEBUG_LOG( "%s()\n", __FUNCTION__ );
-    return -ENOSYS;
-}
-
-int sys_getpeername( int s, struct sockaddr* name, socklen_t* namelen ) {
-    DEBUG_LOG( "%s()\n", __FUNCTION__ );
-    return -ENOSYS;
-}
-
-static int do_recvmsg( bool kernel, int sockfd, struct msghdr* msg, int flags ) {
-    int error;
-    file_t* file;
-    socket_t* socket;
-
-    error = socket_get( kernel, sockfd, &file, &socket );
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    if ( socket->operations->recvmsg == NULL ) {
-        error = -ENOSYS;
-    } else {
-        error = socket->operations->recvmsg(
-            socket,
-            msg,
-            flags
-        );
-    }
-
-    socket_put( kernel, file, socket );
-
- error1:
-    return error;
-}
-
-int sys_recvmsg( int fd, struct msghdr* msg, int flags ) {
-    return do_recvmsg( false, fd, msg, flags );
-}
-
-static int do_sendmsg( bool kernel, int sockfd, struct msghdr* msg, int flags ) {
-    int error;
-    file_t* file;
-    socket_t* socket;
-
-    error = socket_get( kernel, sockfd, &file, &socket );
-
-    if ( error < 0 ) {
-        goto error1;
-    }
-
-    if ( socket->operations->sendmsg == NULL ) {
-        error = -ENOSYS;
-    } else {
-        error = socket->operations->sendmsg(
-            socket,
-            msg,
-            flags
-        );
-    }
-
-    socket_put( kernel, file, socket );
-
- error1:
-    return error;
-}
-
-int sys_sendmsg( int fd, struct msghdr* msg, int flags ) {
-    return do_sendmsg( false, fd, msg, flags );
 }
 
 static void* socket_key( hashitem_t* item ) {
@@ -668,8 +382,10 @@ __init int init_socket( void ) {
     }
 
     error = init_hashtable(
-        &socket_inode_table, 64,
-        socket_key, hash_int64,
+        &socket_inode_table,
+        64,
+        socket_key,
+        hash_int64,
         compare_int64
     );
 
@@ -679,7 +395,10 @@ __init int init_socket( void ) {
 
     socket_mount_point = create_mount_point(
         &socket_calls,
-        64, 16, 32, 0
+        64,
+        16,
+        32,
+        0
     );
 
     if ( socket_mount_point == NULL ) {
@@ -695,63 +414,15 @@ __init int init_socket( void ) {
 
     return 0;
 
- error4:
+error4:
     delete_mount_point( socket_mount_point );
 
- error3:
+error3:
     destroy_hashtable( &socket_inode_table );
 
- error2:
+error2:
     mutex_destroy( socket_mutex );
 
- error1:
+error1:
     return error;
 }
-
-#else
-
-int sys_socket( int family, int type, int protocol ) {
-    return -ENOSYS;
-}
-
-int sys_connect( int fd, struct sockaddr* address, socklen_t addrlen ) {
-    return -ENOSYS;
-}
-
-int sys_bind( int sockfd, struct sockaddr* addr, socklen_t addrlen ) {
-    return -ENOSYS;
-}
-
-int sys_listen( int sockfd, int backlog ) {
-    return -ENOSYS;
-}
-
-int sys_accept( int sockfd, struct sockaddr* addr, socklen_t* addrlen ) {
-    return -ENOSYS:
-}
-
-int sys_getsockopt( int s, int level, int optname, void* optval, socklen_t* optlen ) {
-    return -ENOSYS;
-}
-
-int sys_setsockopt( int s, int level, int optname, void* optval, socklen_t optlen ) {
-    return -ENOSYS;
-}
-
-int sys_getsockname( int s, struct sockaddr* name, socklen_t* namelen ) {
-    return -ENOSYS;
-}
-
-int sys_getpeername( int s, struct sockaddr* name, socklen_t* namelen ) {
-    return -ENOSYS;
-}
-
-int sys_recvmsg( int fd, struct msghdr* msg, int flags ) {
-    return -ENOSYS;
-}
-
-int sys_sendmsg( int fd, struct msghdr* msg, int flags ) {
-    return -ENOSYS;
-}
-
-#endif /* ENABLE_NETWORK */

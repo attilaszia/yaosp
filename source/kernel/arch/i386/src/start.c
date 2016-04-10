@@ -1,6 +1,6 @@
 /* C entry point of the i386 architecture
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 #include <bootmodule.h>
 #include <version.h>
 #include <macros.h>
-#include <symbols.h>
 #include <linker/elf32.h>
 #include <mm/pages.h>
 #include <mm/kmalloc.h>
@@ -38,17 +37,13 @@
 #include <arch/io.h>
 #include <arch/mp.h>
 #include <arch/apic.h>
-#include <arch/acpi.h>
-#include <arch/hpet.h>
 #include <arch/bios.h>
 #include <arch/mm/config.h>
 #include <arch/mm/paging.h>
 
-multiboot_header_t mb_header;
+extern int __kernel_end;
 
-#ifdef ENABLE_KMALLOC_DEBUG
-int init_serial_kmalloc_output( void );
-#endif /* ENABLE_KMALLOC_DEBUG */
+multiboot_header_t mb_header;
 
 __init static int arch_init_page_allocator( multiboot_header_t* header ) {
     int error;
@@ -85,17 +80,15 @@ __init static int arch_init_page_allocator( multiboot_header_t* header ) {
         uint32_t i;
         elf_section_header_t* section_header;
 
-        first_free_address = MAX( first_free_address,
-                                  PAGE_ALIGN( header->elf_info.addr + header->elf_info.num * header->elf_info.size ) );
+        first_free_address = MAX( first_free_address, PAGE_ALIGN( header->elf_info.addr + header->elf_info.num * header->elf_info.size ) );
 
         for ( i = 1; i < header->elf_info.num; i++ ) {
             section_header = ( elf_section_header_t* )( header->elf_info.addr + i * header->elf_info.size );
 
             switch ( section_header->type ) {
-                case SHT_STRTAB :
-                case SHT_SYMTAB :
-                    first_free_address = MAX( first_free_address,
-                                              PAGE_ALIGN( section_header->address + section_header->size ) );
+                case SECTION_STRTAB :
+                case SECTION_SYMTAB :
+                    first_free_address = MAX( first_free_address, PAGE_ALIGN( section_header->address + section_header->size ) );
                     break;
             }
         }
@@ -155,8 +148,8 @@ __init static int arch_init_page_allocator( multiboot_header_t* header ) {
             section_header = ( elf_section_header_t* )( header->elf_info.addr + i * header->elf_info.size );
 
             switch ( section_header->type ) {
-                case SHT_STRTAB :
-                case SHT_SYMTAB :
+                case SECTION_STRTAB :
+                case SECTION_SYMTAB :
                     reserve_memory_pages(
                         ( ptr_t )( section_header->address & PAGE_MASK ),
                         PAGE_ALIGN( section_header->size + ( section_header->address & ~PAGE_MASK ) )
@@ -202,6 +195,8 @@ __init static int arch_init_page_allocator( multiboot_header_t* header ) {
 }
 
 __init void arch_start( multiboot_header_t* header ) {
+    int error;
+
     /* Save the multiboot structure */
 
     memcpy( &mb_header, header, sizeof( multiboot_header_t ) );
@@ -230,8 +225,10 @@ __init void arch_start( multiboot_header_t* header ) {
 
     /* Initialize CPU features */
 
-    if ( detect_cpu() != 0 ) {
-        kprintf( ERROR, "Failed to detect CPU features.\n" );
+    error = detect_cpu();
+
+    if ( error < 0 ) {
+        kprintf( ERROR, "Failed to detect CPU: %d\n", error );
         return;
     }
 
@@ -239,18 +236,24 @@ __init void arch_start( multiboot_header_t* header ) {
 
     init_interrupts();
 
+    /* Calibrate the boot CPU speed */
+
+    cpu_calibrate_speed();
+
     /* Initializing bootmodules */
 
     init_bootmodules( header );
 
     if ( get_bootmodule_count() > 0 ) {
-        kprintf( INFO, "Loaded %d module(s) with GRUB.\n", get_bootmodule_count() );
+        kprintf( INFO, "Loaded %d module(s)\n", get_bootmodule_count() );
     }
 
     /* Initialize page allocator */
 
-    if ( arch_init_page_allocator( header ) != 0 ) {
-        kprintf( ERROR, "Failed to initialize page allocator.\n" );
+    error = arch_init_page_allocator( header );
+
+    if ( error < 0 ) {
+        kprintf( ERROR, "Failed to initialize page allocator (error=%d)\n", error );
         return;
     }
 
@@ -258,17 +261,12 @@ __init void arch_start( multiboot_header_t* header ) {
 
     /* Initialize kmalloc */
 
-    if ( init_kmalloc() != 0 ) {
-        kprintf( ERROR, "Failed to initialize kernel memory allocator.\n" );
+    error = init_kmalloc();
+
+    if ( error < 0 ) {
+        kprintf( ERROR, "Failed to initialize kernel memory allocator (error=%d)\n", error );
         return;
     }
-
-    init_kernel_symbols();
-    init_elf32_kernel_symbols();
-
-#ifdef ENABLE_KMALLOC_DEBUG
-    init_serial_kmalloc_output();
-#endif /* ENABLE_KMALLOC_DEBUG */
 
     /* Initialize memory region manager */
 
@@ -276,8 +274,10 @@ __init void arch_start( multiboot_header_t* header ) {
 
     /* Initialize paging */
 
-    if ( init_paging() != 0 ) {
-        kprintf( ERROR, "Failed to initialize paging.\n" );
+    error = init_paging();
+
+    if ( error < 0 ) {
+        kprintf( ERROR, "Failed to initialize paging (error=%d)\n", error );
         return;
     }
 
@@ -289,13 +289,11 @@ __init void arch_start( multiboot_header_t* header ) {
 
 __init int arch_late_init( void ) {
     init_mp();
-    acpi_init();
-    hpet_init();
-    cpu_calibrate_speed();
     init_apic();
     init_pit();
     init_apic_timer();
     init_system_time();
+    init_elf32_kernel_symbols();
     init_elf32_module_loader();
     init_elf32_application_loader();
     init_bios_access();

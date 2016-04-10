@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,20 +19,12 @@
 #ifndef _PTHREAD_H_
 #define _PTHREAD_H_
 
-#include <stddef.h>
 #include <inttypes.h>
-#include <time.h>
 
 #define PTHREAD_MUTEX_MAGIC 0xC001C0DE
 #define PTHREAD_COND_MAGIC  0xDEADBEEF
 
 #define PTHREAD_MUTEX_INITIALIZER { 0, -1 }
-
-#define PTHREAD_ONCE_INIT 0
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 enum {
     PTHREAD_MUTEX_DEFAULT,
@@ -67,9 +59,6 @@ typedef struct pthread_cond {
     int cond_id;
 } pthread_cond_t;
 
-typedef int pthread_once_t;
-typedef int pthread_key_t;
-
 int pthread_attr_init( pthread_attr_t* attr );
 int pthread_attr_destroy( pthread_attr_t* attr );
 int pthread_attr_getname( pthread_attr_t* attr, char** name );
@@ -98,19 +87,7 @@ int pthread_mutex_unlock( pthread_mutex_t* mutex );
 int pthread_cond_init( pthread_cond_t* cond, const pthread_condattr_t* attr );
 int pthread_cond_destroy( pthread_cond_t* cond );
 int pthread_cond_wait( pthread_cond_t* cond, pthread_mutex_t* mutex );
-int pthread_cond_timedwait( pthread_cond_t* cond, pthread_mutex_t* mutex, const struct timespec* abstime );
 int pthread_cond_signal( pthread_cond_t* cond );
 int pthread_cond_broadcast( pthread_cond_t* cond );
-
-int pthread_once(pthread_once_t* once_control, void (*init_routine)(void));
-
-int pthread_key_create(pthread_key_t* key, void (*destructor)(void*));
-int pthread_key_delete(pthread_key_t key);
-void* pthread_getspecific(pthread_key_t key);
-int pthread_setspecific(pthread_key_t key, const void* value);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _PTHREAD_H_ */

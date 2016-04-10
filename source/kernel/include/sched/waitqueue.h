@@ -16,32 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _SCHED_WAITQUEUE_H_
-#define _SCHED_WAITQUEUE_H_
+#ifndef _WAITQUEUE_H_
+#define _WAITQUEUE_H_
 
 #include <types.h>
 #include <thread.h>
 
-struct timer;
-
-typedef int timer_callback_t( void* data );
-
-typedef enum wait_type {
-    WAIT_THREAD = 1,
-    WAIT_CALLBACK
-} wait_type_t;
-
 typedef struct waitnode {
-    wait_type_t type;
-
-    union {
-        thread_id thread;
-        struct {
-            timer_callback_t* callback;
-            void* data;
-        };
-    } u;
-
+    thread_id thread;
     uint64_t wakeup_time;
     bool in_queue;
 
@@ -122,4 +104,4 @@ bool waitqueue_is_empty( waitqueue_t* queue );
  */
 int init_waitqueue( waitqueue_t* queue );
 
-#endif /* _SCHED_WAITQUEUE_H_ */
+#endif /* _WAITQUEUE_H_ */

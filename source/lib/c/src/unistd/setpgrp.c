@@ -19,7 +19,5 @@
 #include <unistd.h>
 
 int setpgrp( void ) {
-    /* TODO: stub */
-
     return 0;
 }

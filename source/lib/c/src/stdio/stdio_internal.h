@@ -1,4 +1,4 @@
-/* Internal stdio definitions
+/* fopen function
  *
  * Copyright (c) 2009 Zoltan Kovacs
  *

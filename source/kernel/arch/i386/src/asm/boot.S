@@ -33,7 +33,6 @@
 
 /* The entry point of the kernel */
 
-.type _start, @function
 _start:
     /* Disable interrupts, just to make sure ... */
 

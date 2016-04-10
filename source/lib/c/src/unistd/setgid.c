@@ -19,7 +19,6 @@
 #include <unistd.h>
 
 int setgid( gid_t gid ) {
-    /* TODO: stub */
-
     return 0;
 }
+

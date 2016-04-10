@@ -20,8 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -->
 
 <build default="all">
-    <pinclude file="${toplevel}/config/paths.xml"/>
-
     <array name="files">
         <item>remove.c</item>
     </array>
@@ -47,25 +45,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <gcc>
                 <input>${i}</input>
                 <output>objs/filename(${i}).o</output>
+                <include>../../../include</include>
+                <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
                 <flag>-c</flag>
                 <flag>-O2</flag>
+                <flag>-m32</flag>
                 <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
             </gcc>
         </for>
 
         <echo/>
         <echo>Linking remove shell command</echo>
         <echo/>
-        <echo>[GCC    ] source/applications/shelltools/remove/objs/rm</echo>
+        <echo>[GCC    ] source/applications/shelltools/remove/objs/remove</echo>
 
         <gcc>
             <input>objs/*.o</input>
-            <output>objs/rm</output>
+            <input>../../../lib/start/objs/libstart.a</input>
+            <input>../../../lib/c/objs/libc.a</input>
+            <output>objs/remove</output>
+            <flag>-m32</flag>
+            <flag>-Xlinker</flag>
+            <flag>--script=../../../../scripts/i386_app.lnk</flag>
+            <flag>-nostartfiles</flag>
+            <flag>-nodefaultlibs</flag>
         </gcc>
     </target>
 
     <target name="install">
-        <copy from="objs/rm" to="${imagedir}/application/rm"/>
+        <copy from="objs/remove" to="../../../../build/image/application/remove"/>
     </target>
 
     <target name="all">

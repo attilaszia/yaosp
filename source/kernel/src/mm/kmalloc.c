@@ -1,6 +1,6 @@
 /* Memory allocator
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -31,36 +31,16 @@
 static uint32_t used_pages = 0;
 static uint32_t alloc_size = 0;
 
-static spinlock_t kmalloc_lock = INIT_SPINLOCK("kmalloc");
+static spinlock_t kmalloc_lock = INIT_SPINLOCK( "kmalloc" );
 static kmalloc_block_t* root = NULL;
 
-static inline int kmalloc_block_validate(kmalloc_block_t* block) {
-    return (block->magic == KMALLOC_BLOCK_MAGIC);
-}
-
-static inline int kmalloc_chunk_validate(kmalloc_chunk_t* chunk) {
-    return ((chunk->magic & 0xFFFFFFF0) == KMALLOC_CHUNK_MAGIC);
-}
-
-static inline void kmalloc_chunk_set_free(kmalloc_chunk_t* chunk, int free) {
-    if (free) {
-        chunk->magic |= CHUNK_FREE;
-    } else {
-        chunk->magic &= ~CHUNK_FREE;
-    }
-}
-
-static inline int kmalloc_chunk_is_free(kmalloc_chunk_t* chunk) {
-    return ((chunk->magic & CHUNK_FREE) != 0);
-}
-
-static kmalloc_block_t* kmalloc_block_create(uint32_t pages) {
+static kmalloc_block_t* __kmalloc_create_block( uint32_t pages ) {
     kmalloc_block_t* block;
     kmalloc_chunk_t* chunk;
 
-    block = (kmalloc_block_t*)alloc_pages(pages, MEM_COMMON);
+    block = ( kmalloc_block_t* )alloc_pages( pages, MEM_COMMON );
 
-    if (__unlikely(block == NULL)) {
+    if ( __unlikely( block == NULL ) ) {
         return NULL;
     }
 
@@ -69,13 +49,14 @@ static kmalloc_block_t* kmalloc_block_create(uint32_t pages) {
     block->magic = KMALLOC_BLOCK_MAGIC;
     block->pages = pages;
     block->next = NULL;
+    block->first_chunk = ( kmalloc_chunk_t* )( block + 1 );
 
-    chunk = (kmalloc_chunk_t*)(block + 1);
+    chunk = block->first_chunk;
 
     chunk->magic = KMALLOC_CHUNK_MAGIC;
-    kmalloc_chunk_set_free(chunk, 1);
+    chunk->type = CHUNK_FREE;
     chunk->block = block;
-    chunk->size = (pages * PAGE_SIZE) - sizeof(kmalloc_block_t) - sizeof(kmalloc_chunk_t);
+    chunk->size = pages * PAGE_SIZE - sizeof( kmalloc_block_t ) - sizeof( kmalloc_chunk_t );
     chunk->prev = NULL;
     chunk->next = NULL;
 
@@ -84,16 +65,17 @@ static kmalloc_block_t* kmalloc_block_create(uint32_t pages) {
     return block;
 }
 
-static void* __kmalloc_from_block(kmalloc_block_t* block, uint32_t size, uint32_t* real_size) {
+static void* __kmalloc_from_block( kmalloc_block_t* block, uint32_t size ) {
     void* p;
     kmalloc_chunk_t* chunk;
 
-    chunk = (kmalloc_chunk_t*)(block + 1);
+    chunk = block->first_chunk;
 
-    while ((chunk != NULL) &&
-           ((!kmalloc_chunk_is_free(chunk)) ||
-            (chunk->size < size))) {
-        ASSERT(kmalloc_chunk_validate(chunk));
+    while ( ( chunk != NULL ) &&
+            ( ( chunk->type != CHUNK_FREE ) ||
+              ( chunk->size < size ) ) ) {
+        ASSERT( chunk->magic == KMALLOC_CHUNK_MAGIC );
+
         chunk = chunk->next;
     }
 
@@ -101,8 +83,9 @@ static void* __kmalloc_from_block(kmalloc_block_t* block, uint32_t size, uint32_
         return NULL;
     }
 
-    kmalloc_chunk_set_free(chunk, 0);
-    p = ( void* )(chunk + 1);
+    chunk->type = CHUNK_ALLOCATED;
+    chunk->real_size = size;
+    p = ( void* )( chunk + 1 );
 
     if ( chunk->size > ( size + sizeof( kmalloc_chunk_t ) + 4 ) ) {
         uint32_t remaining_size;
@@ -115,7 +98,7 @@ static void* __kmalloc_from_block(kmalloc_block_t* block, uint32_t size, uint32_
         new_chunk = ( kmalloc_chunk_t* )( ( uint8_t* )chunk + sizeof( kmalloc_chunk_t ) + size );
 
         new_chunk->magic = KMALLOC_CHUNK_MAGIC;
-        kmalloc_chunk_set_free(new_chunk, 1);
+        new_chunk->type = CHUNK_FREE;
         new_chunk->size = remaining_size;
         new_chunk->block = chunk->block;
 
@@ -130,20 +113,16 @@ static void* __kmalloc_from_block(kmalloc_block_t* block, uint32_t size, uint32_
         }
     }
 
-    /* Update the number of allocated bytes. */
-    alloc_size += chunk->size;
-    *real_size = chunk->size;
+    /* recalculate the biggest free chunk in this block */
 
-    /* Recalculate the biggest free chunk in this block. */
+    chunk = block->first_chunk;
     block->biggest_free = 0;
 
-    chunk = (kmalloc_chunk_t*)(block + 1);
+    while ( chunk != NULL ) {
+        ASSERT( chunk->magic == KMALLOC_CHUNK_MAGIC );
 
-    while (chunk != NULL) {
-        ASSERT(kmalloc_chunk_validate(chunk));
-
-        if ((kmalloc_chunk_is_free(chunk)) &&
-            (chunk->size > block->biggest_free)) {
+        if ( ( chunk->type == CHUNK_FREE ) &&
+             ( chunk->size > block->biggest_free ) ) {
             block->biggest_free = chunk->size;
         }
 
@@ -156,32 +135,19 @@ static void* __kmalloc_from_block(kmalloc_block_t* block, uint32_t size, uint32_
 void* kmalloc( uint32_t size ) {
     void* p;
     uint32_t min_size;
-    uint32_t real_size = 0;
     kmalloc_block_t* block;
 
-    /* Is this an invalid request? */
-    if (__unlikely(size == 0)) {
-        kprintf(WARNING, "kmalloc(): Called with 0 size!\n");
+    if ( __unlikely( size == 0 ) ) {
+        kprintf( WARNING, "kmalloc(): Called with 0 size!\n" );
         return NULL;
     }
 
-    /* Ensure the minimum allocation. */
-    if (size < sizeof(ptr_t)) {
-        size = sizeof(ptr_t);
-    }
-
-#ifdef ENABLE_KMALLOC_BARRIERS
-    size += 2 * KMALLOC_BARRIER_SIZE;
-#endif /* ENABLE_KMALLOC_BARRIERS */
-
-    spinlock_disable(&kmalloc_lock);
+    spinlock_disable( &kmalloc_lock );
 
     block = root;
 
-    while (block != NULL) {
-        ASSERT(kmalloc_block_validate(block));
-
-        if (block->biggest_free >= size) {
+    while ( block != NULL ) {
+        if ( block->biggest_free >= size ) {
             goto block_found;
         }
 
@@ -190,16 +156,17 @@ void* kmalloc( uint32_t size ) {
 
     /* create a new block */
 
-    min_size = PAGE_ALIGN(size + sizeof(kmalloc_block_t) + sizeof(kmalloc_chunk_t));
+    min_size = PAGE_ALIGN( size + sizeof( kmalloc_block_t ) + sizeof( kmalloc_chunk_t ) );
 
-    if (min_size < KMALLOC_BLOCK_SIZE) {
+    if ( min_size < KMALLOC_BLOCK_SIZE ) {
         min_size = KMALLOC_BLOCK_SIZE;
     }
 
-    block = kmalloc_block_create(min_size / PAGE_SIZE);
+    block = __kmalloc_create_block( min_size / PAGE_SIZE );
 
-    if (__unlikely(block == NULL)) {
-        spinunlock_enable(&kmalloc_lock);
+    if ( __unlikely( block == NULL ) ) {
+        spinunlock_enable( &kmalloc_lock );
+
         return NULL;
     }
 
@@ -211,43 +178,15 @@ void* kmalloc( uint32_t size ) {
     /* allocate the required memory from the new block */
 
 block_found:
-    p = __kmalloc_from_block(block, size, &real_size);
+    p = __kmalloc_from_block( block, size );
 
-#ifdef ENABLE_KMALLOC_DEBUG
-    kmalloc_debug(size, p);
-#endif
+    spinunlock_enable( &kmalloc_lock );
 
-#ifdef ENABLE_KMALLOC_BARRIERS
-    if (p != NULL) {
-        p = kmalloc_create_barriers(p, real_size);
+    if ( __likely( p != NULL ) ) {
+        alloc_size += size;
+
+        memset( p, 0xAA, size );
     }
-#endif /* ENABLE_KMALLOC_BARRIERS */
-
-    spinunlock_enable(&kmalloc_lock);
-
-    if (__likely(p != NULL)) {
-#ifdef ENABLE_KMALLOC_BARRIERS
-        memset(p, 0xaa, size - 2 * KMALLOC_BARRIER_SIZE);
-#else
-        memset(p, 0xaa, size);
-#endif /* ENABLE_KMALLOC_BARRIERS */
-    }
-
-    return p;
-}
-
-void* kcalloc( uint32_t nmemb, uint32_t size ) {
-    void* p;
-    uint32_t s;
-
-    s = nmemb * size;
-    p = kmalloc( s );
-
-    if ( p == NULL ) {
-        return NULL;
-    }
-
-    memset( p, 0, s );
 
     return p;
 }
@@ -255,50 +194,44 @@ void* kcalloc( uint32_t nmemb, uint32_t size ) {
 void kfree( void* p ) {
     kmalloc_chunk_t* chunk;
 
-    if (__unlikely(p == NULL)) {
+    if ( __unlikely( p == NULL ) ) {
         return;
     }
-
-#ifdef ENABLE_KMALLOC_BARRIERS
-    kmalloc_validate_barriers(p);
-    p = (uint8_t*)p - KMALLOC_BARRIER_SIZE;
-#endif /* ENABLE_KMALLOC_BARRIERS */
 
     chunk = ( kmalloc_chunk_t* )( ( uint8_t* )p - sizeof( kmalloc_chunk_t ) );
 
     spinlock_disable( &kmalloc_lock );
 
-    if (__unlikely(!kmalloc_chunk_validate(chunk))) {
+    if ( __unlikely( chunk->magic != KMALLOC_CHUNK_MAGIC ) ) {
         panic( "kfree(): Tried to free an invalid memory region! (%x)\n", p );
     }
 
-    if (__unlikely(kmalloc_chunk_is_free(chunk))) {
+    if ( __unlikely( chunk->type != CHUNK_ALLOCATED ) ) {
         panic( "kfree(): Tried to free a non-allocated memory region! (%x)\n", p );
     }
 
-#ifdef ENABLE_KMALLOC_DEBUG
-    kfree_debug( p );
-#endif
+    alloc_size -= chunk->real_size;
 
-    alloc_size -= chunk->size;
+    /* make the current chunk free */
 
-    /* Make the current chunk free. */
-    kmalloc_chunk_set_free(chunk, 1);
+    chunk->type = CHUNK_FREE;
 
-    /* Destroy the previous data in this memory chunk. */
-    memset(chunk + 1, 0xAA, chunk->size);
+    /* destroy the previous data in this memory chunk */
 
-    /* Merge with the previous chunk if it is free */
-    if ((chunk->prev != NULL) &&
-        (kmalloc_chunk_is_free(chunk->prev))) {
+    memset( chunk + 1, 0xAA, chunk->size );
+
+    /* merge with the previous chunk if it is free */
+
+    if ( ( chunk->prev != NULL ) &&
+         ( chunk->prev->type == CHUNK_FREE ) ) {
         kmalloc_chunk_t* prev_chunk = chunk->prev;
 
-        ASSERT(kmalloc_chunk_validate(chunk->prev));
+        ASSERT( chunk->prev->magic == KMALLOC_CHUNK_MAGIC );
 
         chunk->magic = 0;
 
         prev_chunk->size += chunk->size;
-        prev_chunk->size += sizeof(kmalloc_chunk_t);
+        prev_chunk->size += sizeof( kmalloc_chunk_t );
 
         prev_chunk->next = chunk->next;
         chunk = prev_chunk;
@@ -310,11 +243,11 @@ void kfree( void* p ) {
 
     /* merge with the next chunk if it is free */
 
-    if ((chunk->next != NULL) &&
-        (kmalloc_chunk_is_free(chunk->next))) {
+    if ( ( chunk->next != NULL ) &&
+         ( chunk->next->type == CHUNK_FREE ) ) {
         kmalloc_chunk_t* next_chunk = chunk->next;
 
-        ASSERT(kmalloc_chunk_validate(next_chunk));
+        ASSERT( next_chunk->magic == KMALLOC_CHUNK_MAGIC );
 
         next_chunk->magic = 0;
 
@@ -330,7 +263,7 @@ void kfree( void* p ) {
 
     /* update the biggest free chunk size in the current block */
 
-    if (chunk->size > chunk->block->biggest_free) {
+    if ( chunk->size > chunk->block->biggest_free ) {
         chunk->block->biggest_free = chunk->size;
     }
 
@@ -347,7 +280,7 @@ void kmalloc_get_statistics( uint32_t* _used_pages, uint32_t* _alloc_size ) {
 }
 
 __init int init_kmalloc( void ) {
-    root = kmalloc_block_create(KMALLOC_ROOT_SIZE / PAGE_SIZE);
+    root = __kmalloc_create_block( KMALLOC_ROOT_SIZE / PAGE_SIZE );
 
     if ( root == NULL ) {
         return -ENOMEM;

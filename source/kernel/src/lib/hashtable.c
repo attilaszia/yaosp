@@ -1,7 +1,6 @@
 /* Hashtable implementation
  *
  * Copyright (c) 2008, 2009 Zoltan Kovacs
- * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -185,38 +184,6 @@ int hashtable_iterate( hashtable_t* table, hashtable_iter_callback_t* callback, 
     return 0;
 }
 
-int hashtable_iterate_n( hashtable_t* table, hashtable_iter_callback_t* callback, void* data, size_t n ) {
-    int result;
-    uint32_t i;
-    hashitem_t* item;
-    hashitem_t* next;
-
-    if ( n == 0 ) {
-        return 0;
-    }
-
-    for ( i = 0; i < table->size && n > 0; i++ ) {
-        item = table->items[ i ];
-
-        while ( item != NULL) {
-            next = item->next;
-            result = callback( item, data );
-
-            if ( result < 0 ) {
-                return result;
-            }
-
-            if ( --n == 0 ) {
-                return 0;
-            }
-
-            item = next;
-        }
-    }
-
-    return 0;
-}
-
 int hashtable_filtered_iterate( hashtable_t* table, hashtable_iter_callback_t* callback, void* data, hashtable_filter_callback_t* filter, void* filter_data ) {
     int result;
     uint32_t i;
@@ -358,3 +325,4 @@ bool compare_str( const void* key1, const void* key2 ) {
 
     return ( strcmp( str1, str2 ) == 0 );
 }
+

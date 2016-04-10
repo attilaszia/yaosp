@@ -1,6 +1,6 @@
-/* 32bit ELF kernel module loader
+/* 32bit ELF module loader
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,13 +29,14 @@
 #include <lib/string.h>
 
 #include <arch/mm/config.h>
-#include <arch/linker/elf32.h>
 
 static bool elf32_module_check( binary_loader_t* loader ) {
     int error;
     elf32_image_info_t info;
 
-    if ( elf32_init_image_info( &info, 0x00000000 ) != 0 ) {
+    error = elf32_init_image_info( &info );
+
+    if ( __unlikely( error < 0 ) ) {
         return false;
     }
 
@@ -81,7 +82,7 @@ static int elf32_module_map( elf_module_t* elf_module, binary_loader_t* loader )
                 }
 
                 switch ( section_header->type ) {
-                    case SHT_NOBITS :
+                    case SECTION_NOBITS :
                         bss_end = section_header->address + section_header->size - 1;
                         break;
 
@@ -298,7 +299,7 @@ static int elf32_module_load( module_t* module, binary_loader_t* loader ) {
         goto error1;
     }
 
-    error = elf32_init_image_info( &elf_module->image_info, 0x00000000 );
+    error = elf32_init_image_info( &elf_module->image_info );
 
     if ( __unlikely( error < 0 ) ) {
         goto error2;
@@ -336,20 +337,18 @@ static int elf32_module_load( module_t* module, binary_loader_t* loader ) {
 
     module->loader_data = ( void* )elf_module;
 
-    elf32_free_section_headers( &elf_module->image_info );
-
     return 0;
 
- error4:
+error4:
     /* TODO: unmap the module */
 
- error3:
+error3:
     elf32_destroy_image_info( &elf_module->image_info );
 
- error2:
+error2:
     kfree( elf_module );
 
- error1:
+error1:
     return error;
 }
 

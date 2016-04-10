@@ -1,6 +1,6 @@
 /* PCI bus handling
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -394,28 +394,10 @@ static int pci_scan_device( int bus, int dev, int func ) {
         }
 
         for ( i = 0; i < 6; i++ ) {
-            uint32_t size;
-            uint32_t offset = PCI_BASE_REGISTERS + ( i * 4 );
+            error = pci_access->read( bus, dev, func, PCI_BASE_REGISTERS + ( i * 4 ), 4, &device->base[ i ] );
 
-            pci_access->read( bus, dev, func, offset, 4, &device->base[ i ] );
-
-            pci_access->write( bus, dev, func, offset, 4, 0xFFFFFFFF );
-            pci_access->read( bus, dev, func, offset, 4, &size );
-            pci_access->write( bus, dev, func, offset, 4, device->base[ i ] );
-
-            if ( ( size == 0 ) ||
-                 ( size == 0xFFFFFFFF ) ) {
-                device->size[ i ] = 0;
-            } else {
-                if ( ( size & PCI_ADDRESS_SPACE ) == PCI_ADDRESS_SPACE_MEMORY ) {
-                    size &= PCI_ADDRESS_MEMORY_32_MASK;
-                    size &= ~( size - 1 );
-                } else {
-                    size &= PCI_ADDRESS_IO_MASK;
-                    size &= ~( size - 1 );
-                }
-
-                device->size[ i ] = size;
+            if ( error < 0 ) {
+                return error;
             }
         }
 
@@ -435,7 +417,7 @@ static int pci_scan_device( int bus, int dev, int func ) {
         if ( __likely( pci_device_count < MAX_PCI_DEVICES ) ) {
             kprintf(
                 INFO,
-                "pci: %d:%d:%d 0x%04x:0x%04x:0x%x 0x%04x:0x%04x\n",
+                "PCI: %d:%d:%d 0x%04x:0x%04x:0x%x 0x%04x:0x%04x\n",
                 bus, dev, func, vendor_id, device_id, revision_id,
                 subsystem_vendor_id, subsystem_device_id
             );
@@ -444,7 +426,7 @@ static int pci_scan_device( int bus, int dev, int func ) {
 
             create_device_node_for_pci_device( device );
         } else {
-            kprintf( WARNING, "pci: Too many devices!\n" );
+            kprintf( WARNING, "PCI: Too many devices!\n" );
         }
     }
 
@@ -508,7 +490,7 @@ static int pci_bus_enable_device( pci_device_t* device, uint32_t flags ) {
         }
 
         if ( ( tmp & flags ) != flags ) {
-            kprintf( ERROR, "pci: Failed to enable device at %d:%d:%d!\n", device->bus, device->dev, device->func );
+            kprintf( ERROR, "PCI: Failed to enable device at %d:%d:%d!\n", device->bus, device->dev, device->func );
 
             return -1;
         }
@@ -517,36 +499,25 @@ static int pci_bus_enable_device( pci_device_t* device, uint32_t flags ) {
     return 0;
 }
 
-static int pci_bus_enable_intx( pci_device_t* device, int enable ) {
-    uint32_t command;
-    uint32_t new_command;
-
-    pci_access->read( device->bus, device->dev, device->func, PCI_COMMAND, 2, &command );
-
-    if ( enable ) {
-        new_command = command & ~PCI_COMMAND_INT_DISABLE;
-    } else {
-        new_command = command | PCI_COMMAND_INT_DISABLE;
-    }
-
-    if ( new_command != command ) {
-        pci_access->write( device->bus, device->dev, device->func, PCI_COMMAND, 2, new_command );
-    }
-
-    return 0;
-}
-
 static int pci_bus_read_config( pci_device_t* device, int offset, int size, uint32_t* data ) {
     return pci_access->read(
-        device->bus, device->dev, device->func,
-        offset, size, data
+        device->bus,
+        device->dev,
+        device->func,
+        offset,
+        size,
+        data
     );
 }
 
 static int pci_bus_write_config( pci_device_t* device, int offset, int size, uint32_t data ) {
     return pci_access->write(
-        device->bus, device->dev, device->func,
-        offset, size, data
+        device->bus,
+        device->dev,
+        device->func,
+        offset,
+        size,
+        data
     );
 }
 
@@ -554,7 +525,6 @@ static pci_bus_t pci_bus = {
     .get_device_count = pci_bus_get_device_count,
     .get_device = pci_bus_get_device,
     .enable_device = pci_bus_enable_device,
-    .enable_intx = pci_bus_enable_intx,
     .read_config = pci_bus_read_config,
     .write_config = pci_bus_write_config
 };
@@ -566,7 +536,7 @@ static int pci_scan_bus( int bus ) {
     int error;
     uint32_t header_type;
 
-    kprintf( INFO, "pci: Scanning bus: %d\n", bus );
+    kprintf( INFO, "PCI: Scanning bus: %d\n", bus );
 
     for ( dev = 0; dev < pci_access->devs_per_bus; dev++ ) {
         /* Is this a multifunctional device? */
@@ -597,29 +567,29 @@ int init_module( void ) {
     /* Detect PCI */
 
     if ( !pci_detect() ) {
-        kprintf( INFO, "pci: Bus not detected\n" );
+        kprintf( INFO, "PCI: Bus not detected\n" );
         return -EINVAL;
     }
 
-    kprintf( INFO, "pci: Using %s\n", pci_access->name );
+    kprintf( INFO, "PCI: Using %s\n", pci_access->name );
 
     /* Scan the first PCI bus */
 
     error = pci_scan_bus( 0 );
 
     if ( error < 0 ) {
-        kprintf( ERROR, "pci: Failed to scan first bus! (error=%d)\n", error );
+        kprintf( ERROR, "PCI: Failed to scan first bus! (error=%d)\n", error );
         return error;
     }
 
-    kprintf( INFO, "pci: Detected %d devices.\n", pci_device_count );
+    kprintf( INFO, "PCI: Detected %d devices.\n", pci_device_count );
 
     /* Register the PCI bus driver */
 
     error = register_bus_driver( "PCI", ( void* )&pci_bus );
 
     if ( error < 0 ) {
-        kprintf( ERROR, "pci: Failed to register the bus! (error=%d)\n", error );
+        kprintf( ERROR, "PCI: Failed to register the bus! (error=%d)\n", error );
         return error;
     }
 

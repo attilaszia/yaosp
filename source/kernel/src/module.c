@@ -1,6 +1,6 @@
 /* Module loader and manager
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -47,24 +47,32 @@ static int do_load_module( const char* name );
 
 static module_t* create_module( const char* name ) {
     module_t* module;
-    size_t name_length;
 
-    name_length = strlen( name );
-    module = ( module_t* )kmalloc( sizeof( module_t ) + name_length + 1 );
+    module = ( module_t* )kmalloc( sizeof( module_t ) );
 
     if ( module == NULL ) {
-        return NULL;
+        goto error1;
     }
 
     memset( module, 0, sizeof( module_t ) );
 
-    module->name = ( char* )( module + 1 );
-    strcpy( module->name, name );
+    module->name = strdup( name );
+
+    if ( module->name == NULL ) {
+        goto error2;
+    }
 
     return module;
+
+error2:
+    kfree( module );
+
+error1:
+    return NULL;
 }
 
 static void destroy_module( module_t* module ) {
+    kfree( module->name );
     kfree( module );
 }
 
@@ -331,35 +339,31 @@ static int do_load_module( const char* name ) {
     }
 
     mutex_lock( module_mutex, LOCK_IGNORE_SIGNAL );
-    module->status = MODULE_LOADED;
-    mutex_unlock( module_mutex );
 
-    if ( is_bootmodule ) {
-        put_bootmodule_loader( loader );
-    } else {
-        put_file_module_loader( loader );
-    }
+    module->status = MODULE_LOADED;
+
+    mutex_unlock( module_mutex );
 
     return 0;
 
- error4:
+error4:
     /* TODO: unload the module */
 
- error3:
+error3:
     mutex_lock( module_mutex, LOCK_IGNORE_SIGNAL );
     hashtable_remove( &module_table, ( const void* )name );
     mutex_unlock( module_mutex );
 
     destroy_module( module );
 
- error2:
+error2:
     if ( is_bootmodule ) {
         put_bootmodule_loader( loader );
     } else {
         put_file_module_loader( loader );
     }
 
- error1:
+error1:
     return error;
 }
 
@@ -498,9 +502,9 @@ __init int init_module_loader( void ) {
 
     return 0;
 
- error2:
+error2:
     destroy_hashtable( &module_table );
 
- error1:
+error1:
     return error;
 }

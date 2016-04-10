@@ -19,11 +19,6 @@
 #ifndef _DEBUG_H_
 #define _DEBUG_H_
 
-#include <types.h>
-#include <config.h>
-
-#ifdef ENABLE_DEBUGGER
-
 typedef int dbg_cmd_callback_t( const char* params );
 
 typedef struct dbg_command {
@@ -42,13 +37,8 @@ int arch_dbg_trace_thread( struct thread* thread );
 int dbg_set_scroll_mode( bool scroll_mode );
 int dbg_printf( const char* format, ... );
 
-int start_kernel_debugger( void );
-
-#endif /* ENABLE_DEBUGGER */
-
-typedef int trace_callback_t( ptr_t ip, ptr_t symbol, const char* name, void* data );
-
 int debug_print_stack_trace( void );
-int debug_print_stack_trace_cb( trace_callback_t* callback, void* data );
+
+int start_kernel_debugger( void );
 
 #endif /* _DEBUG_H_ */

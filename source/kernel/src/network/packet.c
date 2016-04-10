@@ -16,10 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <config.h>
-
-#ifdef ENABLE_NETWORK
-
 #include <macros.h>
 #include <mm/kmalloc.h>
 #include <network/packet.h>
@@ -49,11 +45,19 @@ void delete_packet( packet_t* packet ) {
     kfree( packet );
 }
 
-int packet_queue_init( packet_queue_t* queue ) {
+packet_queue_t* create_packet_queue( void ) {
+    packet_queue_t* queue;
+
+    queue = ( packet_queue_t* )kmalloc( sizeof( packet_queue_t ) );
+
+    if ( queue == NULL ) {
+        goto error1;
+    }
+
     queue->sync = semaphore_create( "packet queue semaphore", 0 );
 
     if ( queue->sync < 0 ) {
-        return -1;
+        goto error2;
     }
 
     init_spinlock( &queue->lock, "packet queue lock" );
@@ -61,22 +65,27 @@ int packet_queue_init( packet_queue_t* queue ) {
     queue->first = NULL;
     queue->last = NULL;
 
-    return 0;
+    return queue;
+
+error2:
+    kfree( queue );
+
+error1:
+    return NULL;
 }
 
-int packet_queue_destroy( packet_queue_t* queue ) {
+void delete_packet_queue( packet_queue_t* packet_queue ) {
     packet_t* packet;
 
-    while ( queue->first != NULL ) {
-        packet = queue->first;
-        queue->first = packet->next;
+    while ( packet_queue->first != NULL ) {
+        packet = packet_queue->first;
+        packet_queue->first = packet->next;
 
         delete_packet( packet );
     }
 
-    semaphore_destroy( queue->sync );
-
-    return 0;
+    semaphore_destroy( packet_queue->sync );
+    kfree( packet_queue );
 }
 
 int packet_queue_insert( packet_queue_t* queue, packet_t* packet ) {
@@ -127,14 +136,3 @@ packet_t* packet_queue_pop_head( packet_queue_t* queue, uint64_t timeout ) {
     return packet;
 }
 
-int packet_queue_is_empty( packet_queue_t* queue ) {
-    int ret;
-
-    spinlock_disable( &queue->lock );
-    ret = ( queue->first == NULL );
-    spinunlock_enable( &queue->lock );
-
-    return ret;
-}
-
-#endif /* ENABLE_NETWORK */

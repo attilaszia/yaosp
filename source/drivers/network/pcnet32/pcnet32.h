@@ -1,6 +1,6 @@
 /* PCnet32 driver (based on the Linux driver)
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -135,6 +135,8 @@ typedef struct pcnet32_private {
     uint32_t dirty_tx;
     uint32_t dirty_rx;
     uint32_t options;
+    uint8_t dev_address[ ETH_ADDR_LEN ];
+    uint8_t perm_address[ ETH_ADDR_LEN ];
 
     int mii;
     uint32_t phymask;
@@ -150,6 +152,9 @@ typedef struct pcnet32_private {
     pcnet32_tx_head_t* tx_ring;
     packet_t** rx_packet_buf;
     packet_t** tx_packet_buf;
+
+    packet_queue_t* input_queue;
+    net_device_stats_t stats;
 } pcnet32_private_t;
 
 #endif /* _PCNET32_H_ */

@@ -1,6 +1,6 @@
 /* Inter Process Communication
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -21,7 +21,6 @@
 #include <macros.h>
 #include <errno.h>
 #include <console.h>
-#include <smp.h>
 #include <lock/mutex.h>
 #include <lock/semaphore.h>
 #include <mm/kmalloc.h>
@@ -36,12 +35,6 @@ static hashtable_t named_ipc_port_table;
 
 static int ipc_port_insert( ipc_port_t* port ) {
     int error;
-
-    /* Save the process ID to the IPC port */
-
-    port->owner_id = current_process()->id;
-
-    /* Find an unused ID for the port and insert to the table */
 
     do {
         port->id = ipc_port_id_counter++;
@@ -60,26 +53,18 @@ static int ipc_port_insert( ipc_port_t* port ) {
     return 0;
 }
 
-static int ipc_port_remove( ipc_port_id id, ipc_port_t** _port ) {
+static ipc_port_t* ipc_port_remove( ipc_port_id id ) {
     ipc_port_t* port;
 
     port = ( ipc_port_t* )hashtable_get( &ipc_port_table, ( const void* )&id );
 
     if ( port == NULL ) {
-        return -EINVAL;
-    }
-
-    /* Check if this process is the owner of the IPC port or not */
-
-    if ( port->owner_id != current_process()->id ) {
-        return -EPERM;
+        return NULL;
     }
 
     hashtable_remove( &ipc_port_table, ( const void* )&id );
 
-    *_port = port;
-
-    return 0;
+    return port;
 }
 
 ipc_port_id sys_create_ipc_port( void ) {
@@ -100,25 +85,11 @@ ipc_port_id sys_create_ipc_port( void ) {
         goto error2;
     }
 
-    port->proc_next = NULL;
     port->message_queue = NULL;
     port->message_queue_tail = NULL;
 
     mutex_lock( ipc_port_mutex, LOCK_IGNORE_SIGNAL );
-
-    /* Insert the port to the global table */
-
     error = ipc_port_insert( port );
-
-    if ( error >= 0 ) {
-        process_t* process = current_process();
-
-        /* Link the port to the process as well */
-
-        port->proc_next = process->ipc_port_list;
-        process->ipc_port_list = port;
-    }
-
     mutex_unlock( ipc_port_mutex );
 
     if ( error < 0 ) {
@@ -127,88 +98,34 @@ ipc_port_id sys_create_ipc_port( void ) {
 
     return port->id;
 
- error3:
+error3:
     semaphore_destroy( port->queue_semaphore );
 
- error2:
+error2:
     kfree( port );
 
- error1:
+error1:
     return error;
 }
 
-static int do_destroy_ipc_port( ipc_port_t* port ) {
-    while ( port->message_queue != NULL ) {
-        ipc_message_t* msg = port->message_queue;
-        port->message_queue = msg->next;
-
-        kfree( msg );
-    }
-
-    semaphore_destroy( port->queue_semaphore );
-    kfree( port );
-
-    return 0;
-}
-
-int ipc_destroy_process_ports( process_t* process ) {
-    ipc_port_t* current;
-
-    mutex_lock( ipc_port_mutex, LOCK_IGNORE_SIGNAL );
-
-    current = process->ipc_port_list;
-
-    while ( current != NULL ) {
-        ipc_port_t* to_delete = current;
-        current = current->proc_next;
-
-        hashtable_remove( &ipc_port_table, ( const void* )&to_delete->id );
-        do_destroy_ipc_port( to_delete );
-    }
-
-    mutex_unlock( ipc_port_mutex );
-
-    return 0;
-}
-
 int sys_destroy_ipc_port( ipc_port_id port_id ) {
-    int error;
-    ipc_port_t* port = NULL;
+    ipc_port_t* port;
 
     mutex_lock( ipc_port_mutex, LOCK_IGNORE_SIGNAL );
-
-    /* Remove the port from the global table. */
-
-    error = ipc_port_remove( port_id, &port );
-
-    /* If everything was OK, then we remove the port from
-       the owner process' list as well. */
-
-    if ( error == 0 ) {
-        process_t* process = current_process();
-        ipc_port_t* prev = NULL;
-        ipc_port_t* current = process->ipc_port_list;
-
-        while ( current != NULL ) {
-            if ( current == port ) {
-                if ( prev == NULL ) {
-                    process->ipc_port_list = current->proc_next;
-                } else {
-                    prev->proc_next = current->proc_next;
-                }
-
-                break;
-            }
-
-            prev = current;
-            current = current->proc_next;
-        }
-    }
-
+    port = ipc_port_remove( port_id );
     mutex_unlock( ipc_port_mutex );
 
-    if ( error == 0 ) {
-        do_destroy_ipc_port( port );
+    if ( port != NULL ) {
+        semaphore_destroy( port->queue_semaphore );
+
+        while ( port->message_queue != NULL ) {
+            ipc_message_t* msg = port->message_queue;
+            port->message_queue = msg->next;
+
+            kfree( msg );
+        }
+
+        kfree( port );
     }
 
     return 0;
@@ -284,7 +201,7 @@ int sys_recv_ipc_message( ipc_port_id port_id, uint32_t* code, void* buffer, siz
         goto error2;
     }
 
-    if (port->message_queue == NULL) {
+    if ( timeout != 0 ) {
         mutex_unlock( ipc_port_mutex );
 
         error = semaphore_timedlock( port->queue_semaphore, 1, LOCK_IGNORE_SIGNAL, timeout );
@@ -301,20 +218,9 @@ int sys_recv_ipc_message( ipc_port_id port_id, uint32_t* code, void* buffer, siz
             error = -EINVAL;
             goto error2;
         }
-    } else {
-        error = semaphore_timedlock( port->queue_semaphore, 1, LOCK_IGNORE_SIGNAL, 0 );
-
-        if (error != 0) {
-            kprintf(
-                ERROR,
-                "sys_recv_ipc_message(): Failed to lock semaphore (%d) while the queue was not empty: %d!\n",
-                port->queue_semaphore,
-                error
-            );
-        }
     }
 
-    if (port->message_queue == NULL) {
+    if ( port->message_queue == NULL ) {
         error = -ENOENT;
         goto error2;
     }
@@ -340,6 +246,7 @@ int sys_recv_ipc_message( ipc_port_id port_id, uint32_t* code, void* buffer, siz
 
     if ( message->size > 0 ) {
         ASSERT( message->size <= size );
+
         memcpy( buffer, ( void* )( message + 1 ), message->size );
     }
 
@@ -373,7 +280,8 @@ int sys_peek_ipc_message( ipc_port_id port_id, uint32_t* code, size_t* size, uin
         goto error2;
     }
 
-    if ( port->message_queue == NULL ) {
+    if ( ( port->message_queue == NULL ) &&
+         ( timeout > 0 ) ) {
         mutex_unlock( ipc_port_mutex );
 
         error = semaphore_timedlock( port->queue_semaphore, 1, LOCK_IGNORE_SIGNAL, timeout );
@@ -389,12 +297,6 @@ int sys_peek_ipc_message( ipc_port_id port_id, uint32_t* code, size_t* size, uin
         if ( port == NULL ) {
             error = -EINVAL;
             goto error2;
-        }
-    } else {
-        error = semaphore_timedlock( port->queue_semaphore, 1, LOCK_IGNORE_SIGNAL, 0 );
-
-        if ( error != 0 ) {
-            kprintf( ERROR, "sys_peek_ipc_message(): Failed to lock queue semaphore while the message queue was not empty!\n" );
         }
     }
 
@@ -413,8 +315,6 @@ int sys_peek_ipc_message( ipc_port_id port_id, uint32_t* code, size_t* size, uin
         *size = message->size;
     }
 
-    semaphore_unlock( port->queue_semaphore, 1 );
-
     mutex_unlock( ipc_port_mutex );
 
     return 0;
@@ -428,7 +328,6 @@ int sys_peek_ipc_message( ipc_port_id port_id, uint32_t* code, size_t* size, uin
 
 int sys_register_named_ipc_port( const char* name, ipc_port_id port_id ) {
     int error;
-    size_t name_length;
     named_ipc_port_t* port;
 
     mutex_lock( named_ipc_port_mutex, LOCK_IGNORE_SIGNAL );
@@ -437,39 +336,43 @@ int sys_register_named_ipc_port( const char* name, ipc_port_id port_id ) {
 
     if ( port != NULL ) {
         error = -EEXIST;
-        port = NULL; /* This is needed, so the error handler won't destroy the port. */
-        goto error;
+        goto error1;
     }
 
-    name_length = strlen( name );
-
-    port = ( named_ipc_port_t* )kmalloc( sizeof( named_ipc_port_t ) + name_length + 1 );
+    port = ( named_ipc_port_t* )kmalloc( sizeof( named_ipc_port_t ) );
 
     if ( port == NULL ) {
         error = -ENOMEM;
-        goto error;
+        goto error1;
+    }
+
+    port->name = strdup( name );
+
+    if ( port->name == NULL ) {
+        error = -ENOMEM;
+        goto error2;
     }
 
     port->port_id = port_id;
-    port->name = ( char* )( port + 1 );
-    strcpy( port->name, name );
 
     error = hashtable_add( &named_ipc_port_table, ( hashitem_t* )port );
 
     if ( error < 0 ) {
-        goto error;
+        goto error3;
     }
 
     mutex_unlock( named_ipc_port_mutex );
 
     return 0;
 
- error:
-    mutex_unlock( named_ipc_port_mutex );
+error3:
+    kfree( ( void* )port->name );
 
-    if ( port != NULL ) {
-        kfree( port );
-    }
+error2:
+    kfree( port );
+
+error1:
+    mutex_unlock( named_ipc_port_mutex );
 
     return error;
 }

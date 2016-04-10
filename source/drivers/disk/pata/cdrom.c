@@ -1,6 +1,6 @@
 /* Parallel AT Attachment driver
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -112,7 +112,9 @@ static int pata_cdrom_open( void* node, uint32_t flags, void** cookie ) {
 
     if ( error < 0 ) {
         mutex_lock( port->mutex, LOCK_IGNORE_SIGNAL );
+
         port->open = false;
+
         mutex_unlock( port->mutex );
 
         return error;
@@ -156,12 +158,15 @@ static int pata_cdrom_read( void* node, void* cookie, void* buffer, off_t positi
 
     port = ( pata_port_t* )node;
 
-    if ( ( ( position % port->sector_size ) != 0 ) ||
-         ( ( size % port->sector_size ) != 0 ) ) {
+    if ( __unlikely( ( position % port->sector_size ) != 0 ) ) {
         return -EINVAL;
     }
 
-    if ( ( position + size ) > port->capacity ) {
+    if ( __unlikely( ( size % port->sector_size ) != 0 ) ) {
+        return -EINVAL;
+    }
+
+    if ( __unlikely( ( position + size ) > port->capacity ) ) {
         return -EINVAL;
     }
 
@@ -216,7 +221,7 @@ int pata_create_atapi_device_node( pata_port_t* port ) {
         '0' + 2 * port->channel + ( port->is_slave ? 1 : 0 )
     );
 
-    kprintf( INFO, "pata: Creating device node: /device/%s\n", device );
+    kprintf( INFO, "PATA: Creating device node: /device/%s\n", device );
 
     error = create_device_node( device, &pata_cdrom_calls, ( void* )port );
 

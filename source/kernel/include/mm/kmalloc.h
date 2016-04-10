@@ -1,6 +1,6 @@
 /* Memory allocator
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -20,7 +20,6 @@
 #define _MM_KMALLOC_H_
 
 #include <types.h>
-#include <config.h>
 
 /**
  * Minimum block size that should be allocated when a new
@@ -35,11 +34,12 @@
  */
 #define KMALLOC_ROOT_SIZE       524288
 
-#define KMALLOC_BLOCK_MAGIC 0xCAFEBAB0
-#define KMALLOC_CHUNK_MAGIC 0xDEADBEE0
+#define KMALLOC_BLOCK_MAGIC 0xCAFEBABE
+#define KMALLOC_CHUNK_MAGIC 0xDEADBEEF
 
-enum {
-    CHUNK_FREE = 1
+enum kmalloc_chunk_type {
+    CHUNK_FREE = 1,
+    CHUNK_ALLOCATED
 };
 
 struct kmalloc_chunk;
@@ -49,39 +49,18 @@ typedef struct kmalloc_block {
     uint32_t pages;
     uint32_t biggest_free;
     struct kmalloc_block* next;
+    struct kmalloc_chunk* first_chunk;
 } kmalloc_block_t;
 
 typedef struct kmalloc_chunk {
     uint32_t magic;
+    uint32_t type;
     uint32_t size;
+    uint32_t real_size;
     struct kmalloc_block* block;
     struct kmalloc_chunk* prev;
     struct kmalloc_chunk* next;
 } kmalloc_chunk_t;
-
-#ifdef ENABLE_KMALLOC_DEBUG
-
-typedef struct {
-    int ( *init )( void );
-    int ( *malloc )( uint32_t size, void* p );
-    int ( *malloc_trace )( ptr_t ip, const char* name );
-    int ( *free )( void* p );
-} kmalloc_debug_output_t;
-
-void kmalloc_debug( uint32_t size, void* p );
-void kfree_debug( void* p );
-void kmalloc_set_debug_output( kmalloc_debug_output_t* out );
-
-#endif /* ENABLE_KMALLOC_DEBUG */
-
-#ifdef ENABLE_KMALLOC_BARRIERS
-
-#define KMALLOC_BARRIER_SIZE 512
-
-void* kmalloc_create_barriers(void* p, size_t size);
-void kmalloc_validate_barriers(void* p);
-
-#endif /* ENABLE_KMALLOC_BARRIERS */
 
 /**
  * Allocates a size byte(s) long memory chunk.
@@ -91,7 +70,6 @@ void kmalloc_validate_barriers(void* p);
  *         the start of the allocated memory chunk
  */
 void* kmalloc( uint32_t size ) __attribute__(( malloc ));
-void* kcalloc( uint32_t nmemb, uint32_t size );
 
 /**
  * Frees a previously allocated memory region.

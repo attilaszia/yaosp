@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -26,19 +26,6 @@
 #define SIOCGIFADDR    0x89300005
 #define SIOCGIFNETMASK 0x89300006
 #define SIOCGIFHWADDR  0x89300007
-#define SIOCGIFFLAGS   0x89300013
-#define SIOCGIFBRDADDR 0x89300019
-#define SIOCGIFMTU     0x89300021
-#define SIOCGIFSTAT    0x89300022
-
-#define SIOCSIFADDR    0x89400005
-#define SIOCSIFNETMASK 0x89400006
-#define SIOCSIFFLAGS   0x89400013
-#define SIOCSIFBRDADDR 0x89400019
-
-#define SIOCADDRT      0x89500001
-#define SIOCDELRT      0x89500002
-#define SIOCGETRTAB    0x89500003
 
 /* PS/2 driver ioctls */
 
@@ -69,19 +56,11 @@
 
 #define IOCTL_INPUT_CREATE_DEVICE 0x00000600
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct device_geometry {
     uint32_t bytes_per_sector;
     uint64_t sector_count;
 } device_geometry_t;
 
 int ioctl( int fd, int request, ... );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _SYS_IOCTL_H_ */

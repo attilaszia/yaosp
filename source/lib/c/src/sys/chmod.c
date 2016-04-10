@@ -17,12 +17,8 @@
  */
 
 #include <sys/stat.h>
-#include <yaosp/debug.h>
 
 int chmod( const char* path, mode_t mode ) {
     /* TODO */
-
-    dbprintf( "TODO: chmod() not yet implemented!\n" );
-
     return 0;
 }

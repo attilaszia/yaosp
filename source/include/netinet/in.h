@@ -97,19 +97,8 @@ enum {
 typedef uint16_t in_port_t;
 typedef uint32_t in_addr_t;
 
-/* IPV4 address */
-
 struct in_addr {
     in_addr_t s_addr;
-};
-
-/* IPv6 address */
-
-struct in6_addr {
-    union {
-        uint8_t __u6_addr8[16];
-    } __in6_u;
-#define s6_addr                 __in6_u.__u6_addr8
 };
 
 struct sockaddr_in {
@@ -125,12 +114,5 @@ struct sockaddr_in {
         sizeof( struct in_addr )
     ];
 };
-
-#define INADDR_ANY       ((unsigned long int) 0x00000000)
-#define INADDR_BROADCAST ((unsigned long int) 0xffffffff)
-
-#define IN_CLASSA_NSHIFT 24
-
-#define INET_ADDRSTRLEN 16
 
 #endif /* _NETINET_IN_H_ */

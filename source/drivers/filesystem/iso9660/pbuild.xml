@@ -2,8 +2,7 @@
 
 This file is part of the yaosp build system
 
-Copyright (c) 2009, 2010 Zoltan Kovacs
-Copyright (c) 2009 Kornel Csernai
+Copyright (c) 2009 Zoltan Kovacs, Kornel Csernai
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License
@@ -21,41 +20,66 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -->
 
 <build default="all">
-    <pinclude file="${toplevel}/config/paths.xml"/>
-    <pinclude file="${toplevel}/config/targets.xml" targets="clean,prepare,all"/>
-
     <array name="files">
         <item>iso9660.c</item>
     </array>
 
+    <target name="clean">
+        <delete>objs/*</delete>
+        <rmdir>objs</rmdir>
+    </target>
+
+    <target name="prepare" type="private">
+        <mkdir>objs</mkdir>
+    </target>
+
     <target name="compile">
         <call target="prepare"/>
 
-        <echo/>
+        <echo></echo>
         <echo>Compiling ISO9660 filesystem driver</echo>
-        <echo/>
+        <echo></echo>
 
         <for var="i" array="${files}">
             <echo>[GCC    ] source/drivers/filesystem/iso9660/${i}</echo>
-            <gcc profile="y-kmodule-compile">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/filename(${i}).o</output>
+                <include>../../../kernel/include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Wshadow</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
+                <flag>-fPIC</flag>
             </gcc>
         </for>
 
-        <echo/>
+        <echo></echo>
         <echo>Linking ISO9660 filesystem driver</echo>
-        <echo/>
-        <echo>[LD     ] source/drivers/filesystem/iso9660/objs/iso9660</echo>
+        <echo></echo>
+        <echo>[GCC    ] source/drivers/filesystem/iso9660/objs/iso9660</echo>
 
-        <ld>
+        <gcc>
             <input>objs/*.o</input>
             <output>objs/iso9660</output>
+            <flag>-m32</flag>
             <flag>-shared</flag>
-        </ld>
+            <flag>-nostartfiles</flag>
+            <flag>-nodefaultlibs</flag>
+        </gcc>
     </target>
 
     <target name="install">
-        <copy from="objs/iso9660" to="${imagedir}/system/module/filesystem/iso9660"/>
+        <copy from="objs/iso9660" to="../../../../build/image/system/module/filesystem/iso9660"/>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
     </target>
 </build>

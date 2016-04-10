@@ -1,6 +1,6 @@
 /* Virtual file system
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs, Kornel Csernai
+ * Copyright (c) 2008, 2009 Zoltan Kovacs, Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -28,20 +28,14 @@
 #include <vfs/io_context.h>
 #include <lib/string.h>
 
-#define O_ACCMODE    0003
-#define O_RDONLY       00
-#define O_WRONLY       01
-#define O_RDWR         02
-#define O_CREAT      0100
-#define O_EXCL       0200
-#define O_NOCTTY     0400
-#define O_TRUNC     01000
-#define O_APPEND    02000
-#define O_NONBLOCK  04000
-#define O_NDELAY   O_NONBLOCK
-#define O_SYNC     010000
-#define O_FSYNC    O_SYNC
-#define O_ASYNC    020000
+#define O_RDONLY   0x01
+#define O_WRONLY   0x02
+#define O_RDWR     0x03
+#define O_CREAT    0x04
+#define O_TRUNC    0x08
+#define O_APPEND   0x10
+#define O_EXCL     0x20
+#define O_NONBLOCK 0x40
 
 #define F_DUPFD 0
 #define F_GETFD 1
@@ -79,14 +73,6 @@
 #define S_IFDIR  0040000
 #define S_IFCHR  0020000
 #define S_IFIFO  0010000
-
-#define S_ISSOCK(m)  (((m) & S_IFMT) == S_IFSOCK)
-#define S_ISLNK(m)  (((m) & S_IFMT) == S_IFLNK)
-#define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
-#define S_ISBLK(m)  (((m) & S_IFMT) == S_IFBLK)
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_ISCHR(m)  (((m) & S_IFMT) == S_IFCHR)
-#define S_ISFIFO(m) (((m) & S_IFMT) == S_IFIFO)
 
 /* write_stat bitmasks */
 
@@ -126,9 +112,9 @@ typedef struct mount_point {
 
 typedef enum select_type {
     SELECT_NONE = 0,
-    SELECT_READ = ( 1 << 0 ),
-    SELECT_WRITE = ( 1 << 1 ),
-    SELECT_EXCEPT = ( 1 << 2 )
+    SELECT_READ = 1,
+    SELECT_WRITE = 2,
+    SELECT_EXCEPT = 4
 } select_type_t;
 
 typedef struct select_request {
@@ -162,11 +148,6 @@ struct stat {
 struct utimbuf {
     time_t actime; /* access time */
     time_t modtime; /* modification time */
-};
-
-struct iovec {
-    void* iov_base;
-    size_t iov_len;
 };
 
 extern io_context_t kernel_io_context;

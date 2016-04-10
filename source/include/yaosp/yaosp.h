@@ -19,11 +19,6 @@
 #ifndef _YAOSP_YAOSP_H_
 #define _YAOSP_YAOSP_H_
 
-enum mutex_flags {
-    MUTEX_NONE = 0,
-    MUTEX_RECURSIVE = ( 1 << 0 )
-};
-
 void reboot( void );
 void halt( void );
 

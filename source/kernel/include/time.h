@@ -29,9 +29,6 @@
 #define RUSAGE_CHILDREN 2
 #define RUSAGE_THREAD 3
 
-#define NSEC_PER_MSEC       1000000L
-#define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
-
 typedef struct timeval {
     time_t      tv_sec;    /* Seconds */
     suseconds_t tv_usec;   /* Microseconds */
@@ -88,11 +85,11 @@ extern const char* smonth_names[ 12 ];
 extern const char* day_names[ 7 ];
 extern const char* sday_names[ 7 ];
 
-size_t strftime( char* s, size_t max, const char* format,
-                 const tm_t* tm );
+size_t strftime(char* s, size_t max, const char* format,
+                const tm_t* tm);
 
 /* Converts a broken-down time to UNIX timestamp */
-time_t mktime( tm_t* tm );
+time_t mktime(tm_t* tm);
 
 uint64_t get_system_time( void );
 uint64_t get_boot_time( void );

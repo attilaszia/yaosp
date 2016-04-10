@@ -17,10 +17,6 @@
  */
 
 #include <unistd.h>
-#include <yaosp/debug.h>
 
 void sync( void ) {
-    /* TODO */
-
-    dbprintf( "TODO: sync() not yet implemented!\n" );
 }

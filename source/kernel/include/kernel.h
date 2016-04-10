@@ -1,6 +1,6 @@
 /* Miscellaneous kernel functions
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -42,23 +42,19 @@ typedef struct statistics_info {
 
 extern int __ro_end;
 extern int __data_start;
-extern int __k_init_start;
 extern int __kernel_end;
 
-extern int kernel_running;
 extern thread_id init_thread_id;
 
 int parse_kernel_parameters( const char* params );
 
 int get_kernel_param_as_string( const char* key, const char** value );
 int get_kernel_param_as_bool( const char* key, bool* value );
-int get_kernel_param_as_int( const char* key, int* value );
 
 int sys_get_kernel_info( kernel_info_t* kernel_info );
 int sys_get_kernel_statistics( statistics_info_t* statistics_info );
 
 int sys_dbprintf( const char* format, char** parameters );
-int sys_dbtrace( void );
 
 void handle_panic( const char* file, int line, const char* format, ... );
 

@@ -1,6 +1,6 @@
 /* Advanced programmable interrupt controller
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -83,6 +83,7 @@ cpu_t* get_processor( void ) {
 
 void apic_timer_irq( registers_t* regs ) {
     apic_write( LAPIC_EOI, 0 );
+
     schedule( regs );
 }
 
@@ -118,9 +119,9 @@ __init void calibrate_apic_timer( void ) {
 
     /* Configure PIT to use for the calibration */
 
-    outb( 0x34, PIT_MODE );
-    outb( 0xFF, PIT_CH0 );
-    outb( 0xFF, PIT_CH0 );
+    outb( PIT_MODE, 0x34 );
+    outb( PIT_CH0, 0xFF );
+    outb( PIT_CH0, 0xFF );
 
     pit_wait_wrap();
 
@@ -182,8 +183,9 @@ __init int init_apic( void ) {
 
     lapic_region = do_create_memory_region(
         &kernel_memory_context,
-        "lapic registers", PAGE_SIZE,
-        REGION_READ | REGION_WRITE | REGION_KERNEL
+        "lapic registers",
+        REGION_READ | REGION_WRITE | REGION_KERNEL,
+        PAGE_SIZE
     );
 
     if ( lapic_region == NULL ) {
@@ -191,15 +193,17 @@ __init int init_apic( void ) {
         return -ENOMEM;
     }
 
-    local_apic_address = lapic_region->address;
-
+#if 0
     /* Remap the created region */
 
-    if ( do_memory_region_remap_pages( lapic_region, ( ptr_t )local_apic_base ) != 0 ) {
+    error = do_remap_region( local_apic_region, ( ptr_t )local_apic_base, true );
+
+    if ( error < 0 ) {
         kprintf( ERROR, "Failed to remap the local APIC register memory region!\n" );
         /* TODO: delete region */
-        return -1;
+        return error;
     }
+#endif
 
     memory_context_insert_region( &kernel_memory_context, lapic_region );
 

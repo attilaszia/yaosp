@@ -1,6 +1,6 @@
 /* Process implementation
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -22,7 +22,6 @@
 #include <config.h>
 #include <loader.h>
 #include <time.h>
-#include <tld.h>
 #include <mm/context.h>
 #include <mm/region.h>
 #include <vfs/io_context.h>
@@ -33,8 +32,6 @@
 
 #define WNOHANG   1
 #define WUNTRACED 2
-
-struct ipc_port;
 
 typedef struct process {
     hashitem_t hash;
@@ -47,15 +44,11 @@ typedef struct process {
     memory_context_t* memory_context;
     lock_context_t* lock_context;
     io_context_t* io_context;
-    struct ipc_port* ipc_port_list;
 
     memory_region_t* heap_region;
 
     uint64_t vmem_size;
     uint64_t pmem_size;
-
-    lock_id tld_lock;
-    uint32_t tld_table[TLD_SIZE / 32];
 
     void* loader_data;
     application_loader_t* loader;
@@ -85,9 +78,6 @@ process_id sys_getpid( void );
 int sys_exit( int exit_code );
 process_id sys_wait4( process_id pid, int* status, int options, struct rusage* rusage );
 int sys_getrusage( int who, struct rusage* usage );
-
-int sys_alloc_tld(void);
-int sys_free_tld(int tld);
 
 int init_processes( void );
 

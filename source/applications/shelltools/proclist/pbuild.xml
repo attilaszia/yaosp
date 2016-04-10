@@ -20,8 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -->
 
 <build default="all">
-    <pinclude file="${toplevel}/config/paths.xml"/>
-
     <array name="files">
         <item>proclist.c</item>
     </array>
@@ -38,34 +36,47 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <target name="compile">
         <call target="prepare"/>
 
-        <echo/>
+        <echo></echo>
         <echo>Compiling proclist shell command</echo>
-        <echo/>
+        <echo></echo>
 
         <for var="i" array="${files}">
             <echo>[GCC    ] source/applications/shelltools/proclist/${i}</echo>
             <gcc>
                 <input>${i}</input>
                 <output>objs/filename(${i}).o</output>
+                <include>../../../include</include>
+                <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
                 <flag>-c</flag>
                 <flag>-O2</flag>
+                <flag>-m32</flag>
                 <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
             </gcc>
         </for>
 
-        <echo/>
+        <echo></echo>
         <echo>Linking proclist shell command</echo>
-        <echo/>
-        <echo>[GCC    ] source/applications/shelltools/proclist/objs/ps</echo>
+        <echo></echo>
+        <echo>[GCC    ] source/applications/shelltools/proclist/objs/proclist</echo>
 
         <gcc>
             <input>objs/*.o</input>
-            <output>objs/ps</output>
+            <input>../../../lib/start/objs/libstart.a</input>
+            <input>../../../lib/c/objs/libc.a</input>
+            <output>objs/proclist</output>
+            <flag>-m32</flag>
+            <flag>-Xlinker</flag>
+            <flag>--script=../../../../scripts/i386_app.lnk</flag>
+            <flag>-nostartfiles</flag>
+            <flag>-nodefaultlibs</flag>
         </gcc>
     </target>
 
     <target name="install">
-        <copy from="objs/ps" to="${imagedir}/application/ps"/>
+        <copy from="objs/proclist" to="../../../../build/image/application/proclist"/>
     </target>
 
     <target name="all">

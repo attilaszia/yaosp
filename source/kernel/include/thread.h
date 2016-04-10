@@ -1,6 +1,6 @@
 /* Thread implementation
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -62,12 +62,12 @@ typedef struct thread {
     int state;
     int priority;
     int exit_code;
-    int in_scheduler;
     int blocking_semaphore;
 
     struct process* process;
 
     /* Scheduling time stuffs */
+
     uint64_t quantum;
     uint64_t exec_time;
     uint64_t cpu_time;
@@ -78,6 +78,7 @@ typedef struct thread {
     uint64_t prev_checkpoint;
 
     /* Kernel & user stack */
+
     uint32_t kernel_stack_pages;
     void* kernel_stack;
     void* kernel_stack_end;
@@ -88,14 +89,13 @@ typedef struct thread {
     void* syscall_stack;
 
     /* Signal handling */
+
     uint64_t pending_signals;
     uint64_t blocked_signals;
     struct sigaction signal_handlers[ _NSIG - 1 ];
 
-    /* TLD data */
-    ptr_t* tld_data;
-
     /* Architecture specific data */
+
     void* arch_data;
 } thread_t;
 
@@ -132,8 +132,6 @@ void kernel_thread_exit( void );
  *         error code
  */
 thread_id create_kernel_thread( const char* name, int priority, thread_entry_t* entry, void* arg, uint32_t stack_size );
-
-int udelay( uint64_t microsecs );
 
 /**
  * This method can be used to delay the execution of

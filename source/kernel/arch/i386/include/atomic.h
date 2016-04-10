@@ -61,9 +61,6 @@ void atomic_inc( atomic_t* atomic );
 void atomic_dec( atomic_t* atomic );
 bool atomic_dec_and_test( atomic_t* atomic );
 
-void atomic_and( atomic_t* atomic, int value );
-void atomic_or( atomic_t* atomic, int value );
-
 /**
  * Atomically swaps the value stored in the atomic structure
  * with the value specified as the second parameter.

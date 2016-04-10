@@ -499,6 +499,10 @@ static int iso9660_open( void* fs_cookie, void* _node, int mode, void** file_coo
     int error;
     iso9660_inode_t* node;
 
+    if ( mode & O_WRONLY ) {
+        return -EROFS;
+    }
+
     node = ( iso9660_inode_t* )_node;
 
     if ( node->flags & ISO9660_FLAG_DIRECTORY ) {
@@ -541,7 +545,7 @@ static int iso9660_read( void* fs_cookie, void* _node, void* file_cookie, void* 
     /* Reading directories is not allowed, use read_directory() */
 
     if ( node->flags & ISO9660_FLAG_DIRECTORY ) {
-        return -EISDIR;
+        return -EINVAL;
     }
 
     /* Check the position */
@@ -655,19 +659,12 @@ static int iso9660_read_stat( void* fs_cookie, void* _node, struct stat* stat ) 
     return 0;
 }
 
-static int iso9660_read_directory( void* fs_cookie, void* _node, void* file_cookie, struct dirent* entry ) {
+static int iso9660_read_directory( void* fs_cookie, void* node, void* file_cookie, struct dirent* entry ) {
     int error;
     char* block;
-    iso9660_inode_t* node;
     iso9660_cookie_t* iso_cookie;
     iso9660_dir_cookie_t* dir_cookie;
     iso9660_directory_entry_t* dir_entry;
-
-    node = ( iso9660_inode_t* )_node;
-
-    if ( ( node->flags & ISO9660_FLAG_DIRECTORY ) == 0 ) {
-        return -ENOTDIR;
-    }
 
     iso_cookie = ( iso9660_cookie_t* )fs_cookie;
     dir_cookie = ( iso9660_dir_cookie_t* )file_cookie;
@@ -772,12 +769,12 @@ static filesystem_calls_t iso9660_calls = {
 int init_module( void ) {
     int error;
 
-    kprintf( INFO, "iso9660: Registering filesystem driver.\n" );
+    kprintf( INFO, "iso9660: Registering filesystem driver!\n" );
 
     error = register_filesystem( "iso9660", &iso9660_calls );
 
     if ( error < 0 ) {
-        kprintf( ERROR, "iso9660: Failed to register filesystem driver.\n" );
+        kprintf( ERROR, "iso9660: Failed to register filesystem driver\n" );
         return error;
     }
 

@@ -47,9 +47,12 @@ static int interpreter_execute( binary_loader_t* loader, const char* name, char*
     int i;
     int data;
     int argc;
+    off_t pos;
     char* end;
     char** new_argv;
     char interpreter[ 128 ];
+
+    pos = 3;
 
     data = loader->read(
         loader->private,

@@ -1,6 +1,6 @@
 /* i386 paging code
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -48,7 +48,7 @@ int get_paging_flags_for_region( memory_region_t* region ) {
     return flags;
 }
 
-int paging_alloc_table_entries( uint32_t* table, uint32_t from, uint32_t to, uint32_t flags, int fail_on_nonempty ) {
+int paging_alloc_table_entries( uint32_t* table, uint32_t from, uint32_t to, uint32_t flags ) {
     uint32_t i;
 
     ASSERT( ( to >= 0 ) && ( to <= 1023 ) );
@@ -60,21 +60,13 @@ int paging_alloc_table_entries( uint32_t* table, uint32_t from, uint32_t to, uin
         /* If it's already allocated, just skip the entry */
 
         if ( table[ i ] != 0 ) {
-            if ( fail_on_nonempty ) {
-                kprintf(
-                    WARNING, "paging_alloc_table_entries(): Table (%p) entry %u is not empty: %x.\n",
-                    table, i, table[ i ]
-                );
-                return -EINVAL;
-            } else {
-                continue;
-            }
+            continue;
         }
 
         p = alloc_pages( 1, MEM_COMMON );
 
         if ( p == NULL ) {
-            goto error;
+            return -ENOMEM;
         }
 
         memsetl( p, 0, PAGE_SIZE / 4 );
@@ -83,9 +75,6 @@ int paging_alloc_table_entries( uint32_t* table, uint32_t from, uint32_t to, uin
     }
 
     return 0;
-
- error:
-    return -ENOMEM;
 }
 
 int paging_fill_table_entries( uint32_t* table, uint32_t address, uint32_t from, uint32_t to, uint32_t flags ) {
@@ -99,11 +88,12 @@ int paging_fill_table_entries( uint32_t* table, uint32_t address, uint32_t from,
     for ( i = from; i <= to; i++, address += PAGE_SIZE ) {
         if ( __unlikely( table[ i ] != 0 ) ) {
             kprintf(
-                WARNING, "paging_fill_table_entries(): Table (%p) entry %u is not empty: %x!\n",
+                WARNING,
+                "fill_table_entries(): Table (%p) entry %d is not empty: %x!\n",
                 table, i, table[ i ]
             );
 
-            return -EINVAL;
+            return -1;
         }
 
         table[ i ] = address;
@@ -185,19 +175,6 @@ int paging_clone_table_entries( uint32_t* old_table, uint32_t* new_table,
     return 0;
 }
 
-int paging_copy_table_entries( uint32_t* old_table, uint32_t* new_table, uint32_t from, uint32_t to ) {
-    uint32_t i;
-
-    ASSERT( ( to >= 0 ) && ( to <= 1023 ) );
-    ASSERT( from <= to );
-
-    for ( i = from; i <= to; i++ ) {
-        new_table[ i ] = old_table[ i ];
-    }
-
-    return 0;
-}
-
 __init int init_paging( void ) {
     int error;
     uint32_t size;
@@ -242,7 +219,10 @@ __init int init_paging( void ) {
     /* Map the screen */
 
     region = do_create_memory_region_at(
-        context, "screen", 0xB8000, PAGE_SIZE,
+        context,
+        "screen",
+        0xB8000,
+        PAGE_SIZE,
         REGION_READ | REGION_WRITE | REGION_KERNEL
     );
 

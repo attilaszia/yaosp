@@ -1,7 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
- * Copyright (c) 2009 Kornel Csernai
+ * Copyright (c) 2009 Zoltan Kovacs, Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -25,11 +24,7 @@
 #define time_t uint64_t
 #define suseconds_t int
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef long clock_t;
+typedef unsigned int clock_t;
 
 typedef struct timeval {
     time_t      tv_sec;  /* Seconds */
@@ -60,9 +55,6 @@ typedef struct tm {
 
 void tzset( void );
 
-clock_t clock( void );
-double difftime( time_t time1, time_t time0 );
-
 time_t time(time_t* tloc);
 int stime(time_t* tptr);
 
@@ -86,8 +78,4 @@ char* ctime_r( const time_t* timep, char* buf );
 
 int nanosleep( const struct timespec* req, struct timespec* rem );
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* _TIME_H_ */
+#endif // _TIME_H_

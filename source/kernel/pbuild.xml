@@ -2,7 +2,7 @@
 
 This file is part of the yaosp build system
 
-Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+Copyright (c) 2008, 2009 Zoltan Kovacs
 Copyright (c) 2009 Kornel Csernai
 
 This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -->
 
 <build default="all">
-    <pinclude file="${toplevel}/config/paths.xml"/>
-
     <array name="arch_files_asm">
         <item>arch/i386/src/asm/boot.S</item>
         <item>arch/i386/src/asm/atomic.S</item>
@@ -46,8 +44,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>arch/i386/src/thread.c</item>
         <item>arch/i386/src/pit.c</item>
         <item>arch/i386/src/apic.c</item>
-        <item>arch/i386/src/acpi.c</item>
-        <item>arch/i386/src/hpet.c</item>
         <item>arch/i386/src/syscall.c</item>
         <item>arch/i386/src/fork.c</item>
         <item>arch/i386/src/hwtime.c</item>
@@ -57,14 +53,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>arch/i386/src/bios.c</item>
         <item>arch/i386/src/signal.c</item>
         <item>arch/i386/src/scheduler.c</item>
+
         <item>arch/i386/src/mm/pagefault.c</item>
         <item>arch/i386/src/mm/paging.c</item>
         <item>arch/i386/src/mm/context.c</item>
         <item>arch/i386/src/mm/region.c</item>
-        <item>arch/i386/src/mm/kmalloc_debug.c</item>
         <item>arch/i386/src/linker/elf32_module.c</item>
         <item>arch/i386/src/linker/elf32_application.c</item>
-        <item>arch/i386/src/linker/elf32_relocate.c</item>
     </array>
 
     <array name="arch_files_x86emu">
@@ -98,16 +93,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/ipc.c</item>
         <item>src/signal.c</item>
         <item>src/debugger.c</item>
-        <item>src/timer.c</item>
         <item>src/sched/waitqueue.c</item>
         <item>src/sched/scheduler.c</item>
         <item>src/linker/elf.c</item>
         <item>src/linker/elf32.c</item>
-        <item>src/linker/elf32_context.c</item>
-        <item>src/linker/elf32_kernel.c</item>
         <item>src/mm/pages.c</item>
         <item>src/mm/kmalloc.c</item>
-        <item>src/mm/kmalloc_debug.c</item>
         <item>src/mm/context.c</item>
         <item>src/mm/region.c</item>
         <item>src/mm/sbrk.c</item>
@@ -118,7 +109,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/vfs/io_context.c</item>
         <item>src/vfs/filesystem.c</item>
         <item>src/vfs/blockcache.c</item>
-        <item>src/vfs/kdebugfs.c</item>
+        <item>src/network/interface.c</item>
         <item>src/network/packet.c</item>
         <item>src/network/arp.c</item>
         <item>src/network/ipv4.c</item>
@@ -126,10 +117,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/network/route.c</item>
         <item>src/network/socket.c</item>
         <item>src/network/tcp.c</item>
-        <item>src/network/udp.c</item>
-        <item>src/network/network.c</item>
-        <item>src/network/device.c</item>
-        <item>src/network/ethernet.c</item>
     </array>
 
     <array name="files_lock">
@@ -151,8 +138,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <item>src/lib/circular.c</item>
         <item>src/lib/stack.c</item>
         <item>src/lib/array.c</item>
-        <item>src/lib/bitmap.c</item>
-        <item>src/lib/random.c</item>
     </array>
 
     <target name="clean">
@@ -184,20 +169,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <echo>Generating system call table</echo>
         <echo/>
 
-        <python>
-            <args>${syscall_gen_py} src/syscall.c include/syscall_table.h</args>
-        </python>
+        <exec executable="python">
+            <arg>../../scripts/syscall_table_generator/syscall_table_generator.py</arg>
+            <arg>src/syscall.c</arg>
+            <arg>include/syscall_table.h</arg>
+        </exec>
 
         <echo>Compiling architecture specific assembly files</echo>
         <echo/>
 
         <for var="i" array="${arch_files_asm}">
             <echo>[GCC    ] source/kernel/${i}</echo>
-            <gcc profile="y-kernel-compile-asm">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/arch/filename(${i}).o</output>
                 <include>./include</include>
                 <define key="__ASSEMBLER__"/>
+                <flag>-c</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Werror</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-ffreestanding</flag>
             </gcc>
         </for>
 
@@ -207,19 +201,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <for var="i" array="${arch_files_c}">
             <echo>[GCC    ] source/kernel/${i}</echo>
-            <gcc profile="y-kernel-compile-c">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/arch/filename(${i}).o</output>
                 <include>./include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Werror</flag>
+                <flag>-Wshadow</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-ffreestanding</flag>
+                <flag>-fno-strict-aliasing</flag>
             </gcc>
         </for>
 
         <for var="i" array="${arch_files_x86emu}">
             <echo>[GCC    ] source/kernel/${i}</echo>
-            <gcc profile="y-kernel-compile-c-3rdparty">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/x86emu/filename(${i}).o</output>
                 <include>./include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Werror</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-ffreestanding</flag>
+                <flag>-fno-strict-aliasing</flag>
             </gcc>
         </for>
 
@@ -229,34 +242,62 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <for var="i" array="${files}">
             <echo>[GCC    ] source/kernel/${i}</echo>
-            <gcc profile="y-kernel-compile-c">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/filename(${i}).o</output>
                 <include>./include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Werror</flag>
+                <flag>-Wshadow</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-ffreestanding</flag>
+                <flag>-fno-strict-aliasing</flag>
             </gcc>
         </for>
 
         <for var="i" array="${files_lock}">
             <echo>[GCC    ] source/kernel/${i}</echo>
-            <gcc profile="y-kernel-compile-c">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/lock/filename(${i}).o</output>
                 <include>./include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Werror</flag>
+                <flag>-Wshadow</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-ffreestanding</flag>
             </gcc>
         </for>
 
         <for var="i" array="${files_lib}">
             <echo>[GCC    ] source/kernel/${i}</echo>
-            <gcc profile="y-kernel-compile-c">
+            <gcc>
                 <input>${i}</input>
                 <output>objs/lib/filename(${i}).o</output>
                 <include>./include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-Werror</flag>
+                <flag>-Wshadow</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-ffreestanding</flag>
             </gcc>
         </for>
 
-        <echo/>
+        <echo></echo>
         <echo>Linking kernel binary</echo>
-        <echo/>
+        <echo></echo>
         <echo>[LD    ] source/kernel/objs/kernel</echo>
 
         <ld>
@@ -270,13 +311,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </ld>
     </target>
 
+    <target name="generate_syscall_table">
+        <copy from="include/syscall_table.h" to="../include/yaosp/syscall_table.h"/>
+    </target>
+
     <target name="install">
-        <copy from="objs/kernel" to="${imagedir}/system/kernel"/>
+        <copy from="objs/kernel" to="../../build/image/system/kernel"/>
     </target>
 
     <target name="all">
         <call target="clean"/>
         <call target="compile"/>
+        <call target="generate_syscall_table"/>
         <call target="install"/>
         <!--call target="test" directory="tst"/-->
     </target>

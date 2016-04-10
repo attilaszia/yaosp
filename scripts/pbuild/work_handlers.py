@@ -1,7 +1,6 @@
 # Python build system
 #
-# Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
-# Copyright (c) 2010 Kornel Csernai
+# Copyright (c) 2008, 2009 Zoltan Kovacs
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License
@@ -16,15 +15,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os
-import sys
-import xml.sax
-
 import works
 import handler
-import context
-import definition_handlers
-import logging
 
 class TargetHandler( handler.NodeHandler ) :
     handled_node = "target"
@@ -63,12 +55,7 @@ class GccHandler( handler.NodeHandler ) :
         self.def_key = ""
 
     def node_started( self, attrs ) :
-        need_gpp = "use_gpp" in attrs and \
-            attrs["use_gpp"] == "yes"
-        gcc_profile = None
-        if "profile" in attrs :
-            gcc_profile = attrs["profile"]
-        self.work = works.GccWork(need_gpp,gcc_profile)
+        self.work = works.GccWork()
 
     def node_finished( self ) :
         if self.work != None :
@@ -88,9 +75,6 @@ class GccHandler( handler.NodeHandler ) :
             self.work.set_output( self.data )
         elif name == "flag" :
             self.work.add_flag( self.data )
-        elif name == "flags" :
-            for flag in self.data.split( " " ) :
-                self.work.add_flag( flag )
         elif name == "include" :
             self.work.add_include( self.data )
         elif name == "define" :
@@ -126,40 +110,8 @@ class LdHandler( handler.NodeHandler ) :
             self.work.add_input( self.data )
         elif name == "output" :
             self.work.set_output( self.data )
-        elif name == "flag" :
-            self.work.add_flag( self.data )
         elif name == "linkerscript" :
             self.work.set_linker_script( self.data )
-
-    def element_data( self, data ) :
-        self.data = data
-
-class ArHandler( handler.NodeHandler ) :
-    handled_node = "ar"
-
-    def __init__( self, parent, context ) :
-        handler.NodeHandler.__init__( self, parent, context )
-
-        self.work = None
-        self.data = ""
-
-    def node_started( self, attrs ) :
-        self.work = works.ArWork()
-
-    def node_finished( self ) :
-        if self.work != None :
-            self.get_parent().add_work( self.work )
-
-    def start_element( self, name, attrs ) :
-        self.data = ""
-
-    def end_element( self, name ) :
-        if name == "input" :
-            self.work.add_input( self.data )
-        elif name == "output" :
-            self.work.set_output( self.data )
-        elif name == "flag" :
-            self.work.add_flag( self.data )
 
     def element_data( self, data ) :
         self.data = data
@@ -273,8 +225,7 @@ class CallHandler( handler.NodeHandler ) :
         self.work = None
 
     def node_started( self, attrs ) :
-        if not "target" in attrs and \
-                not "targets" in attrs :
+        if not "target" in attrs :
             return
 
         if "directory" in attrs :
@@ -282,10 +233,7 @@ class CallHandler( handler.NodeHandler ) :
         else :
             directory = None
 
-        if "target" in attrs :
-            self.work = works.CallTarget( [ attrs["target"] ], directory )
-        elif "targets" in attrs :
-            self.work = works.CallTarget( attrs["targets"].split(","), directory )
+        self.work = works.CallTarget( attrs[ "target" ], directory )
 
     def node_finished( self ) :
         if self.work != None :
@@ -304,24 +252,6 @@ class CopyHandler( handler.NodeHandler ) :
             return
 
         self.work = works.CopyWork( attrs[ "from" ], attrs[ "to" ] )
-
-    def node_finished( self ) :
-        if self.work != None :
-            self.get_parent().add_work( self.work )
-
-class MoveHandler( handler.NodeHandler ) :
-    handled_node = "move"
-
-    def __init__( self, parent, context ) :
-        handler.NodeHandler.__init__( self, parent, context )
-
-        self.work = None
-
-    def node_started( self, attrs ) :
-        if not "from" in attrs or not "to" in attrs :
-            return
-
-        self.work = works.MoveWork( attrs[ "from" ], attrs[ "to" ] )
 
     def node_finished( self ) :
         if self.work != None :
@@ -369,33 +299,6 @@ class ExecHandler( handler.NodeHandler ) :
     def end_element( self, name ) :
         if name == "arg" :
             self.work.add_argument( self.data )
-        elif name == "args" :
-            self.work.add_arguments( self.data.split(" ") )
-
-    def element_data( self, data ) :
-        self.data = data
-
-class PythonHandler( handler.NodeHandler ) :
-    handled_node = "python"
-
-    def __init__( self, parent, context ) :
-        handler.NodeHandler.__init__( self, parent, context )
-
-        self.data = ""
-        self.work = None
-
-    def node_started( self, attrs ) :
-        self.work = works.ExecWork("python")
-
-    def node_finished( self ) :
-        if self.work != None :
-            self.get_parent().add_work( self.work )
-
-    def end_element( self, name ) :
-        if name == "arg" :
-            self.work.add_argument( self.data )
-        elif name == "args" :
-            self.work.add_arguments( self.data.split(" ") )
 
     def element_data( self, data ) :
         self.data = data
@@ -459,40 +362,10 @@ class HTTPGetHandler( handler.NodeHandler ) :
         if self.work != None :
             self.get_parent().add_work( self.work )
 
-class IncludeHandler( handler.NodeHandler ) :
-    handled_node = "pinclude"
-
-    def __init__( self, parent, context ) :
-        handler.NodeHandler.__init__( self, parent, context )
-
-    def node_started( self, attrs ) :
-        if not "file" in attrs :
-            return
-
-        filename = self.get_context().replace_definitions( attrs["file"] )
-
-        if not os.path.isfile(filename) :
-            logging.critical( "Unable to include %s because it is not a valid file." % filename )
-            sys.exit(1)
-
-        inc_context = context.BuildContext( self.get_context().get_project_context() )
-        inc_handler = handler.BuildHandler(inc_context)
-        inc_handler.add_node_handlers( definition_handlers.handlers )
-
-        xml_parser = xml.sax.make_parser()
-        xml_parser.setContentHandler(inc_handler)
-        xml_parser.parse(filename)
-
-        self.get_context().include_definitions(inc_context)
-
-        if "targets" in attrs :
-            self.get_context().include_targets(inc_context, attrs["targets"].split(","))
-
 handlers = [
     TargetHandler,
     GccHandler,
     LdHandler,
-    ArHandler,
     EchoHandler,
     ForHandler,
     MkDirHandler,
@@ -500,12 +373,9 @@ handlers = [
     CleanDirHandler,
     CallHandler,
     CopyHandler,
-    MoveHandler,
     DeleteHandler,
     ExecHandler,
-    PythonHandler,
     SymlinkHandler,
     ChdirHandler,
-    HTTPGetHandler,
-    IncludeHandler
+    HTTPGetHandler
 ]

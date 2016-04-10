@@ -1,6 +1,6 @@
 # Python build system
 #
-# Copyright (c) 2008, 2010 Zoltan Kovacs
+# Copyright (c) 2008 Zoltan Kovacs
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License
@@ -29,10 +29,10 @@ class Definition :
         return []
 
 class String( Definition ) :
-    def __init__( self, name, value = "" ) :
+    def __init__( self, name ) :
         Definition.__init__( self, name )
 
-        self.value = value
+        self.value = ""
 
     def set_value( self, value ) :
         self.value = value
@@ -63,7 +63,7 @@ class DefinitionManager :
         self.definitions = []
 
     def add_definition( self, definition ) :
-        self.definitions += [definition]
+        self.definitions.append( definition )
 
     def remove_definition( self, name ) :
         for definition in self.definitions :
@@ -72,13 +72,10 @@ class DefinitionManager :
 
     def get_definition( self, name ) :
         for definition in self.definitions :
-            if definition.get_name() == name :
+            if definition.get_name() == name : 
                 return definition
 
         return None
-
-    def get_definitions( self ) :
-        return self.definitions
 
 def is_definition( name ) :
     return len( name ) > 3 and \

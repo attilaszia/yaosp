@@ -1,6 +1,6 @@
 /* Semaphore implementation
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -25,6 +25,8 @@
 #include <lock/common.h>
 #include <sched/scheduler.h>
 #include <lib/string.h>
+
+#include <arch/pit.h>
 
 static int do_lock_semaphore( lock_context_t* context, lock_id semaphore_id, int count, int flags, uint64_t timeout ) {
     thread_t* thread;
@@ -114,7 +116,7 @@ static int do_unlock_semaphore( lock_context_t* context, lock_id semaphore_id, i
     semaphore->count += count;
 
     spinlock( &scheduler_lock );
-    waitqueue_wake_up_head( &semaphore->waiters, count );
+    waitqueue_wake_up_all( &semaphore->waiters );
     spinunlock( &scheduler_lock );
 
     spinunlock_enable( &context->lock );
@@ -124,33 +126,6 @@ static int do_unlock_semaphore( lock_context_t* context, lock_id semaphore_id, i
 
 int semaphore_unlock( lock_id semaphore, int count ) {
     return do_unlock_semaphore( &kernel_lock_context, semaphore, count );
-}
-
-static int do_reset_semaphore( lock_context_t* context, lock_id semaphore_id ) {
-    lock_header_t* header;
-    semaphore_t* semaphore;
-
-    spinlock_disable( &context->lock );
-
-    header = lock_context_get( context, semaphore_id );
-
-    if ( ( header == NULL ) ||
-         ( header->type != SEMAPHORE ) ) {
-        spinunlock_enable( &context->lock );
-
-        return -EINVAL;
-    }
-
-    semaphore = ( semaphore_t* )header;
-    semaphore->count = semaphore->initial_count;
-
-    spinunlock_enable( &context->lock );
-
-    return 0;
-}
-
-int semaphore_reset( lock_id semaphore ) {
-    return do_reset_semaphore( &kernel_lock_context, semaphore );
 }
 
 static int do_create_semaphore( lock_context_t* context, const char* name, int count ) {
@@ -179,7 +154,6 @@ static int do_create_semaphore( lock_context_t* context, const char* name, int c
     /* Initialize semaphore specific fields */
 
     semaphore->count = count;
-    semaphore->initial_count = count;
 
     error = init_waitqueue( &semaphore->waiters );
 

@@ -1,6 +1,6 @@
 /* Parallel AT Attachment driver
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -32,21 +32,19 @@ int pata_port_wait( pata_port_t* port, uint8_t set, uint8_t clear, bool check_er
     end_time = get_system_time() + timeout;
 
     inb( port->ctrl_base );
-    udelay( 5 );
+    thread_sleep( 1 );
 
     while ( get_system_time() < end_time ) {
         uint8_t status;
 
         status = inb( port->ctrl_base );
 
-        if ( ( check_error ) &&
-             ( ( status & PATA_STATUS_ERROR ) != 0 ) ) {
-            kprintf( ERROR, "pata: pata_port_wait(): Error! (port=%d:%d,status=%x)\n", port->channel, port->is_slave ? 1 : 0, status );
+        if ( ( check_error ) && ( ( status & PATA_STATUS_ERROR ) != 0 ) ) {
+            kprintf( ERROR, "PATA: pata_port_wait(): Error! (status=%x)\n", status );
             return -1;
         }
 
-        if ( ( ( status & set ) == set ) &&
-             ( ( status & clear ) == 0 ) ) {
+        if ( ( ( status & set ) == set ) && ( ( status & clear ) == 0 ) ) {
             return 0;
         }
     }
@@ -62,7 +60,7 @@ void pata_port_select( pata_port_t* port ) {
     }
 
     inb( port->ctrl_base );
-    udelay( 5 );
+    thread_sleep( 1 );
 }
 
 bool pata_is_port_present( pata_port_t* port ) {
@@ -75,7 +73,7 @@ bool pata_is_port_present( pata_port_t* port ) {
     outb( 0x55, port->cmd_base + PATA_REG_LBA_LOW );
 
     inb( port->ctrl_base );
-    udelay( 5 );
+    thread_sleep( 1 );
 
     count = inb( port->cmd_base + PATA_REG_COUNT );
     lba_low = inb( port->cmd_base + PATA_REG_LBA_LOW );
@@ -122,7 +120,7 @@ int pata_port_identify( pata_port_t* port ) {
         uint8_t err;
 
         err = inb( port->cmd_base + PATA_REG_ERROR );
-        kprintf( ERROR, "pata: Identify command timed out (error=%x)\n", err );
+        kprintf( ERROR, "PATA: Identify command timed out (error=%x)\n", err );
 
         return error;
     }

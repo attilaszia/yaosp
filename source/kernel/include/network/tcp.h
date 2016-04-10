@@ -1,6 +1,6 @@
 /* TCP packet handling
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -20,7 +20,6 @@
 #define _NETWORK_TCP_H_
 
 #include <types.h>
-#include <macros.h>
 #include <lock/mutex.h>
 #include <lock/condition.h>
 #include <vfs/vfs.h>
@@ -56,30 +55,23 @@ typedef struct tcp_header {
     uint16_t window_size;
     uint16_t checksum;
     uint16_t urgent_pointer;
-} __PACKED tcp_header_t;
+} __attribute__(( packed )) tcp_header_t;
 
 typedef struct tcp_option_header {
     uint8_t kind;
     uint8_t length;
-} __PACKED tcp_option_header_t;
+} __attribute__(( packed )) tcp_option_header_t;
 
 typedef struct tcp_mss_option {
     uint8_t kind;
     uint8_t length;
     uint16_t mss;
-} __PACKED tcp_mss_option_t;
+} __attribute__(( packed )) tcp_mss_option_t;
 
 typedef enum tcp_socket_state {
     TCP_STATE_CLOSED,
     TCP_STATE_SYN_SENT,
-    TCP_STATE_SYN_RECEIVED,
-    TCP_STATE_ESTABLISHED,
-    TCP_STATE_FIN_WAIT_1,
-    TCP_STATE_FIN_WAIT_2,
-    TCP_STATE_CLOSE_WAIT,
-    TCP_STATE_CLOSING,
-    TCP_STATE_LAST_ACK,
-    TCP_STATE_TIME_WAIT
+    TCP_STATE_ESTABLISHED
 } tcp_socket_state_t;
 
 typedef enum tcp_timer_type {
@@ -117,10 +109,8 @@ typedef struct tcp_socket {
     tcp_socket_state_t state;
 
     int mss;
-    int nonblocking;
 
     lock_id rx_queue;
-    uint32_t rx_last_received_seq;
     circular_buffer_t rx_buffer;
     circular_pointer_t rx_user_data;
     circular_pointer_t rx_free_data;

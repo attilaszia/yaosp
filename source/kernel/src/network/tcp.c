@@ -1,6 +1,6 @@
 /* TCP packet handling
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -16,10 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <config.h>
-
-#ifdef ENABLE_NETWORK
-
 #include <errno.h>
 #include <console.h>
 #include <macros.h>
@@ -32,6 +28,8 @@
 #include <network/route.h>
 #include <network/device.h>
 #include <lib/string.h>
+
+#include <arch/pit.h>
 
 #include <arch/interrupt.h>
 
@@ -47,14 +45,14 @@ static uint16_t tcp_checksum( uint8_t* src_address, uint8_t* dest_address, uint8
     checksum = 0;
     data = ( uint16_t* )src_address;
 
-    for ( i = 0; i < IPV4_ADDR_LEN / 2; i++, data++ ) {
-        checksum += *data;
+    for ( i = 0; i < IPV4_ADDR_LEN / 2; i++ ) {
+        checksum += data[ i ];
     }
 
     data = ( uint16_t* )dest_address;
 
-    for ( i = 0; i < IPV4_ADDR_LEN / 2; i++, data++ ) {
-        checksum += *data;
+    for ( i = 0; i < IPV4_ADDR_LEN / 2; i++ ) {
+        checksum += data[ i ];
     }
 
     checksum += htonw( IP_PROTO_TCP );
@@ -62,12 +60,18 @@ static uint16_t tcp_checksum( uint8_t* src_address, uint8_t* dest_address, uint8
 
     data = ( uint16_t* )tcp_header;
 
-    for ( i = 0; i < tcp_size / 2; i++, data++ ) {
-        checksum += *data;
+    for ( i = 0; i < tcp_size / 2; i++ ) {
+        checksum += data[ i ];
     }
 
     if ( ( tcp_size % 2 ) != 0 ) {
-        checksum += *( uint8_t* )data;
+        uint8_t* tmp;
+        uint16_t tmp_data;
+
+        tmp = ( uint8_t* )( &data[ tcp_size / 2 ] );
+        tmp_data = ( uint16_t )*tmp;
+
+        checksum += tmp_data;
     }
 
     while ( checksum >> 16 ) {
@@ -77,8 +81,7 @@ static uint16_t tcp_checksum( uint8_t* src_address, uint8_t* dest_address, uint8
     return ~checksum;
 }
 
-static int tcp_send_packet( socket_t* socket, tcp_socket_t* tcp_socket, uint8_t flags, uint8_t* payload,
-                            size_t payload_size, size_t option_size, uint32_t seq_number, uint32_t ack_number ) {
+static int tcp_send_packet( socket_t* socket, tcp_socket_t* tcp_socket, uint8_t flags, uint8_t* payload, size_t payload_size, size_t option_size, uint32_t seq_number, uint32_t ack_number ) {
     uint8_t* data;
     packet_t* packet;
     size_t window_size;
@@ -96,6 +99,7 @@ static int tcp_send_packet( socket_t* socket, tcp_socket_t* tcp_socket, uint8_t 
     }
 
     data = packet->data + packet->size;
+
     data -= ( sizeof( tcp_header_t ) + payload_size );
     packet->transport_data = data;
 
@@ -187,21 +191,16 @@ static int tcp_send_reset( packet_t* packet ) {
 }
 
 static int tcp_close( socket_t* socket ) {
-    DEBUG_LOG( "%s()\n", __FUNCTION__ );
-
     return 0;
 }
 
 static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t addrlen ) {
     int error;
-    uint8_t* ip;
     route_t* route;
     tcp_socket_t* tcp_socket;
     struct sockaddr_in* in_address;
     tcp_mss_option_t mss_option;
     tcp_timer_t* syn_timeout_timer;
-
-    DEBUG_LOG( "%s()\n", __FUNCTION__ );
 
     tcp_socket = ( tcp_socket_t* )socket->data;
     in_address = ( struct sockaddr_in* )address;
@@ -209,44 +208,33 @@ static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t ad
     mutex_lock( tcp_socket->mutex, LOCK_IGNORE_SIGNAL );
 
     if ( tcp_socket->state != TCP_STATE_CLOSED ) {
-        switch ( tcp_socket->state ) {
-            case TCP_STATE_SYN_SENT :
-                error = -EALREADY;
-                break;
-
-            case TCP_STATE_ESTABLISHED :
-                error = -EISCONN;
-                break;
-
-            default :
-                error = -EINVAL;
-                break;
-        }
-
         mutex_unlock( tcp_socket->mutex );
 
-        return error;
+        return -EINVAL;
     }
+
+    tcp_socket->state = TCP_STATE_SYN_SENT;
 
     /* Find out the MSS value to the destination */
 
-    ip = ( uint8_t* )&in_address->sin_addr.s_addr;
-    route = route_find( ip );
+    route = find_route( ( uint8_t* )&in_address->sin_addr.s_addr );
 
     if ( route == NULL ) {
         mutex_unlock( tcp_socket->mutex );
-        kprintf( WARNING, "net: no route for TCP endpoint: %d.%d.%d.%d.\n", ip[ 0 ], ip[ 1 ], ip[ 2 ], ip[ 3 ] );
-        return -ENETUNREACH;
+
+        kprintf( WARNING, "net: No route for TCP endpoint!\n" );
+
+        return -EINVAL;
     }
 
-    memcpy( socket->src_address, route->device->ip_addr, IPV4_ADDR_LEN );
+    memcpy( socket->src_address, route->interface->ip_address, IPV4_ADDR_LEN );
     socket->src_port = ( get_system_time() % 65535 ) + 1;
 
     /* Calculate our MSS value */
 
-    tcp_socket->mss = route->device->mtu - ( IPV4_HEADER_LEN + TCP_HEADER_LEN );
+    tcp_socket->mss = route->interface->mtu - ( IPV4_HEADER_LEN + TCP_HEADER_LEN );
 
-    route_put( route );
+    put_route( route );
 
     /* Copy the endpoint information to the TCP socket structure */
 
@@ -261,11 +249,7 @@ static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t ad
     mss_option.length = sizeof( tcp_mss_option_t );
     mss_option.mss = htonw( tcp_socket->mss );
 
-    /* Put the socket to SYN_SENT state. */
-
-    tcp_socket->state = TCP_STATE_SYN_SENT;
-
-    /* Make the SYN timeout checker timer active. */
+    /* Make the SYN retransmit timer active */
 
     syn_timeout_timer = &tcp_socket->timers[ TCP_TIMER_SYN_TIMEOUT ];
 
@@ -277,7 +261,9 @@ static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t ad
     /* Put the new endpoint to the table */
 
     mutex_lock( tcp_endpoint_lock, LOCK_IGNORE_SIGNAL );
+
     hashtable_add( &tcp_endpoint_table, ( hashitem_t* )tcp_socket );
+
     mutex_unlock( tcp_endpoint_lock );
 
     /* Send the SYN packet */
@@ -293,12 +279,6 @@ static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t ad
         0
     );
 
-    /* If this is a nonblocking socket, we're done */
-
-    if ( tcp_socket->nonblocking ) {
-        return -EINPROGRESS;
-    }
-
     /* Wait until the connection is established */
 
     semaphore_lock( tcp_socket->sync, LOCK_IGNORE_SIGNAL, 1 );
@@ -310,7 +290,11 @@ static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t ad
     if ( tcp_socket->state == TCP_STATE_ESTABLISHED ) {
         error = 0;
     } else {
-        error = -socket_get_error( tcp_socket->socket );
+        if ( get_system_time() >= syn_timeout_timer->expire_time ) {
+            error = -ETIMEDOUT;
+        } else {
+            error = -EINVAL; /* TODO: proper error code here? */
+        }
     }
 
     mutex_unlock( tcp_socket->mutex );
@@ -318,131 +302,80 @@ static int tcp_connect( socket_t* socket, struct sockaddr* address, socklen_t ad
     return error;
 }
 
-static int tcp_recvmsg( socket_t* socket, struct msghdr* msg, int flags ) {
-    int i = 0;
-    size_t data_read;
+static int tcp_read( socket_t* socket, void* data, size_t length ) {
+    size_t to_copy;
     size_t rx_data_size;
     tcp_socket_t* tcp_socket;
 
-    data_read = 0;
     tcp_socket = ( tcp_socket_t* )socket->data;
 
     mutex_lock( tcp_socket->mutex, LOCK_IGNORE_SIGNAL );
 
-    if ( tcp_socket->state != TCP_STATE_ESTABLISHED ) {
-        mutex_unlock( tcp_socket->mutex );
-        return -ENOTCONN;
-    }
-
     rx_data_size = circular_pointer_diff( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, &tcp_socket->rx_free_data );
 
-    if ( tcp_socket->nonblocking ) {
-        if ( rx_data_size == 0 ) {
-            mutex_unlock( tcp_socket->mutex );
+    while ( rx_data_size == 0 ) {
+        condition_wait( tcp_socket->rx_queue, tcp_socket->mutex );
 
-            return -EWOULDBLOCK;
-        }
-    } else {
-        /* If there is no available data on the socket, then wait for someting to come ... */
-
-        while ( rx_data_size == 0 ) {
-            condition_wait( tcp_socket->rx_queue, tcp_socket->mutex );
-
-            rx_data_size = circular_pointer_diff(
-                &tcp_socket->rx_buffer,
-                &tcp_socket->rx_user_data,
-                &tcp_socket->rx_free_data
-            );
-        }
+        rx_data_size = circular_pointer_diff( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, &tcp_socket->rx_free_data );
     }
 
-    /* Read the available data from the socket */
+    to_copy = MIN( rx_data_size, length );
 
-    while ( ( rx_data_size > 0 ) && ( i < msg->msg_iovlen ) ) {
-        size_t to_copy;
-        struct iovec* iov = &msg->msg_iov[ i ];
-
-        /* Copy the data */
-
-        to_copy = MIN( rx_data_size, iov->iov_len );
-
-        circular_buffer_read( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, iov->iov_base, to_copy );
-        circular_pointer_move( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, to_copy );
-
-        i++;
-        data_read += to_copy;
-
-        /* Recalculate the available RX data size */
-
-        rx_data_size = circular_pointer_diff( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data,
-                                              &tcp_socket->rx_free_data );
-    }
+    circular_buffer_read( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, data, to_copy );
+    circular_pointer_move( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, to_copy );
 
     mutex_unlock( tcp_socket->mutex );
 
-    return data_read;
+    return to_copy;
 }
 
-static int tcp_sendmsg( socket_t* socket, struct msghdr* msg, int flags ) {
-    int i;
+static int tcp_write( socket_t* socket, const void* _data, size_t length ) {
+    uint8_t* data;
     size_t data_written;
     tcp_socket_t* tcp_socket;
 
     data_written = 0;
+    data = ( uint8_t* )_data;
     tcp_socket = ( tcp_socket_t* )socket->data;
 
     mutex_lock( tcp_socket->mutex, LOCK_IGNORE_SIGNAL );
 
-    if ( tcp_socket->state != TCP_STATE_ESTABLISHED ) {
-        mutex_unlock( tcp_socket->mutex );
-        return -ENOTCONN;
-    }
+    while ( length > 0 ) {
+        size_t to_copy;
+        size_t free_size;
 
-    for ( i = 0; i < msg->msg_iovlen; i++ ) {
-        size_t length;
-        uint8_t* data;
-        struct iovec* iov = &msg->msg_iov[ i ];
+        /* Wait until there is free space in the send buffer */
 
-        data = ( uint8_t* )iov->iov_base;
-        length = iov->iov_len;
+        free_size = circular_buffer_size( &tcp_socket->tx_buffer ) - circular_pointer_diff(
+            &tcp_socket->tx_buffer,
+            &tcp_socket->tx_first_unacked,
+            &tcp_socket->tx_free_data
+        );
 
-        while ( length > 0 ) {
-            size_t to_copy;
-            size_t free_size;
-
-            /* Wait until there is free space in the send buffer */
+        while ( free_size == 0 ) {
+            condition_wait( tcp_socket->tx_queue, tcp_socket->mutex );
 
             free_size = circular_buffer_size( &tcp_socket->tx_buffer ) - circular_pointer_diff(
                 &tcp_socket->tx_buffer,
                 &tcp_socket->tx_first_unacked,
                 &tcp_socket->tx_free_data
             );
-
-            while ( free_size == 0 ) {
-                condition_wait( tcp_socket->tx_queue, tcp_socket->mutex );
-
-                free_size = circular_buffer_size( &tcp_socket->tx_buffer ) - circular_pointer_diff(
-                    &tcp_socket->tx_buffer,
-                    &tcp_socket->tx_first_unacked,
-                    &tcp_socket->tx_free_data
-                );
-            }
-
-            /* Copy the data to the send buffer */
-
-            to_copy = MIN( length, free_size );
-
-            circular_buffer_write( &tcp_socket->tx_buffer, &tcp_socket->tx_free_data, data, to_copy );
-            circular_pointer_move( &tcp_socket->tx_buffer, &tcp_socket->tx_free_data, to_copy );
-
-            data += to_copy;
-            length -= to_copy;
-            data_written += to_copy;
-
-            /* Wake up the TCP timer thread to transmit the data */
-
-            thread_wake_up( tcp_timer_thread );
         }
+
+        /* Copy the data to the send buffer */
+
+        to_copy = MIN( length, free_size );
+
+        circular_buffer_write( &tcp_socket->tx_buffer, &tcp_socket->tx_free_data, data, to_copy );
+        circular_pointer_move( &tcp_socket->tx_buffer, &tcp_socket->tx_free_data, to_copy );
+
+        data += to_copy;
+        length -= to_copy;
+        data_written += to_copy;
+
+        /* Wake up the TCP timer thread to transmit the data */
+
+        thread_wake_up( tcp_timer_thread );
     }
 
     mutex_unlock( tcp_socket->mutex );
@@ -450,51 +383,13 @@ static int tcp_sendmsg( socket_t* socket, struct msghdr* msg, int flags ) {
     return data_written;
 }
 
-static int tcp_getsockopt( socket_t* socket, int level, int optname, void* optval, socklen_t* optlen ) {
-    int error;
-
-    switch ( optname ) {
-        default :
-            kprintf( WARNING, "tcp_getsockopt(): unknown option: %d.\n", optname );
-            error = -EINVAL;
-            break;
-    }
-
-    return error;
-}
-
-static int tcp_setsockopt( socket_t* socket, int level, int optname, void* optval, socklen_t optlen ) {
-    int error;
-
-    switch ( optname ) {
-        default :
-            kprintf( WARNING, "tcp_setsockopt(): unknown option: %d.\n", optname );
-            error = -EINVAL;
-            break;
-    }
-
-    return error;
-}
-
 static int tcp_set_flags( socket_t* socket, int flags ) {
-    tcp_socket_t* tcp_socket;
-
-    tcp_socket = ( tcp_socket_t* )socket->data;
-
-    mutex_lock( tcp_socket->mutex, LOCK_IGNORE_SIGNAL );
-
-    if ( flags & O_NONBLOCK ) {
-        tcp_socket->nonblocking = 1;
-    } else {
-        tcp_socket->nonblocking = 0;
-    }
-
-    mutex_unlock( tcp_socket->mutex );
+    /* TODO */
 
     return 0;
 }
 
-static int tcp_add_select_request( socket_t* socket, select_request_t* request ) {
+static int tcp_add_select_request( socket_t* socket, struct select_request* request ) {
     tcp_socket_t* tcp_socket;
 
     tcp_socket = ( tcp_socket_t* )socket->data;
@@ -506,58 +401,28 @@ static int tcp_add_select_request( socket_t* socket, select_request_t* request )
             request->next = tcp_socket->first_read_select;
             tcp_socket->first_read_select = request;
 
-            switch ( tcp_socket->state ) {
-                case TCP_STATE_CLOSED :
-                    request->ready = true;
-                    semaphore_unlock( request->sync, 1 );
-                    break;
-
-                case TCP_STATE_ESTABLISHED :
-                    if ( circular_pointer_diff(
-                            &tcp_socket->rx_buffer,
-                            &tcp_socket->rx_user_data,
-                            &tcp_socket->rx_free_data ) > 0 ) {
-                        request->ready = true;
-                        semaphore_unlock( request->sync, 1 );
-                    }
-
-                    break;
-
-                default :
-                    break;
+            if ( circular_pointer_diff( &tcp_socket->rx_buffer, &tcp_socket->rx_user_data, &tcp_socket->rx_free_data ) > 0 ) {
+                request->ready = true;
+                semaphore_unlock( request->sync, 1 );
             }
 
             break;
 
         case SELECT_WRITE : {
+            size_t free_size;
+
             request->next = tcp_socket->first_write_select;
             tcp_socket->first_write_select = request;
 
-            switch ( tcp_socket->state ) {
-                case TCP_STATE_CLOSED :
-                    request->ready = true;
-                    semaphore_unlock( request->sync, 1 );
-                    break;
+            free_size = circular_buffer_size( &tcp_socket->tx_buffer ) - circular_pointer_diff(
+                &tcp_socket->tx_buffer,
+                &tcp_socket->tx_first_unacked,
+                &tcp_socket->tx_free_data
+            );
 
-                case TCP_STATE_ESTABLISHED : {
-                    size_t free_size;
-
-                    free_size = circular_buffer_size( &tcp_socket->tx_buffer ) - circular_pointer_diff(
-                        &tcp_socket->tx_buffer,
-                        &tcp_socket->tx_first_unacked,
-                        &tcp_socket->tx_free_data
-                    );
-
-                    if ( free_size > 0 ) {
-                        request->ready = true;
-                        semaphore_unlock( request->sync, 1 );
-                    }
-
-                    break;
-                }
-
-                default :
-                    break;
+            if ( free_size > 0 ) {
+                request->ready = true;
+                semaphore_unlock( request->sync, 1 );
             }
 
             break;
@@ -572,7 +437,7 @@ static int tcp_add_select_request( socket_t* socket, select_request_t* request )
     return 0;
 }
 
-static int tcp_remove_select_request( socket_t* socket, select_request_t* request ) {
+static int tcp_remove_select_request( socket_t* socket, struct select_request* request ) {
     tcp_socket_t* tcp_socket;
     select_request_t* prev;
     select_request_t* tmp;
@@ -636,46 +501,23 @@ static int tcp_remove_select_request( socket_t* socket, select_request_t* reques
 static socket_calls_t tcp_socket_calls = {
     .close = tcp_close,
     .connect = tcp_connect,
-    .bind = NULL,
-    .recvmsg = tcp_recvmsg,
-    .sendmsg = tcp_sendmsg,
-    .getsockopt = tcp_getsockopt,
-    .setsockopt = tcp_setsockopt,
+    .read = tcp_read,
+    .write = tcp_write,
     .set_flags = tcp_set_flags,
     .add_select_request = tcp_add_select_request,
     .remove_select_request = tcp_remove_select_request
 };
 
-static int tcp_notify_write_listeners( tcp_socket_t* tcp_socket ) {
-    select_request_t* request;
-
-    request = tcp_socket->first_write_select;
-
-    while ( request != NULL ) {
-        request->ready = true;
-        semaphore_unlock( request->sync, 1 );
-
-        request = request->next;
-    }
-
-    return 0;
-}
-
 static int tcp_handle_syn_timeout( tcp_socket_t* tcp_socket ) {
-    /* Shut down the SYN timeout timer. */
+    /* Shut down the SYN retransmit timer */
 
     tcp_socket->timers[ TCP_TIMER_SYN_TIMEOUT ].running = false;
 
-    /* Connection failed as we did not receive the SYN|ACK in time. */
+    /* Connection failed :( */
 
     tcp_socket->state = TCP_STATE_CLOSED;
-    socket_set_error( tcp_socket->socket, ETIMEDOUT );
 
-    if ( tcp_socket->nonblocking ) {
-        tcp_notify_write_listeners( tcp_socket );
-    } else {
-        semaphore_unlock( tcp_socket->sync, 1 );
-    }
+    semaphore_unlock( tcp_socket->sync, 1 );
 
     return 0;
 }
@@ -701,12 +543,12 @@ static int tcp_handle_transmit( tcp_socket_t* tcp_socket ) {
     tcp_send_packet(
         socket,
         tcp_socket,
-        TCP_PSH | TCP_ACK,
+        TCP_PSH,
         ( uint8_t* )circular_pointer_get( &tcp_socket->tx_buffer, &tcp_socket->tx_last_sent ),
         data_to_send,
         0,
         tcp_socket->tx_last_sent_seq,
-        tcp_socket->rx_last_received_seq + 1
+        0
     );
 
     circular_pointer_move( &tcp_socket->tx_buffer, &tcp_socket->tx_last_sent, data_to_send );
@@ -774,7 +616,6 @@ int tcp_create_socket( socket_t* socket ) {
     atomic_set( &tcp_socket->ref_count, 1 );
     tcp_socket->socket = socket;
     tcp_socket->mss = 0;
-    tcp_socket->nonblocking = 0;
     tcp_socket->state = TCP_STATE_CLOSED;
     tcp_socket->tx_last_sent_seq = ( uint32_t )get_system_time();
 
@@ -793,25 +634,25 @@ int tcp_create_socket( socket_t* socket ) {
 
     return 0;
 
- error7:
+error7:
     condition_destroy( tcp_socket->tx_queue );
 
- error6:
+error6:
     condition_destroy( tcp_socket->rx_queue );
 
- error5:
+error5:
     mutex_destroy( tcp_socket->mutex );
 
- error4:
+error4:
     destroy_circular_buffer( &tcp_socket->tx_buffer );
 
- error3:
+error3:
     destroy_circular_buffer( &tcp_socket->rx_buffer );
 
- error2:
+error2:
     kfree( tcp_socket );
 
- error1:
+error1:
     return -ENOMEM;
 }
 
@@ -873,27 +714,21 @@ void put_tcp_endpoint( tcp_socket_t* tcp_socket ) {
 }
 
 static int tcp_handle_syn_sent( tcp_socket_t* tcp_socket, packet_t* packet ) {
-    int option_size;
     socket_t* socket;
+    int option_size;
     tcp_header_t* tcp_header;
     tcp_option_header_t* tcp_option_header;
 
     tcp_header = ( tcp_header_t* )packet->transport_data;
     socket = ( socket_t* )tcp_socket->socket;
 
-    /* Check if we got something other than SYN|ACK. It means an error, definitely. */
-
     if ( ( tcp_header->ctrl_flags & ( TCP_SYN | TCP_ACK ) ) != ( TCP_SYN | TCP_ACK ) ) {
         tcp_socket->state = TCP_STATE_CLOSED;
+        tcp_send_reset( packet );
 
-        if ( tcp_header->ctrl_flags & TCP_RST ) {
-            socket_set_error( socket, ECONNREFUSED );
-        } else {
-            socket_set_error( socket, EINVAL );
-            tcp_send_reset( packet );
-        }
+        semaphore_unlock( tcp_socket->sync, 1 );
 
-        goto out;
+        return -EINVAL;
     }
 
     /* Parse options in the TCP header */
@@ -914,6 +749,8 @@ static int tcp_handle_syn_sent( tcp_socket_t* tcp_socket, packet_t* packet ) {
 
                     mss_option = ( tcp_mss_option_t* )tcp_option_header;
 
+                    DEBUG_LOG( "MSS: %d\n", htonw( mss_option->mss ) );
+
                     break;
                 }
             }
@@ -927,8 +764,6 @@ static int tcp_handle_syn_sent( tcp_socket_t* tcp_socket, packet_t* packet ) {
     tcp_socket->tx_window_size = ntohw( tcp_header->window_size );
     tcp_socket->tx_last_unacked_seq = tcp_socket->tx_last_sent_seq;
 
-    tcp_socket->rx_last_received_seq = ntohl( tcp_header->seq_number );
-
     tcp_send_packet(
         socket,
         tcp_socket,
@@ -937,21 +772,12 @@ static int tcp_handle_syn_sent( tcp_socket_t* tcp_socket, packet_t* packet ) {
         0,
         0,
         tcp_socket->tx_last_sent_seq,
-        tcp_socket->rx_last_received_seq + 1
+        ntohl( tcp_header->seq_number ) + 1
     );
 
     tcp_socket->timers[ TCP_TIMER_SYN_TIMEOUT ].running = false;
 
-    /* Connection has been established properly. Clear errors on the socket. */
-
-    socket_set_error( tcp_socket->socket, 0 );
-
- out:
-    if ( tcp_socket->nonblocking ) {
-        tcp_notify_write_listeners( tcp_socket );
-    } else {
-        semaphore_unlock( tcp_socket->sync, 1 );
-    }
+    semaphore_unlock( tcp_socket->sync, 1 );
 
     return 0;
 }
@@ -968,32 +794,29 @@ static void tcp_notify_read_waiters( tcp_socket_t* tcp_socket ) {
         tmp = tmp->next;
     }
 
+    tcp_socket->first_read_select = NULL;
+
     condition_broadcast( tcp_socket->rx_queue );
 }
 
 static int tcp_handle_established( tcp_socket_t* tcp_socket, packet_t* packet ) {
-    uint8_t* data;
-    size_t data_size;
     socket_t* socket;
-    ipv4_header_t* ip_header;
     tcp_header_t* tcp_header;
 
     socket = ( socket_t* )tcp_socket->socket;
-    ip_header = ( ipv4_header_t* )packet->network_data;
     tcp_header = ( tcp_header_t* )packet->transport_data;
 
-    tcp_socket->rx_last_received_seq = ntohl( tcp_header->seq_number );
-
-    /* Calculate the data pointer and the data size in the incoming packet */
-
-    data = ( uint8_t* )tcp_header + ( tcp_header->data_offset >> 4 ) * 4;
-    data_size = htonw( ip_header->packet_size ) -
-        ( IPV4_HDR_SIZE( ip_header->version_and_size ) * 4 + ( tcp_header->data_offset >> 4 ) * 4 );
-
-    /* Handle incoming data if we have any ... */
-
-    if ( data_size > 0 ) {
+    if ( tcp_header->ctrl_flags & TCP_PSH ) {
+        uint8_t* data;
+        size_t data_size;
         size_t handled_rx_size;
+
+        /* Calculate the data pointer and the data size in the incoming packet */
+
+        data = ( uint8_t* )tcp_header + ( tcp_header->data_offset >> 4 ) * 4;
+        data_size = ( packet->size -
+            ( ( ( uint32_t )packet->transport_data - ( uint32_t )packet->data ) +
+              ( tcp_header->data_offset >> 4 ) * 4 ) );
 
         /* Calculate the free size in the RX buffer */
 
@@ -1084,21 +907,9 @@ static int tcp_handle_established( tcp_socket_t* tcp_socket, packet_t* packet ) 
 }
 
 int tcp_input( packet_t* packet ) {
-    uint32_t transport_size;
     tcp_socket_t* tcp_socket;
-    tcp_header_t* tcp_header;
-    ipv4_header_t* ip_header;
 
-    ip_header = ( ipv4_header_t* )packet->network_data;
-    tcp_header = ( tcp_header_t* )packet->transport_data;
-    transport_size = htonw( ip_header->packet_size ) - IPV4_HDR_SIZE( ip_header->version_and_size ) * 4;
-
-    if ( tcp_checksum( ip_header->src_address, ip_header->dest_address,
-                       ( uint8_t* )tcp_header, transport_size ) != 0 ) {
-        kprintf( WARNING, "tcp_input(): Invalid TCP checksum, dropping packet.\n" );
-        delete_packet( packet );
-        return 0;
-    }
+    /* TODO: Check the TCP checksum */
 
     tcp_socket = get_tcp_endpoint( packet );
 
@@ -1123,7 +934,7 @@ int tcp_input( packet_t* packet ) {
 
     put_tcp_endpoint( tcp_socket );
 
- out:
+out:
     delete_packet( packet );
 
     return 0;
@@ -1246,5 +1057,3 @@ __init int init_tcp( void ) {
 
     return 0;
 }
-
-#endif /* ENABLE_NETWORK */

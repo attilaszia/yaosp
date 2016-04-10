@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -21,11 +21,8 @@
 #ifdef NDEBUG
 #define assert(expr) ((void)0)
 #else
-# define __ASSERT_VOID_CAST (void)
-# define assert(expr)                                                  \
-  ((expr)                                                              \
-  ? __ASSERT_VOID_CAST (0)                                             \
-  : __assert_fail (#expr, __FILE__, __LINE__))
+#define assert(expr) \
+    if ( !(expr) ) { __assert_fail( #expr, __FILE__, __LINE__ ); }
 #endif /* NDEBUG */
 
 #ifndef _ASSERT_H_
@@ -35,18 +32,10 @@
 #include <stdlib.h>
 #include <yaosp/debug.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static inline void __assert_fail( const char* expr, const char* file, int line ) {
     printf( "Assertion (%s) failed at %s:%d\n", expr, file, line );
     dbprintf( "Assertion (%s) failed at %s:%d\n", expr, file, line );
     abort();
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _ASSERT_H_ */

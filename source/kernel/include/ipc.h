@@ -1,6 +1,6 @@
 /* Inter Process Communication
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -20,7 +20,6 @@
 #define _IPC_H_
 
 #include <types.h>
-#include <process.h>
 #include <lock/condition.h>
 
 typedef int ipc_port_id;
@@ -34,9 +33,6 @@ typedef struct ipc_message {
 typedef struct ipc_port {
     hashitem_t hash;
 
-    process_id owner_id;
-    struct ipc_port* proc_next;
-
     ipc_port_id id;
     lock_id queue_semaphore;
     ipc_message_t* message_queue;
@@ -46,11 +42,9 @@ typedef struct ipc_port {
 typedef struct named_ipc_port_t {
     hashitem_t hash;
 
-    char* name;
+    const char* name;
     ipc_port_id port_id;
 } named_ipc_port_t;
-
-int ipc_destroy_process_ports( process_t* process );
 
 ipc_port_id sys_create_ipc_port( void );
 int sys_destroy_ipc_port( ipc_port_id port_id );

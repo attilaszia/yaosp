@@ -1,24 +1,3 @@
-<!--
-
-This file is part of the yaosp build system
-
-Copyright (c) 2010 Zoltan Kovacs
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 2 of the GNU General Public License
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
--->
-
 <build default="all">
     <target name="prepare" type="private">
         <mkdir>../build/crosscompiler</mkdir>
@@ -78,7 +57,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <mkdir>binutils-build</mkdir>
         <chdir directory="binutils-build"/>
-
+        
         <exec executable="../binutils-2.19/configure">
             <arg>--prefix=realpath(../../build/crosscompiler)</arg>
             <arg>--target=i686-pc-yaosp</arg>
@@ -101,13 +80,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
         <mkdir>gcc-build</mkdir>
         <chdir directory="gcc-build"/>
-
+        
         <exec executable="../gcc-4.3.3/configure">
             <arg>--prefix=realpath(../../build/crosscompiler)</arg>
             <arg>--target=i686-pc-yaosp</arg>
             <arg>--disable-nls</arg>
             <arg>--enable-shared</arg>
-            <arg>--enable-languages=c,c++</arg>
+            <arg>--enable-languages=c</arg>
             <arg>--with-headers=../../source/include</arg>
         </exec>
 
@@ -134,22 +113,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
     <target name="finalize">
         <copy from="libg.a" to="../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/libg.a"/>
-        <copy from="libm.a" to="../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/libm.a"/>
-        <copy from="libstdc++-i386.so" to="../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/libstdc++.so"/>
-
-        <cleandir>../build/crosscompiler/i686-pc-yaosp/sys-include</cleandir>
-        <rmdir>../build/crosscompiler/i686-pc-yaosp/sys-include</rmdir>
-        <cleandir>../build/crosscompiler/i686-pc-yaosp/include</cleandir>
-        <rmdir>../build/crosscompiler/i686-pc-yaosp/include</rmdir>
-
-        <symlink from="../../../source/include" to="../build/crosscompiler/i686-pc-yaosp/include"/>
-
-        <exec executable="tar">
-            <arg>-xjf</arg>
-            <arg>libstdc++-inc.tar.bz2</arg>
-            <arg>-C</arg>
-            <arg>../source/include/</arg>
-        </exec>
     </target>
 
     <target name="all">

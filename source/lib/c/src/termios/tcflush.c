@@ -17,12 +17,7 @@
  */
 
 #include <termios.h>
-#include <yaosp/debug.h>
 
 int tcflush( int fd, int queue_selector ) {
-    /* TODO */
-
-    dbprintf( "TODO: tcflush() not yet implemented!\n" );
-
     return 0;
 }

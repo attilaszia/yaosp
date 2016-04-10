@@ -1,6 +1,6 @@
 # Python build system
 #
-# Copyright (c) 2008, 2010 Zoltan Kovacs
+# Copyright (c) 2008 Zoltan Kovacs
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of version 2 of the GNU General Public License
@@ -45,53 +45,6 @@ class NodeHandler :
 
     def element_data( self, data ) :
         pass
-
-class ProjectHandler( xml.sax.handler.ContentHandler ) :
-    def __init__( self, context ) :
-        self.context = context
-        self.profile_name = None
-        self.profile_flags = None
-        self.profile_include = []
-        self.exec_name = None
-        self.loglevel = "ERROR"
-        self.data = ""
-
-    def startElement( self, name, attrs ) :
-        if name == "project" :
-            if "loglevel" in attrs.keys() :
-                self.loglevel = attrs.getValue("loglevel").upper()
-        if name == "gccprofile" :
-            if "name" in attrs.keys() :
-                self.profile_name = attrs.getValue("name")
-                self.profile_flags = None
-                self.profile_include = []
-        elif name == "flags" or \
-                name == "include" :
-            self.data = ""
-        elif name == "executable" :
-            if "name" in attrs.keys() :
-                self.exec_name = attrs["name"]
-
-            self.data = ""
-
-
-
-    def endElement( self, name ) :
-        if name == "gccprofile" :
-            if self.profile_name  :
-                self.context.add_gcc_profile(self.profile_name, self.profile_flags, self.profile_include)
-            self.profile_name = None
-        elif name == "flags" :
-            self.profile_flags = self.data
-        elif name == "include" :
-            self.profile_include += [self.data]
-        elif name == "executable" :
-            if self.exec_name :
-                self.context.set_executable(self.exec_name, self.data)
-            self.exec_name = None
-
-    def characters( self, content ) :
-        self.data += content
 
 class BuildHandler( xml.sax.handler.ContentHandler ) :
     node_handlers = []

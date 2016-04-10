@@ -21,7 +21,6 @@
 #include <macros.h>
 #include <lock/semaphore.h>
 #include <vfs/vfs.h>
-#include <vfs/kdebugfs.h>
 #include <lib/string.h>
 
 #include <arch/spinlock.h>
@@ -40,8 +39,6 @@ static char kterm_buffer[ KTERM_BUFSIZE ];
 static lock_id kterm_sync;
 static spinlock_t kterm_lock = INIT_SPINLOCK( "kernel terminal" );
 static thread_id kterm_flusher;
-
-static kdbgfs_node_t* kdbg_node = NULL;
 
 static void kterm_putchar( console_t* console, char c ) {
     spinlock_disable( &kterm_lock );
@@ -75,9 +72,9 @@ static console_t kterm_console = {
 };
 
 static int kterm_flusher_thread( void* arg ) {
-    int cnt;
-    char tmp[ 256 ];
     bool more_data = false;
+    int cnt;
+    char tmp[ 128 ];
 
     while ( 1 ) {
         if ( !more_data ) {
@@ -88,8 +85,7 @@ static int kterm_flusher_thread( void* arg ) {
 
         cnt = 0;
 
-        while ( ( size > 0 ) &&
-                ( cnt < sizeof( tmp ) ) ) {
+        while ( ( size > 0 ) && ( cnt < sizeof( tmp ) ) ) {
             tmp[ cnt++ ] = kterm_buffer[ read_pos ];
             read_pos = ( read_pos + 1 ) % KTERM_BUFSIZE;
             size--;
@@ -101,7 +97,6 @@ static int kterm_flusher_thread( void* arg ) {
 
         if ( cnt > 0 ) {
             pwrite( kterm_tty, tmp, cnt, 0 );
-            kdebugfs_write_node( kdbg_node, tmp, cnt );
         }
     }
 
@@ -116,6 +111,7 @@ int init_kernel_terminal( void ) {
     /* Use the last virtual terminal as the kernel output */
 
     kterm = terminals[ MAX_TERMINAL_COUNT - 1 ];
+
     kterm->flags &= ~TERMINAL_ACCEPTS_USER_INPUT;
 
     /* Open the slave side of the pseudo terminal */
@@ -128,9 +124,6 @@ int init_kernel_terminal( void ) {
         kprintf( ERROR, "Terminal: Failed to open slave tty for kernel!\n" );
         return kterm_tty;
     }
-
-    kdbg_node = kdebugfs_create_node( "debug", 64 * 1024 );
-    /* todo: error checking */
 
     /* Initialize kterm buffer */
 
@@ -147,7 +140,7 @@ int init_kernel_terminal( void ) {
 
     /* Start kterm buffer flushed */
 
-    kterm_flusher = create_kernel_thread( "kterm_flusher", PRIORITY_NORMAL, kterm_flusher_thread, NULL, 0 );
+    kterm_flusher = create_kernel_thread( "kterm flusher", PRIORITY_NORMAL, kterm_flusher_thread, NULL, 0 );
 
     if ( kterm_flusher < 0 ) {
         close( kterm_tty );
@@ -164,11 +157,9 @@ int init_kernel_terminal( void ) {
     /* Copy the buffered kernel output to the terminal buffer */
 
     while ( ( data = kernel_console_read( buf, sizeof( buf ) ) ) > 0 ) {
-        char* c;
+        char* c = buf;
 
-        kdebugfs_write_node( kdbg_node, buf, data );
-
-        for ( c = buf; data > 0; data--, c++ ) {
+        for ( ; data > 0; data--, c++ ) {
             terminal_put_char( kterm, *c );
         }
     }

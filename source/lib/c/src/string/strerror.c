@@ -1,6 +1,6 @@
 /* strerror function
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -51,19 +51,7 @@ static char* error_strings[] = {
     "No child processes", /* ECHILD */
     "File name too long", /* ENAMETOOLONG */
     "Illegal seek", /* ESPIPE */
-    "Permission denied", /* EACCES */
-    "Resource deadlock avoided", /* EDEADLK */
-    "Address already in use", /* EADDRINUSE */
-    "Resource temporarily unavailable", /* EWOULDBLOCK */
-    "Cannot assign requested address", /* EADDRNOTAVAIL */
-    "Transport endpoint is already connected", /* EISCONN */
-    "Operation now in progress", /* EINPROGRESS */
-    "Network is unreachable", /* ENETUNREACH */
-    "Operation already in progress", /* EALREADY */
-    "Network is down", /* ENETDOWN */
-    "Transport endpoint is not connected", /* ENOTCONN */
-    "Address family not supported by protocol", /* EAFNOSUPPORT */
-    "Connection refused" /* ECONNREFUSED */
+    "Permission denied" /* EACCES */
 };
 
 char* strerror( int errnum ) {

@@ -1,6 +1,6 @@
 /* Process implementation
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -22,7 +22,6 @@
 #include <macros.h>
 #include <kernel.h>
 #include <console.h>
-#include <ipc.h>
 #include <sched/scheduler.h>
 #include <mm/kmalloc.h>
 #include <mm/context.h>
@@ -62,12 +61,6 @@ process_t* allocate_process( char* name ) {
         goto error3;
     }
 
-    process->tld_lock = mutex_create("TLD table", MUTEX_NONE);
-
-    if (process->tld_lock < 0) {
-        goto error4;
-    }
-
     process->id = -1;
     process->heap_region = NULL;
 
@@ -75,16 +68,13 @@ process_t* allocate_process( char* name ) {
 
     return process;
 
- error4:
-    mutex_destroy(process->mutex);
-
- error3:
+error3:
     kfree( process->name );
 
- error2:
+error2:
     kfree( process );
 
- error1:
+error1:
     return NULL;
 }
 
@@ -93,34 +83,35 @@ void destroy_process( process_t* process ) {
              the memory_context_delete_regions() will do it for us! */
 
     /* Destroy the application loader related structures */
+
     if ( process->loader != NULL ) {
         process->loader->destroy( process->loader_data );
     }
 
     /* Destroy the memory context */
+
     if ( process->memory_context != NULL ) {
         memory_context_delete_regions( process->memory_context );
         memory_context_destroy( process->memory_context );
     }
 
     /* Destroy the I/O context */
+
     if ( process->io_context != NULL ) {
         destroy_io_context( process->io_context );
     }
 
     /* Destroy the locking context */
+
     if ( process->lock_context != NULL ) {
         lock_context_destroy( process->lock_context );
     }
 
-    /* Destroy the IPC ports of the process */
-    ipc_destroy_process_ports( process );
-
     /* Delete other resources allocated by the process */
-    mutex_destroy(process->tld_lock);
-    mutex_destroy(process->mutex);
-    kfree(process->name);
-    kfree(process);
+
+    mutex_destroy( process->mutex );
+    kfree( process->name );
+    kfree( process );
 }
 
 int insert_process( process_t* process ) {
@@ -184,7 +175,9 @@ uint32_t sys_get_process_count( void ) {
     uint32_t result;
 
     scheduler_lock();
+
     result = hashtable_get_item_count( &process_table );
+
     scheduler_unlock();
 
     return result;
@@ -223,7 +216,9 @@ uint32_t sys_get_process_info( process_info_t* info_table, uint32_t max_count ) 
     data.info_table = info_table;
 
     scheduler_lock();
+
     hashtable_iterate( &process_table, get_process_info_iterator, ( void* )&data );
+
     scheduler_unlock();
 
     return data.curr_index;
@@ -237,9 +232,10 @@ int sys_exit( int exit_code ) {
     process_t* process;
 
     process = current_process();
+
     /* TODO: Send KILL signal to all thread of this process */
 
-    thread_exit( ( exit_code & 0x7F ) << 8 );
+    thread_exit( exit_code );
 
     return 0;
 }
@@ -354,7 +350,8 @@ process_id sys_wait4( process_id pid, int* status, int options, struct rusage* r
             error = tmp->id;
 
             if ( status != NULL ) {
-                *status = tmp->exit_code;
+                /* TODO: this makes bash unhappy on non-existing commands ... *status = tmp->exit_code; */
+                *status = 0;
             }
 
             if ( rusage != NULL ) {
@@ -365,10 +362,15 @@ process_id sys_wait4( process_id pid, int* status, int options, struct rusage* r
                 tv->tv_sec = tmp->user_time / 1000000;
                 tv->tv_usec = tmp->user_time % 1000000;
 
+                DEBUG_LOG( "Thread: %s:%s\n", tmp->process->name, tmp->name );
+                DEBUG_LOG( "System time: %llu.%llu\n", tv->tv_sec, tv->tv_usec );
+
                 tv = &rusage->ru_stime;
 
                 tv->tv_sec = tmp->sys_time / 1000000;
                 tv->tv_usec = tmp->user_time % 1000000;
+
+                DEBUG_LOG( "User time: %llu.%llu\n", tv->tv_sec, tv->tv_usec );
             }
 
             destroy_thread( tmp );
@@ -460,36 +462,11 @@ int sys_getrusage( int who, struct rusage* usage ) {
     return 0;
 }
 
-int sys_alloc_tld(void) {
-    int i;
-    int tld = -EAGAIN;
-    process_t* process = current_process();
-
-    mutex_lock(process->tld_lock, LOCK_IGNORE_SIGNAL);
-
-    for (i = 0; i < TLD_SIZE; i++) {
-        int byte_index = i / 32;
-        int bit_index = i % 32;
-
-        if ((process->tld_table[byte_index] & (1 << bit_index)) == 0) {
-            process->tld_table[byte_index] |= (1 << bit_index);
-            tld = i;
-            break;
-        }
-    }
-
-    mutex_unlock(process->tld_lock);
-
-    return tld;
-}
-
-int sys_free_tld(int tld) {
-    return 0;
-}
-
 static void* process_key( hashitem_t* item ) {
     process_t* process;
+
     process = ( process_t* )item;
+
     return ( void* )&process->id;
 }
 

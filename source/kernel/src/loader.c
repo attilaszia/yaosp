@@ -1,6 +1,6 @@
 /* Application loader
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -31,7 +31,6 @@
 
 typedef struct app_loader_private {
     int fd;
-    char* name;
 } app_loader_private_t;
 
 static application_loader_t* application_loaders;
@@ -50,14 +49,6 @@ static int app_loader_read( void* _private, void* buffer, off_t offset, int size
     );
 }
 
-static char* app_loader_get_name( void* _private ) {
-    app_loader_private_t* private;
-
-    private = ( app_loader_private_t* )_private;
-
-    return private->name;
-}
-
 static int app_loader_get_fd( void* _private ) {
     app_loader_private_t* private;
 
@@ -66,18 +57,11 @@ static int app_loader_get_fd( void* _private ) {
     return private->fd;
 }
 
-binary_loader_t* get_app_binary_loader( char* name, int fd ) {
-    size_t name_length;
+binary_loader_t* get_app_binary_loader( int fd ) {
     binary_loader_t* loader;
     app_loader_private_t* private;
 
-    if ( name == NULL ) {
-        name_length = 1;
-    } else {
-        name_length = strlen( name );
-    }
-
-    loader = ( binary_loader_t* )kmalloc( sizeof( binary_loader_t ) + sizeof( app_loader_private_t ) + name_length + 1 );
+    loader = ( binary_loader_t* )kmalloc( sizeof( binary_loader_t ) + sizeof( app_loader_private_t ) );
 
     if ( loader == NULL ) {
         return NULL;
@@ -86,17 +70,10 @@ binary_loader_t* get_app_binary_loader( char* name, int fd ) {
     private = ( app_loader_private_t* )( loader + 1 );
 
     private->fd = fd;
-    private->name = ( char* )( private + 1 );
-
-    if ( name == NULL ) {
-        private->name[0] = 0;
-    } else {
-        strcpy( private->name, name );
-    }
 
     loader->private = ( void* )private;
     loader->read = app_loader_read;
-    loader->get_name = app_loader_get_name;
+    loader->get_name = NULL;
     loader->get_fd = app_loader_get_fd;
 
     return loader;
@@ -237,7 +214,6 @@ int do_execve( char* path, char** argv, char** envp, bool free_argv ) {
     int i;
     int fd;
     int error;
-    struct stat st;
     char* new_name;
     uint8_t* stack;
     thread_t* thread;
@@ -263,23 +239,7 @@ int do_execve( char* path, char** argv, char** envp, bool free_argv ) {
         goto _error1;
     }
 
-    error = sys_fstat( fd, &st );
-
-    if ( error != 0 ) {
-        goto _error2;
-    }
-
-    if ( S_ISDIR( st.st_mode ) ) {
-        error = -EISDIR;
-        goto _error2;
-    }
-
-    if ( !S_ISREG( st.st_mode ) ) {
-        error = -EINVAL;
-        goto _error2;
-    }
-
-    binary_loader = get_app_binary_loader( NULL, fd );
+    binary_loader = get_app_binary_loader( fd );
 
     /* Find the proper loader for it */
 
@@ -393,10 +353,6 @@ int do_execve( char* path, char** argv, char** envp, bool free_argv ) {
     stack = ( uint8_t* )thread->user_stack_region->address;
     stack += ( USER_STACK_PAGES * PAGE_SIZE );
 
-    /* Update TLD address of this thread. */
-    stack -= TLD_SIZE * sizeof(ptr_t);
-    thread->tld_data = (ptr_t*)stack;
-
     stack = copy_param_array_to_user( cloned_argv, user_argv, argc, stack );
     stack = copy_param_array_to_user( cloned_envv, user_envv, envc, stack );
 
@@ -418,22 +374,6 @@ int do_execve( char* path, char** argv, char** envp, bool free_argv ) {
 
     kfree( user_argv );
     kfree( user_envv );
-
-    /* Put the global ctor informations to the stack. */
-
-    ptr_t ctor_list = 0;
-    ptr_t ctor_end;
-    uint32_t ctor_count = 0;
-
-    if ( ( loader->get_symbol( "__CTOR_LIST__", &ctor_list ) == 0 ) &&
-         ( loader->get_symbol( "__CTOR_END__", &ctor_end ) == 0 ) ) {
-        ctor_count = ( ctor_end - ctor_list ) / sizeof( ptr_t );
-    }
-
-    stack -= sizeof( void* );
-    *( ( void** )stack ) = ( void* )ctor_list;
-    stack -= sizeof( uint32_t );
-    *( ( uint32_t* )stack ) = ctor_count;
 
     /* Push argv and envp to the stack */
 
@@ -460,29 +400,29 @@ int do_execve( char* path, char** argv, char** envp, bool free_argv ) {
 
     return 0;
 
-    /* Cleanup process before the memory context is destroyed */
+/* Cleanup process before the memory context is destroyed */
 
- _error3:
+_error3:
     free_param_array( cloned_argv, argc );
 
- _error2:
+_error2:
     sys_close( fd );
 
- _error1:
+_error1:
     return error;
 
-    /* Cleanup process after the memory context is destroyed */
+/* Cleanup process after the memory context is destroyed */
 
- error4:
+error4:
     kfree( user_argv );
 
- error3:
+error3:
     memory_region_put( thread->user_stack_region );
 
- error2:
+error2:
     /* TODO: destroy loaded stuff */
 
- error1:
+error1:
     thread->user_stack_region = NULL;
 
     kprintf( ERROR, "Failed to execute %s.\n", thread->process->name );

@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -46,17 +46,13 @@
 #define BUFSIZ _IO_BUFSIZE
 #endif /* BUFSIZ */
 
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
+
 #define P_tmpdir "/temp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct {
-    off_t pos;
-} fpos_t;
-
-typedef struct {
+typedef struct FILE {
     int fd;
     int flags;
     char* buffer;
@@ -75,9 +71,6 @@ FILE* fopen( const char* path, const char* mode );
 FILE* fdopen( int fd, const char* mode );
 FILE* freopen( const char* path, const char* mode, FILE* stream );
 
-FILE* popen( const char* command, const char* type );
-int pclose( FILE* stream );
-
 int fclose( FILE* stream );
 int feof( FILE* stream );
 int ferror( FILE* stream );
@@ -91,8 +84,6 @@ size_t fread( void* ptr, size_t size, size_t nmemb, FILE* stream );
 size_t fwrite( const void* ptr, size_t size, size_t nmemb, FILE* stream );
 int fpurge( FILE* stream );
 void rewind( FILE* stream );
-int fgetpos( FILE* stream, fpos_t* pos );
-int fsetpos( FILE* stream, fpos_t* pos );
 
 int ungetc( int c, FILE* stream );
 void clearerr( FILE* stream );
@@ -119,9 +110,8 @@ int vfscanf( FILE* stream, const char* format, va_list ap );
 
 int fgetc( FILE* stream );
 int getc( FILE* stream );
-int getchar( void );
 char* fgets( char* s, int size, FILE* stream );
-char* gets( char* s );
+#define getchar(c) getc(stdin)
 
 int fputc( int c, FILE* stream );
 int putc( int c, FILE* stream );
@@ -129,7 +119,7 @@ int fputs( const char* s, FILE* stream );
 int puts( const char* s );
 int putchar( int c );
 
-void setbuf( FILE* stream, char* buf );
+#define setbuf(stream,buf) setvbuf(stream,buf,(buf!=NULL)?_IOFBF:_IONBF,BUFSIZ)
 #define setbuffer(stream,buf,size) setvbuf(stream,buf,(buf!=NULL)?_IOFBF:_IONBF,size)
 int setvbuf( FILE* stream, char* buf, int flags, size_t size );
 
@@ -137,12 +127,5 @@ int rename( const char* oldpath, const char* newpath );
 int remove( const char* path );
 
 void perror( const char* s );
-
-FILE* tmpfile( void );
-char* tmpnam( char* s );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _STDIO_H_ */

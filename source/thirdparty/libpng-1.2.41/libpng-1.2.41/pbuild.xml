@@ -1,0 +1,104 @@
+<!--
+
+This file is part of the yaosp build system
+
+Copyright (c) 2009 Zoltan Kovacs
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 2 of the GNU General Public License
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+
+<build default="all">
+    <array name="files">
+        <item>png.c</item>
+        <item>pngset.c</item>
+        <item>pngget.c</item>
+        <item>pngrutil.c</item>
+        <item>pngtrans.c</item>
+        <item>pngwutil.c</item>
+        <item>pngread.c</item>
+        <item>pngrio.c</item>
+        <item>pngwio.c</item>
+        <item>pngwrite.c</item>
+        <item>pngrtran.c</item>
+        <item>pngwtran.c</item>
+        <item>pngmem.c</item>
+        <item>pngerror.c</item>
+        <item>pngpread.c</item>
+    </array>
+
+    <array name="headers_to_install">
+        <item>png.h</item>
+        <item>pngconf.h</item>
+    </array>
+
+    <target name="clean">
+        <delete>objs/*</delete>
+        <rmdir>objs</rmdir>
+    </target>
+
+    <target name="prepare" type="private">
+        <mkdir>objs</mkdir>
+    </target>
+
+    <target name="compile">
+        <call target="prepare"/>
+
+        <echo>Compiling libpng 1.2.41</echo>
+
+        <for var="i" array="${files}">
+            <echo>-> ${i}</echo>
+            <gcc>
+                <input>${i}</input>
+                <output>objs/filename(${i}).o</output>
+                <include>../../../include</include>
+                <include>../../../../build/crosscompiler/lib/gcc/i386-linux/4.6.3/include</include>
+                <include>./</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
+                <flag>-fno-strict-aliasing</flag>
+                <define key="HAVE_CONFIG_H"/>
+            </gcc>
+        </for>
+
+        <echo>Linking libpng 1.2.41</echo>
+        <echo>-> objs/libpng.a</echo>
+
+        <exec executable="ar">
+            <arg>-rc</arg>
+            <arg>objs/libpng.a</arg>
+            <arg>objs/*.o</arg>
+        </exec>
+    </target>
+
+    <target name="install">
+        <echo>Installing libpng 1.2.41 headers</echo>
+
+        <for var="i" array="${headers_to_install}">
+            <echo>-> ${i}</echo>
+            <copy from="${i}" to="../../../include/${i}"/>
+        </for>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
+    </target>
+</build>

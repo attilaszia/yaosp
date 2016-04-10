@@ -1,6 +1,6 @@
 /* yaosp C library
  *
- * Copyright (c) 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -19,63 +19,40 @@
 #ifndef _ERRNO_H_
 #define _ERRNO_H_
 
-#define ENOMEM        1
-#define EINVAL        2
-#define EIO           3
-#define ETIME         4
-#define ENOSYS        5
-#define ENOENT        6
-#define EEXIST        7
-#define EBUSY         8
-#define EISDIR        9
-#define ENOINO        10
-#define ENOEXEC       11
-#define EBADF         12
-#define EHW           13
-#define ERANGE        14
-#define ENXIO         15
-#define EDOM          16
-#define ENODEV        17
-#define EINTR         18
-#define ENOTTY        19
-#define EPERM         20
-#define EROFS         21
-#define ELOOP         22
-#define ENOTDIR       23
-#define ENOTEMPTY     24
-#define EAGAIN        25
-#define E2BIG         26
-#define ETIMEDOUT     27
-#define EOVERFLOW     28
-#define ENOSPC        29
-#define ECHILD        30
-#define ENAMETOOLONG  31
-#define ESPIPE        32
-#define EACCES        33
-#define EDEADLK       34
-#define EADDRINUSE    35
-#define EWOULDBLOCK   36
-#define EADDRNOTAVAIL 37
-#define EISCONN       38
-#define EINPROGRESS   39
-#define ENETUNREACH   40
-#define EALREADY      41
-#define ENETDOWN      42
-#define ENOTCONN      43
-#define EAFNOSUPPORT  44
-#define ECONNREFUSED  45
-#define ENOTSOCK      46
+#define ENOMEM       1
+#define EINVAL       2
+#define EIO          3
+#define ETIME        4
+#define ENOSYS       5
+#define ENOENT       6
+#define EEXIST       7
+#define EBUSY        8
+#define EISDIR       9
+#define ENOINO       10
+#define ENOEXEC      11
+#define EBADF        12
+#define EHW          13
+#define ERANGE       14
+#define ENXIO        15
+#define EDOM         16
+#define ENODEV       17
+#define EINTR        18
+#define ENOTTY       19
+#define EPERM        20
+#define EROFS        21
+#define ELOOP        22
+#define ENOTDIR      23
+#define ENOTEMPTY    24
+#define EAGAIN       25
+#define E2BIG        26
+#define ETIMEDOUT    27
+#define EOVERFLOW    28
+#define ENOSPC       29
+#define ECHILD       30
+#define ENAMETOOLONG 31
+#define ESPIPE       32
+#define EACCES       33
 
-#define errno (*__errno_location())
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-int* __errno_location( void );
-
-#ifdef __cplusplus
-}
-#endif
+extern int errno;
 
 #endif /* _ERRNO_H_ */

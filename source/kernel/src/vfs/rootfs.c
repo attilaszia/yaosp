@@ -39,11 +39,7 @@ static rootfs_node_t* rootfs_create_node( rootfs_node_t* parent, const char* nam
 
     /* Create a new node */
 
-    if ( length == -1 ) {
-        length = strlen( name );
-    }
-
-    node = ( rootfs_node_t* )kmalloc( sizeof( rootfs_node_t ) + length + 1 );
+    node = ( rootfs_node_t* )kmalloc( sizeof( rootfs_node_t ) );
 
     if ( node == NULL ) {
         goto error1;
@@ -51,9 +47,15 @@ static rootfs_node_t* rootfs_create_node( rootfs_node_t* parent, const char* nam
 
     /* Initialize the node */
 
-    node->name = ( char* )( node + 1 );
-    strncpy( node->name, name, length );
-    node->name[ length ] = 0;
+    if ( length == -1 ) {
+        node->name = strdup( name );
+    } else {
+        node->name = strndup( name, length );
+    }
+
+    if ( node->name == NULL ) {
+        goto error2;
+    }
 
     node->is_directory = is_directory;
     node->parent = parent;
@@ -90,15 +92,18 @@ static rootfs_node_t* rootfs_create_node( rootfs_node_t* parent, const char* nam
     error = hashtable_add( &rootfs_node_table, ( hashitem_t* )node );
 
     if ( error < 0 ) {
-        goto error2;
+        goto error3;
     }
 
     return node;
 
- error2:
+error3:
+    kfree( node->name );
+
+error2:
     kfree( node );
 
- error1:
+error1:
     return NULL;
 }
 
@@ -320,7 +325,7 @@ static int rootfs_read_directory( void* fs_cookie, void* _node, void* file_cooki
     node = ( rootfs_node_t* )_node;
 
     if ( !node->is_directory ) {
-        return -ENOTDIR;
+        return -EINVAL;
     }
 
     cookie = ( rootfs_dir_cookie_t* )file_cookie;

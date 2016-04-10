@@ -1,6 +1,6 @@
 /* Programmable Interval Timer
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  * Copyright (c) 2009 Kornel Csernai
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,15 +29,27 @@
 #include <arch/spinlock.h>
 #include <arch/hwtime.h>
 #include <arch/apic.h>
-#include <arch/cpu.h>
 
-static int pit_freq = 1000; /* PIT frequency in Hz */
+static uint64_t system_time = 0;
 static uint64_t boot_time = 0;
+static spinlock_t time_lock = INIT_SPINLOCK( "PIT" );
 
 static int pit_irq( int irq, void* data, registers_t* regs ) {
+    /* Increment the system time */
+
+    spinlock( &time_lock );
+
+    system_time += 1000;
+
+    spinunlock( &time_lock );
+
     /* Wake up sleeper threads */
 
-    waitqueue_wake_up( &sleep_queue, get_system_time() );
+    spinlock( &scheduler_lock );
+
+    waitqueue_wake_up( &sleep_queue, system_time );
+
+    spinunlock( &scheduler_lock );
 
     if ( !apic_present ) {
         /* The PIT irq was acked and masked by the interrupt handler.
@@ -56,7 +68,7 @@ int pit_read_timer( void ) {
 
     outb( 0, PIT_MODE );
     count = inb( PIT_CH0 );
-    count |= ( (int)inb( PIT_CH0 ) << 8 );
+    count |= ( inb( PIT_CH0 ) << 8 );
 
     return count;
 }
@@ -78,11 +90,24 @@ void pit_wait_wrap( void ) {
 }
 
 uint64_t get_system_time( void ) {
-    return ( ( rdtsc() * tsc_to_ns_scale ) >> CYC2NS_SCALE_FACTOR ) / 1000 + boot_time;
+    uint64_t now;
+
+    spinlock_disable( &time_lock );
+
+    now = system_time;
+
+    spinunlock_enable( &time_lock );
+
+    return now;
 }
 
 int set_system_time( time_t* newtime ) {
-    /* todo */
+    spinlock_disable( &time_lock );
+
+    system_time = *newtime;
+
+    spinunlock_enable( &time_lock );
+
     return 0;
 }
 
@@ -92,11 +117,17 @@ uint64_t get_boot_time( void ) {
 
 __init int init_system_time( void ) {
     tm_t now;
+    uint64_t i;
 
     gethwclock( &now );
-    boot_time = 1000000 * mktime( &now );
+    i = 1000000 * mktime( &now );
 
-    write_msr( X86_MSR_TSC, 0 );
+    spinlock_disable( &time_lock );
+
+    system_time = i;
+    boot_time = i;
+
+    spinunlock_enable( &time_lock );
 
     return 0;
 }
@@ -105,25 +136,9 @@ __init int init_pit( void ) {
     int error;
     uint32_t base;
 
-    if ( get_kernel_param_as_int( "pit_freq", &pit_freq ) == 0 ) {
-        switch ( pit_freq ) {
-            case 250 :
-            case 500 :
-            case 1000 :
-                break;
+    /* Set frequency (1000Hz) */
 
-            default :
-                kprintf( WARNING, "pit: Invalid frequency from parameter. Using the default 1000 Hz.\n" );
-                pit_freq = 1000;
-                break;
-        }
-    }
-
-    kprintf( INFO, "pit: Using frequency: %d Hz.\n", pit_freq );
-
-    /* Set PIT frequency */
-
-    base = PIT_TICKS_PER_SEC / pit_freq;
+    base = PIT_TICKS_PER_SEC / 1000;
     outb( 0x36, PIT_MODE );
     outb( base & 0xFF, PIT_CH0 );
     outb( base >> 8, PIT_CH0 );

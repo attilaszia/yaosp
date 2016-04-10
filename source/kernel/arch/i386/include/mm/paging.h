@@ -1,6 +1,6 @@
 /* i386 paging code
  *
- * Copyright (c) 2008, 2009, 2010 Zoltan Kovacs
+ * Copyright (c) 2008, 2009 Zoltan Kovacs
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License
@@ -33,13 +33,12 @@
 
 int get_paging_flags_for_region( memory_region_t* region );
 
-int paging_alloc_table_entries( uint32_t* table, uint32_t from, uint32_t to, uint32_t flags, int fail_on_nonempty );
+int paging_alloc_table_entries( uint32_t* table, uint32_t from, uint32_t to, uint32_t flags );
 int paging_fill_table_entries( uint32_t* table, uint32_t address, uint32_t from, uint32_t to, uint32_t flags );
 int paging_clear_table_entries( uint32_t* table, uint32_t from, uint32_t to );
 int paging_free_table_entries( uint32_t* table, uint32_t from, uint32_t to );
 int paging_clone_table_entries( uint32_t* old_table, uint32_t* new_table,
-                                uint32_t from, uint32_t to, int remove_write );
-int paging_copy_table_entries( uint32_t* old_table, uint32_t* new_table, uint32_t from, uint32_t to );
+    uint32_t from, uint32_t to, int remove_write );
 
 int init_paging( void );
 
