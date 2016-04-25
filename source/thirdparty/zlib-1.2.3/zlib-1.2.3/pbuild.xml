@@ -60,7 +60,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <input>${i}</input>
                 <output>objs/filename(${i}).o</output>
                 <include>../../../include</include>
-                <include>../../../../build/crosscompiler/lib/gcc/i386-linux/4.6.3/include</include>
+                <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
                 <include>./</include>
                 <flag>-c</flag>
                 <flag>-O2</flag>

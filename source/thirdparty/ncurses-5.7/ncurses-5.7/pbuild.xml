@@ -1,0 +1,244 @@
+<!--
+
+This file is part of the yaosp build system
+
+Copyright (c) 2009 Zoltan Kovacs
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 2 of the GNU General Public License
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+
+<build default="all">
+    <array name="files">
+        <item>ncurses/./tty/hardscroll.c</item>          
+        <item>ncurses/./tty/hashmap.c</item>             
+        <item>ncurses/./base/lib_addch.c</item>          
+        <item>ncurses/./base/lib_addstr.c</item>         
+        <item>ncurses/./base/lib_beep.c</item>           
+        <item>ncurses/./base/lib_bkgd.c</item>           
+        <item>ncurses/./base/lib_box.c</item>            
+        <item>ncurses/./base/lib_chgat.c</item>          
+        <item>ncurses/./base/lib_clear.c</item>          
+        <item>ncurses/./base/lib_clearok.c</item>        
+        <item>ncurses/./base/lib_clrbot.c</item>         
+        <item>ncurses/./base/lib_clreol.c</item>         
+        <item>ncurses/./base/lib_color.c</item>          
+        <item>ncurses/./base/lib_colorset.c</item>       
+        <item>ncurses/./base/lib_delch.c</item>          
+        <item>ncurses/./base/lib_delwin.c</item>         
+        <item>ncurses/./base/lib_echo.c</item>           
+        <item>ncurses/./base/lib_endwin.c</item>         
+        <item>ncurses/./base/lib_erase.c</item>          
+        <item>ncurses/./base/lib_flash.c</item>          
+        <item>ncurses/lib_gen.c</item>                   
+        <item>ncurses/./base/lib_getch.c</item>          
+        <item>ncurses/./base/lib_getstr.c</item>         
+        <item>ncurses/./base/lib_hline.c</item>          
+        <item>ncurses/./base/lib_immedok.c</item>        
+        <item>ncurses/./base/lib_inchstr.c</item>        
+        <item>ncurses/./base/lib_initscr.c</item>        
+        <item>ncurses/./base/lib_insch.c</item>          
+        <item>ncurses/./base/lib_insdel.c</item>         
+        <item>ncurses/./base/lib_insnstr.c</item>        
+        <item>ncurses/./base/lib_instr.c</item>          
+        <item>ncurses/./base/lib_isendwin.c</item>       
+        <item>ncurses/./base/lib_leaveok.c</item>        
+        <item>ncurses/./base/lib_mouse.c</item>          
+        <item>ncurses/./base/lib_move.c</item>           
+        <item>ncurses/./tty/lib_mvcur.c</item>           
+        <item>ncurses/./base/lib_mvwin.c</item>          
+        <item>ncurses/./base/lib_newterm.c</item>        
+        <item>ncurses/./base/lib_newwin.c</item>         
+        <item>ncurses/./base/lib_nl.c</item>             
+        <item>ncurses/./base/lib_overlay.c</item>        
+        <item>ncurses/./base/lib_pad.c</item>            
+        <item>ncurses/./base/lib_printw.c</item>         
+        <item>ncurses/./base/lib_redrawln.c</item>       
+        <item>ncurses/./base/lib_refresh.c</item>        
+        <item>ncurses/./base/lib_restart.c</item>        
+        <item>ncurses/./base/lib_scanw.c</item>          
+        <item>ncurses/./base/lib_screen.c</item>         
+        <item>ncurses/./base/lib_scroll.c</item>         
+        <item>ncurses/./base/lib_scrollok.c</item>       
+        <item>ncurses/./base/lib_scrreg.c</item>         
+        <item>ncurses/./base/lib_set_term.c</item>       
+        <item>ncurses/./base/lib_slk.c</item>            
+        <item>ncurses/./base/lib_slkatr_set.c</item>     
+        <item>ncurses/./base/lib_slkatrof.c</item>       
+        <item>ncurses/./base/lib_slkatron.c</item>       
+        <item>ncurses/./base/lib_slkatrset.c</item>      
+        <item>ncurses/./base/lib_slkattr.c</item>        
+        <item>ncurses/./base/lib_slkclear.c</item>       
+        <item>ncurses/./base/lib_slkcolor.c</item>       
+        <item>ncurses/./base/lib_slkinit.c</item>        
+        <item>ncurses/./base/lib_slklab.c</item>         
+        <item>ncurses/./base/lib_slkrefr.c</item>        
+        <item>ncurses/./base/lib_slkset.c</item>         
+        <item>ncurses/./base/lib_slktouch.c</item>       
+        <item>ncurses/./base/lib_touch.c</item>          
+        <item>ncurses/./tty/lib_tstp.c</item>            
+        <item>ncurses/./base/lib_ungetch.c</item>        
+        <item>ncurses/./tty/lib_vidattr.c</item>         
+        <item>ncurses/./base/lib_vline.c</item>          
+        <item>ncurses/./base/lib_wattroff.c</item>       
+        <item>ncurses/./base/lib_wattron.c</item>        
+        <item>ncurses/./base/lib_winch.c</item>          
+        <item>ncurses/./base/lib_window.c</item>         
+        <item>ncurses/./base/nc_panel.c</item>           
+        <item>ncurses/./base/safe_sprintf.c</item>       
+        <item>ncurses/./tty/tty_update.c</item>          
+        <item>ncurses/./trace/varargs.c</item>           
+        <item>ncurses/./base/memmove.c</item>            
+        <item>ncurses/./base/vsscanf.c</item>            
+        <item>ncurses/./base/lib_freeall.c</item>        
+        <item>ncurses/expanded.c</item>                  
+        <item>ncurses/./base/legacy_coding.c</item>      
+        <item>ncurses/./base/lib_dft_fgbg.c</item>       
+        <item>ncurses/./tinfo/lib_print.c</item>         
+        <item>ncurses/./base/resizeterm.c</item>         
+        <item>ncurses/./tinfo/use_screen.c</item>        
+        <item>ncurses/./base/use_window.c</item>         
+        <item>ncurses/./base/wresize.c</item>            
+        <item>ncurses/./tinfo/access.c</item>            
+        <item>ncurses/./tinfo/add_tries.c</item>         
+        <item>ncurses/./tinfo/alloc_ttype.c</item>       
+        <item>ncurses/codes.c</item>                     
+        <item>ncurses/./tinfo/comp_error.c</item>
+        <item>ncurses/./tinfo/db_iterator.c</item>
+        <item>ncurses/./tinfo/doalloc.c</item>
+        <item>ncurses/./tinfo/entries.c</item>
+        <item>ncurses/fallback.c</item>
+        <item>ncurses/./tinfo/free_ttype.c</item>
+        <item>ncurses/./tinfo/getenv_num.c</item>
+        <item>ncurses/./tinfo/home_terminfo.c</item>
+        <item>ncurses/./tinfo/init_keytry.c</item>
+        <item>ncurses/./tinfo/lib_acs.c</item>
+        <item>ncurses/./tinfo/lib_baudrate.c</item>
+        <item>ncurses/./tinfo/lib_cur_term.c</item>
+        <item>ncurses/./tinfo/lib_data.c</item>
+        <item>ncurses/./tinfo/lib_has_cap.c</item>
+        <item>ncurses/./tinfo/lib_kernel.c</item>
+        <item>ncurses/lib_keyname.c</item>
+        <item>ncurses/./tinfo/lib_longname.c</item>
+        <item>ncurses/./tinfo/lib_napms.c</item>
+        <item>ncurses/./tinfo/lib_options.c</item>
+        <item>ncurses/./tinfo/lib_raw.c</item>
+        <item>ncurses/./tinfo/lib_setup.c</item>
+        <item>ncurses/./tinfo/lib_termcap.c</item>
+        <item>ncurses/./tinfo/lib_termname.c</item>
+        <item>ncurses/./tinfo/lib_tgoto.c</item>
+        <item>ncurses/./tinfo/lib_ti.c</item>
+        <item>ncurses/./tinfo/lib_tparm.c</item>
+        <item>ncurses/./tinfo/lib_tputs.c</item>
+        <item>ncurses/./trace/lib_trace.c</item>
+        <item>ncurses/./tinfo/lib_ttyflags.c</item>
+        <item>ncurses/./tty/lib_twait.c</item>
+        <item>ncurses/./tinfo/name_match.c</item>
+        <item>ncurses/names.c</item>
+        <item>ncurses/./tinfo/read_entry.c</item>
+        <item>ncurses/./tinfo/read_termcap.c</item>
+        <item>ncurses/./tinfo/setbuf.c</item>
+        <item>ncurses/./tinfo/strings.c</item>
+        <item>ncurses/./base/tries.c</item>
+        <item>ncurses/./tinfo/trim_sgr0.c</item>
+        <item>ncurses/unctrl.c</item>
+        <item>ncurses/./trace/visbuf.c</item>
+        <item>ncurses/./tinfo/alloc_entry.c</item>
+        <item>ncurses/./tinfo/captoinfo.c</item>
+        <item>ncurses/comp_captab.c</item>
+        <item>ncurses/./tinfo/comp_expand.c</item>
+        <item>ncurses/./tinfo/comp_hash.c</item>
+        <item>ncurses/./tinfo/comp_parse.c</item>
+        <item>ncurses/./tinfo/comp_scan.c</item>
+        <item>ncurses/./tinfo/parse_entry.c</item>
+        <item>ncurses/./tinfo/write_entry.c</item>
+        <item>ncurses/./base/define_key.c</item>
+        <item>ncurses/./tinfo/hashed_db.c</item>
+        <item>ncurses/./base/key_defined.c</item>
+        <item>ncurses/./base/keybound.c</item>
+        <item>ncurses/./base/keyok.c</item>
+        <item>ncurses/./base/version.c</item>
+    </array>
+
+    <array name="headers_to_install">
+        <item>curses.h</item>
+        <item>ncurses_dll.h</item>
+        <item>termcap.h</item>
+        <item>unctrl.h</item>
+    </array>
+
+    <target name="clean">
+        <delete>objs/*</delete>
+        <rmdir>objs</rmdir>
+    </target>
+
+    <target name="prepare" type="private">
+        <mkdir>objs</mkdir>
+    </target>
+
+    <target name="compile">
+        <call target="prepare"/>
+
+        <echo>Compiling ncurses 5.7</echo>
+
+        <for var="i" array="${files}">
+            <echo>-> ${i}</echo>
+            <gcc>
+                <input>${i}</input>
+                <output>objs/filename(${i}).o</output>
+                <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
+                <include>./ncurses</include>
+                <include>./include</include>
+                <include>../../../include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
+                <flag>-fno-strict-aliasing</flag>
+                <define key="HAVE_CONFIG_H"/>
+                <define key="_GNU_SOURCE"/>
+                <define key="NDEBUG"/>
+            </gcc>
+        </for>
+
+        <echo>Linking ncurses 5.7</echo>
+        <echo>-> objs/libncurses.a</echo>
+        
+        <exec executable="ar">
+            <arg>-rc</arg>
+            <arg>objs/libncurses.a</arg>
+            <arg>objs/*.o</arg>
+        </exec>
+    </target>
+
+    <target name="install">
+        <echo>Installing ncurses 5.7 headers</echo>
+
+        <for var="i" array="${headers_to_install}">
+            <echo>-> ${i}</echo>
+            <copy from="include/${i}" to="../../../include/${i}"/>
+        </for>
+        
+        <copy from="../../../include/curses.h" to="../../../include/ncurses.h"/>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
+    </target>
+</build>

@@ -1,0 +1,148 @@
+<!--
+
+This file is part of the yaosp build system
+
+Copyright (c) 2009 Zoltan Kovacs
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 2 of the GNU General Public License
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+
+<build default="all">
+    <array name="files">
+        <item>readline.c</item>
+        <item>funmap.c</item>
+        <item>keymaps.c</item>
+        <item>vi_mode.c</item>
+        <item>parens.c</item>
+        <item>rltty.c</item>
+        <item>complete.c</item>
+        <item>bind.c</item>
+        <item>isearch.c</item>
+        <item>display.c</item>
+        <item>signals.c</item>
+        <item>util.c</item>
+        <item>kill.c</item>
+        <item>undo.c</item>
+        <item>macro.c</item>
+        <item>input.c</item>
+        <item>callback.c</item>
+        <item>terminal.c</item>
+        <item>xmalloc.c</item>
+        <item>history.c</item>
+        <item>histsearch.c</item>
+        <item>histexpand.c</item>
+        <item>histfile.c</item>
+        <item>nls.c</item>
+        <item>search.c</item>
+        <item>shell.c</item>
+        <item>savestring.c</item>
+        <item>text.c</item>
+        <item>misc.c</item>
+        <item>compat.c</item>
+        <item>mbutil.c</item>
+    </array>
+
+    <array name="headers_to_install">
+        <item>chardefs.h</item>
+        <item>history.h</item>
+        <item>keymaps.h</item>
+        <item>readline.h</item>
+        <item>rlconf.h</item>
+        <item>rlstdc.h</item>
+        <item>rltypedefs.h</item>
+        <item>tilde.h</item>
+    </array>
+
+    <target name="clean">
+        <delete>objs/*</delete>
+        <rmdir>objs</rmdir>
+    </target>
+
+    <target name="prepare" type="private">
+        <mkdir>objs</mkdir>
+    </target>
+
+    <target name="compile">
+        <call target="prepare"/>
+
+        <echo>Compiling readline 6.0</echo>
+
+        <for var="i" array="${files}">
+            <echo>-> ${i}</echo>
+            <gcc>
+                <input>${i}</input>
+                <output>objs/filename(${i}).o</output>
+                <include>../../../include</include>
+                <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
+                <include>./</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
+                <flag>-fno-strict-aliasing</flag>
+                <define key="HAVE_CONFIG_H"/>
+                <define key="_POSIX_VERSION"/>
+            </gcc>
+        </for>
+
+        <echo>-> tilde.c</echo>
+        <gcc>
+            <input>tilde.c</input>
+            <output>objs/tilde.o</output>
+            <include>../../../include</include>
+            <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
+            <include>./</include>
+            <flag>-c</flag>
+            <flag>-O2</flag>
+            <flag>-m32</flag>
+            <flag>-Wall</flag>
+            <flag>-nostdinc</flag>
+            <flag>-nostdlib</flag>
+            <flag>-fno-builtin</flag>
+            <flag>-fno-strict-aliasing</flag>
+            <define key="HAVE_CONFIG_H"/>
+            <define key="_POSIX_VERSION"/>
+            <define key="READLINE_LIBRARY"/>
+        </gcc>
+            
+        <echo>Linking readline 6.0</echo>
+        <echo>-> objs/libreadline.a</echo>
+
+        <exec executable="ar">
+            <arg>-rc</arg>
+            <arg>objs/libreadline.a</arg>
+            <arg>objs/*.o</arg>
+        </exec>
+    </target>
+
+    <target name="install">
+        <echo>Installing readline 6.0 headers</echo>
+
+        <mkdir>../../../include/readline</mkdir>
+        <for var="i" array="${headers_to_install}">
+            <echo>-> ${i}</echo>
+            <copy from="${i}" to="../../../include/readline/${i}"/>
+        </for>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
+    </target>
+</build>
