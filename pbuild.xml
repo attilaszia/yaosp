@@ -74,7 +74,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <echo></echo>
         <echo>[MKISOFS] yaosp.iso</echo>
 
-        <exec executable="mkisofs">
+        <exec executable="genisoimage">
             <arg>-R</arg>
             <arg>-l</arg>
             <arg>-b</arg>
