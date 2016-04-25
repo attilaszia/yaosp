@@ -154,7 +154,9 @@ class GccWork( Work ) :
                 real_defines.append( "-D" + key )
 
         # Build the command
-
+        
+        real_flags.append(u'-march=i386')
+      
         command = [ "gcc" ] + real_flags + real_inputs + real_includes
         command += real_defines
         command += [ "-o", context.handle_everything( self.output ) ]
