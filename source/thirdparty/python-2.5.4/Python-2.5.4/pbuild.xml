@@ -1,0 +1,231 @@
+<!--
+
+This file is part of the yaosp build system
+
+Copyright (c) 2009 Zoltan Kovacs
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 2 of the GNU General Public License
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+
+<build default="all">
+    <array name="files">
+        <item>Modules/_typesmodule.c</item>
+        <item>Modules/getbuildinfo.c</item>
+        <item>Modules/_yaospmodule.c</item>
+        <item>Parser/acceler.c</item>
+        <item>Parser/grammar1.c</item>
+        <item>Parser/listnode.c</item>
+        <item>Parser/node.c</item>
+        <item>Parser/parser.c</item>
+        <item>Parser/parsetok.c</item>
+        <item>Parser/bitset.c</item>
+        <item>Parser/metagrammar.c</item>
+        <item>Parser/firstsets.c</item>
+        <item>Parser/grammar.c</item>
+        <item>Parser/pgen.c</item>
+        <item>Parser/myreadline.c</item>
+        <item>Parser/tokenizer.c</item>
+        <item>Objects/abstract.c</item>
+        <item>Objects/boolobject.c</item>
+        <item>Objects/bufferobject.c</item>
+        <item>Objects/cellobject.c</item>
+        <item>Objects/classobject.c</item>
+        <item>Objects/cobject.c</item>
+        <item>Objects/codeobject.c</item>
+        <item>Objects/complexobject.c</item>
+        <item>Objects/descrobject.c</item>
+        <item>Objects/enumobject.c</item>
+        <item>Objects/exceptions.c</item>
+        <item>Objects/genobject.c</item>
+        <item>Objects/fileobject.c</item>
+        <item>Objects/floatobject.c</item>
+        <item>Objects/frameobject.c</item>
+        <item>Objects/funcobject.c</item>
+        <item>Objects/intobject.c</item>
+        <item>Objects/iterobject.c</item>
+        <item>Objects/listobject.c</item>
+        <item>Objects/longobject.c</item>
+        <item>Objects/dictobject.c</item>
+        <item>Objects/methodobject.c</item>
+        <item>Objects/moduleobject.c</item>
+        <item>Objects/object.c</item>
+        <item>Objects/obmalloc.c</item>
+        <item>Objects/rangeobject.c</item>
+        <item>Objects/setobject.c</item>
+        <item>Objects/sliceobject.c</item>
+        <item>Objects/stringobject.c</item>
+        <item>Objects/structseq.c</item>
+        <item>Objects/tupleobject.c</item>
+        <item>Objects/typeobject.c</item>
+        <item>Objects/weakrefobject.c</item>
+        <item>Objects/unicodeobject.c</item>
+        <item>Objects/unicodectype.c</item>
+        <item>Python/Python-ast.c</item>
+        <item>Python/asdl.c</item>
+        <item>Python/ast.c</item>
+        <item>Python/bltinmodule.c</item>
+        <item>Python/ceval.c</item>
+        <item>Python/compile.c</item>
+        <item>Python/codecs.c</item>
+        <item>Python/errors.c</item>
+        <item>Python/frozen.c</item>
+        <item>Python/frozenmain.c</item>
+        <item>Python/future.c</item>
+        <item>Python/getargs.c</item>
+        <item>Python/getcompiler.c</item>
+        <item>Python/getcopyright.c</item>
+        <item>Python/getmtime.c</item>
+        <item>Python/getplatform.c</item>
+        <item>Python/getversion.c</item>
+        <item>Python/graminit.c</item>
+        <item>Python/import.c</item>
+        <item>Python/importdl.c</item>
+        <item>Python/marshal.c</item>
+        <item>Python/modsupport.c</item>
+        <item>Python/mystrtoul.c</item>
+        <item>Python/mysnprintf.c</item>
+        <item>Python/pyarena.c</item>
+        <item>Python/pyfpe.c</item>
+        <item>Python/pystate.c</item>
+        <item>Python/pythonrun.c</item>
+        <item>Python/structmember.c</item>
+        <item>Python/symtable.c</item>
+        <item>Python/sysmodule.c</item>
+        <item>Python/traceback.c</item>
+        <item>Python/getopt.c</item>
+        <item>Python/pystrtod.c</item>
+        <item>Modules/config.c</item>
+        <item>Modules/getpath.c</item>
+        <item>Modules/main.c</item>
+        <item>Modules/gcmodule.c</item>
+        <item>Modules/errnomodule.c</item>
+        <item>Modules/_sre.c</item>
+        <item>Modules/_codecsmodule.c</item>
+        <item>Modules/zipimport.c</item>
+        <item>Modules/symtablemodule.c</item>
+        <item>Modules/posixmodule.c</item>
+        <item>Modules/python.c</item>
+        <item>Python/sigcheck.c</item>
+        <item>Parser/intrcheck.c</item>
+        <item>Modules/readline.c</item>
+        <item>Modules/_cursesmodule.c</item>
+        <item>Modules/timemodule.c</item>
+        <item>Modules/_struct.c</item>
+        <item>Modules/bz2module.c</item>
+    </array>
+
+    <array name="libs_to_install">
+        <item>site.py</item>
+        <item>os.py</item>
+        <item>copy_reg.py</item>
+        <item>posixpath.py</item>
+        <item>stat.py</item>
+        <item>types.py</item>
+        <item>yaosp.py</item>
+        <item>tarfile.py</item>
+        <item>shutil.py</item>
+        <item>struct.py</item>
+        <item>copy.py</item>
+        <item>curses/__init__.py</item>
+        <item>curses/ascii.py</item>
+        <item>curses/has_key.py</item>
+        <item>curses/panel.py</item>
+        <item>curses/textpad.py</item>
+        <item>curses/wrapper.py</item>
+    </array>
+
+    <target name="clean">
+        <delete>objs/*</delete>
+        <rmdir>objs</rmdir>
+    </target>
+
+    <target name="prepare" type="private">
+        <mkdir>objs</mkdir>
+    </target>
+
+    <target name="compile">
+        <call target="prepare"/>
+
+        <echo>Compiling Python 2.5.4</echo>
+
+        <for var="i" array="${files}">
+            <echo>-> ${i}</echo>
+            <gcc>
+                <input>${i}</input>
+                <output>objs/filename(${i}).o</output>
+                <include>../../../include</include>
+                <include>../../../../build/crosscompiler/lib/gcc/i686-pc-yaosp/4.3.3/include</include>
+                <include>./</include>
+                <include>./Include</include>
+                <flag>-c</flag>
+                <flag>-O2</flag>
+                <flag>-m32</flag>
+                <flag>-Wall</flag>
+                <flag>-nostdinc</flag>
+                <flag>-nostdlib</flag>
+                <flag>-fno-builtin</flag>
+                <flag>-fno-strict-aliasing</flag>
+                <define key="Py_BUILD_CORE"/>
+                <define key="PREFIX">"/yaosp/package"</define>
+                <define key="EXEC_PREFIX">"/yaosp/package"</define>
+                <define key="VERSION">"2.5.4"</define>
+                <define key="PYTHONPATH">"/yaosp/package/python-2.5.4/lib:/package/python-2.5.4/lib-dynload"</define>
+            </gcc>
+        </for>
+
+        <echo>Linking Python 2.5.4</echo>
+        <echo>-> objs/python</echo>
+
+        <gcc>
+            <input>objs/*.o</input>
+            <input>../../../lib/start/objs/libstart.a</input>
+            <input>../../../thirdparty/readline-6.0/readline-6.0/objs/libreadline.a</input>
+            <input>../../../thirdparty/ncurses-5.7/ncurses-5.7/objs/libncurses.a</input>
+            <input>../../../thirdparty/bzip2-1.0.5/bzip2-1.0.5/objs/libbzip2.a</input>
+            <input>../../../lib/c/objs/libc.a</input>
+            <output>objs/python</output>
+            <flag>-m32</flag>
+            <flag>-Xlinker</flag>
+            <flag>--script=../../../../scripts/i386_app.lnk</flag>
+            <flag>-nostartfiles</flag>
+            <flag>-nodefaultlibs</flag>
+        </gcc>
+    </target>
+
+    <target name="install">
+        <mkdir>../../../../build/image/package/python-2.5.4</mkdir>
+        <mkdir>../../../../build/image/package/python-2.5.4/lib</mkdir>
+        <mkdir>../../../../build/image/package/python-2.5.4/lib/curses</mkdir>
+        <mkdir>../../../../build/image/package/python-2.5.4/lib-dynload</mkdir>
+
+        <echo>Installing python binary</echo>
+
+        <copy from="objs/python" to="../../../../build/image/package/python-2.5.4/python"/>
+
+        <echo>Installing python libraries ...</echo>
+
+        <for var="i" array="${libs_to_install}">
+            <echo>-> ${i}</echo>
+
+            <copy from="Lib/${i}" to="../../../../build/image/package/python-2.5.4/lib/${i}"/>
+        </for>
+    </target>
+
+    <target name="all">
+        <call target="clean"/>
+        <call target="compile"/>
+        <call target="install"/>
+    </target>
+</build>
