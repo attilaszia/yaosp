@@ -1,0 +1,3877 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+genisoimage is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 2 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+libc6-dev-i386 is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 2 not upgraded.
+Generating system call table
+
+Compiling architecture specific assembly files
+
+[GCC    ] source/kernel/arch/i386/src/asm/boot.S
+[GCC    ] source/kernel/arch/i386/src/asm/atomic.S
+[GCC    ] source/kernel/arch/i386/src/asm/i386.S
+[GCC    ] source/kernel/arch/i386/src/asm/isr.S
+[GCC    ] source/kernel/arch/i386/src/asm/switch.S
+[GCC    ] source/kernel/arch/i386/src/asm/smp_entry.S
+[GCC    ] source/kernel/arch/i386/src/asm/network.S
+[GCC    ] source/kernel/arch/i386/src/asm/string.S
+
+Compiling architecture specific C files
+
+[GCC    ] source/kernel/arch/i386/src/start.c
+[GCC    ] source/kernel/arch/i386/src/screen.c
+[GCC    ] source/kernel/arch/i386/src/spinlock.c
+[GCC    ] source/kernel/arch/i386/src/gdt.c
+[GCC    ] source/kernel/arch/i386/src/cpu.c
+[GCC    ] source/kernel/arch/i386/src/interrupt.c
+[GCC    ] source/kernel/arch/i386/src/exception.c
+[GCC    ] source/kernel/arch/i386/src/debugger.c
+[GCC    ] source/kernel/arch/i386/src/thread.c
+[GCC    ] source/kernel/arch/i386/src/pit.c
+[GCC    ] source/kernel/arch/i386/src/apic.c
+[GCC    ] source/kernel/arch/i386/src/syscall.c
+[GCC    ] source/kernel/arch/i386/src/fork.c
+[GCC    ] source/kernel/arch/i386/src/hwtime.c
+[GCC    ] source/kernel/arch/i386/src/fpu.c
+[GCC    ] source/kernel/arch/i386/src/mp.c
+[GCC    ] source/kernel/arch/i386/src/smp.c
+[GCC    ] source/kernel/arch/i386/src/bios.c
+[GCC    ] source/kernel/arch/i386/src/signal.c
+[GCC    ] source/kernel/arch/i386/src/scheduler.c
+[GCC    ] source/kernel/arch/i386/src/mm/pagefault.c
+[GCC    ] source/kernel/arch/i386/src/mm/paging.c
+[GCC    ] source/kernel/arch/i386/src/mm/context.c
+[GCC    ] source/kernel/arch/i386/src/mm/region.c
+[GCC    ] source/kernel/arch/i386/src/linker/elf32_module.c
+[GCC    ] source/kernel/arch/i386/src/linker/elf32_application.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/debug.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/decode.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/fpu.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/ops.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/ops2.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/prim_ops.c
+[GCC    ] source/kernel/arch/i386/src/x86emu/sys.c
+
+Compiling architecture independent files
+
+[GCC    ] source/kernel/src/console.c
+[GCC    ] source/kernel/src/kernel.c
+[GCC    ] source/kernel/src/process.c
+[GCC    ] source/kernel/src/thread.c
+[GCC    ] source/kernel/src/irq.c
+[GCC    ] source/kernel/src/smp.c
+[GCC    ] source/kernel/src/init.c
+[GCC    ] source/kernel/src/bootmodule.c
+[GCC    ] source/kernel/src/module.c
+[GCC    ] source/kernel/src/symbols.c
+[GCC    ] source/kernel/src/devices.c
+[GCC    ] source/kernel/src/syscall.c
+[GCC    ] source/kernel/src/fork.c
+[GCC    ] source/kernel/src/loader.c
+[GCC    ] source/kernel/src/time.c
+[GCC    ] source/kernel/src/version.c
+[GCC    ] source/kernel/src/interpreter.c
+[GCC    ] source/kernel/src/ipc.c
+[GCC    ] source/kernel/src/signal.c
+[GCC    ] source/kernel/src/debugger.c
+[GCC    ] source/kernel/src/sched/waitqueue.c
+[GCC    ] source/kernel/src/sched/scheduler.c
+[GCC    ] source/kernel/src/linker/elf.c
+[GCC    ] source/kernel/src/linker/elf32.c
+[GCC    ] source/kernel/src/mm/pages.c
+[GCC    ] source/kernel/src/mm/kmalloc.c
+[GCC    ] source/kernel/src/mm/context.c
+[GCC    ] source/kernel/src/mm/region.c
+[GCC    ] source/kernel/src/mm/sbrk.c
+[GCC    ] source/kernel/src/vfs/vfs.c
+[GCC    ] source/kernel/src/vfs/rootfs.c
+[GCC    ] source/kernel/src/vfs/devfs.c
+[GCC    ] source/kernel/src/vfs/inode.c
+[GCC    ] source/kernel/src/vfs/io_context.c
+[GCC    ] source/kernel/src/vfs/filesystem.c
+[GCC    ] source/kernel/src/vfs/blockcache.c
+[GCC    ] source/kernel/src/network/interface.c
+[GCC    ] source/kernel/src/network/packet.c
+[GCC    ] source/kernel/src/network/arp.c
+[GCC    ] source/kernel/src/network/ipv4.c
+[GCC    ] source/kernel/src/network/icmp.c
+[GCC    ] source/kernel/src/network/route.c
+[GCC    ] source/kernel/src/network/socket.c
+[GCC    ] source/kernel/src/network/tcp.c
+[GCC    ] source/kernel/src/lock/context.c
+[GCC    ] source/kernel/src/lock/mutex.c
+[GCC    ] source/kernel/src/lock/condition.c
+[GCC    ] s
+Allocating common symbols
+Common symbol       size              file
+
+mb_header           0x34              objs/arch/start.o
+_X86EMU_intrTab     0x400             objs/x86emu/sys.o
+kernel_memory_context
+                    0x20              objs/context.o
+last_ready          0x4               objs/scheduler.o
+kernel_io_context   0x14              objs/vfs.o
+thread_table        0x18              objs/thread.o
+first_ready         0x4               objs/scheduler.o
+first_expired       0x4               objs/scheduler.o
+mount_points        0x4               objs/vfs.o
+memory_size         0x8               objs/pages.o
+memory_pages        0x4               objs/pages.o
+module_loader       0x4               objs/module.o
+memory_descriptors  0x30              objs/pages.o
+sleep_queue         0x8               objs/scheduler.o
+region_lock         0x4               objs/region.o
+idt                 0x800             objs/arch/interrupt.o
+lapic_region        0x4               objs/arch/apic.o
+last_expired        0x4               objs/scheduler.o
+arch_processor_table
+                    0x80              objs/arch/cpu.o
+init_thread_id      0x4               objs/init.o
+kernel_lock_context
+                    0x24              objs/lock/context.o
+region_table        0x18              objs/region.o
+_X86EMU_env         0x50              objs/x86emu/sys.o
+processor_table     0x68              objs/smp.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0x0000000000100094                . = (0x100000 + SIZEOF_HEADERS)
+
+.text           0x0000000000100094    0x24e85
+ *(.multiboot_header)
+ .multiboot_header
+                0x0000000000100094        0xc objs/arch/boot.o
+ *(.text)
+ .text          0x00000000001000a0      0x113 objs/time.o
+                0x00000000001000a0                sys_stime
+                0x00000000001000c8                time
+                0x00000000001000f4                mktime
+                0x000000000010016c                sys_get_boot_time
+                0x0000000000100184                sys_get_system_time
+                0x000000000010019c                sys_get_idle_time
+ *fill*         0x00000000001001b3        0x1 
+ .text          0x00000000001001b4      0x13c objs/icmp.o
+                0x00000000001001b4                icmp_input
+ .text          0x00000000001002f0       0x54 objs/elf.o
+                0x00000000001002f0                elf_check_header
+ .text          0x0000000000100344      0x222 objs/kernel.o
+                0x0000000000100344                get_kernel_param_as_string
+                0x00000000001003ac                get_kernel_param_as_bool
+                0x000000000010041c                sys_get_kernel_info
+                0x000000000010046c                sys_get_kernel_statistics
+                0x000000000010047c                sys_dbprintf
+                0x00000000001004cc                handle_panic
+                0x0000000000100538                reboot
+                0x0000000000100540                sys_reboot
+                0x0000000000100550                shutdown
+                0x0000000000100558                sys_shutdown
+ *fill*         0x0000000000100566        0x2 
+ .text          0x0000000000100568      0x89b objs/rootfs.o
+ *fill*         0x0000000000100e03        0x1 
+ .text          0x0000000000100e04      0x12f objs/interface.o
+                0x0000000000100e88                ethernet_send_packet
+                0x0000000000100ee8                network_interface_ioctl
+ *fill*         0x0000000000100f33        0x1 
+ .text          0x0000000000100f34      0x379 objs/arp.o
+                0x0000000000100f3c                arp_send_packet
+                0x00000000001010b0                arp_input
+ *fill*         0x00000000001012ad        0x3 
+ .text          0x00000000001012b0      0x1bf objs/fork.o
+                0x00000000001012b0                sys_fork
+ *fill*         0x000000000010146f        0x1 
+ .text          0x0000000000101470      0x43a objs/socket.o
+                0x0000000000101644                sys_socket
+                0x00000000001017c0                do_connect
+                0x0000000000101890                sys_connect
+ *fill*         0x00000000001018aa        0x2 
+ .text          0x00000000001018ac      0x927 objs/process.o
+                0x000000000010193c                allocate_process
+                0x00000000001019d8                destroy_process
+                0x0000000000101a58                insert_process
+                0x0000000000101af0                remove_process
+                0x0000000000101b4c                rename_process
+                0x0000000000101bc8                get_process_count
+                0x0000000000101c1c                get_process_by_id
+                0x0000000000101c74                sys_get_process_count
+                0x0000000000101ca8                sys_get_process_info
+                0x0000000000101cf8                sys_getpid
+                0x0000000000101d08                sys_exit
+                0x0000000000101d24                sys_wait4
+                0x0000000000102078                sys_getrusage
+ *fill*         0x00000000001021d3        0x1 
+ .text          0x00000000001021d4      0x362 objs/blockcache.o
+                0x00000000001021dc                block_cache_get_block
+                0x000000000010242c                block_cache_put_block
+                0x0000000000102430                block_cache_read_blocks
+                0x000000000010246c                init_block_cache
+ *fill*         0x0000000000102536        0x2 
+ .text          0x0000000000102538     0x1e83 objs/vfs.o
+                0x0000000000102a64                create_mount_point
+                0x0000000000102c2c                delete_mount_point
+                0x0000000000102c48                insert_mount_point
+                0x0000000000102c60                remove_mount_point
+                0x0000000000102c98                get_mount_point_by_cookie
+                0x0000000000102cc0                follow_symbolic_link
+                0x0000000000103160                open
+                0x0000000000103174                sys_open
+                0x0000000000103194                close
+                0x00000000001031b4                sys_close
+                0x00000000001031d8                do_pread_helper
+                0x0000000000103220                pread
+                0x000000000010327c                sys_pread
+                0x00000000001032ec                sys_read
+                0x0000000000103378                pwrite
+                0x00000000001033a8                sys_pwrite
+                0x00000000001033f0                sys_write
+                0x000000000010348c                ioctl
+                0x00000000001034a8                sys_ioctl
+                0x00000000001034d0                getdents
+                0x00000000001034ec                sys_getdents
+                0x0000000000103514                sys_rewinddir
+                0x0000000000103588                sys_isatty
+                0x00000000001035e8                sys_access
+                0x0000000000103628                mkdir
+                0x000000000010363c                sys_mkdir
+                0x000000000010365c                sys_rmdir
+                0x0000000000103734                sys_unlink
+                0x00000000001037b8                symlink
+                0x00000000001037cc                sys_symlink
+                0x00000000001037ec                sys_fchdir
+                0x000000000010386c                sys_chdir
+                0x00000000001038a4                sys_stat
+                0x00000000001038cc                sys_lstat
+                0x00000000001038f4                fstat
+                0x0000000000103908                sys_fstat
+                0x0000000000103928                lseek
+                0x000000000010396c                sys_lseek
+                0x00000000001039b4                sys_fcntl
+                0x0000000000103ab0                sys_readlink
+                0x0000000000103b20                mount
+                0x0000000000103b44                sys_mount
+                0x0000000000103b7c                sys_unmount
+                0x0000000000103ccc                do_select
+                0x0000000000104240                select
+                0x0000000000104268                sys_select
+                0x0000000000104294                dup
+                0x00000000001042a4                sys_dup
+                0x00000000001042c0                sys_dup2
+                0x0000000000104318                sys_utime
+ *fill*         0x00000000001043bb        0x1 
+ .text          0x00000000001043bc       0x9e objs/irq.o
+                0x00000000001043bc                request_irq
+                0x000000000010442c                do_handle_irq
+ *fill*         0x000000000010445a        0x2 
+ .text          0x000000000010445c      0x6ef objs/context.o
+                0x000000000010445c                memory_context_insert_region
+                0x00000000001044b8                memory_context_remove_region
+                0x00000000001044dc                memory_context_get_region_for
+                0x00000000001045c0                memory_context_find_unmapped_region
+                0x0000000000104660                memory_context_can_resize_region
+                0x0000000000104738                memory_context_delete_regions
+                0x00000000001048ac                memory_context_dump
+                0x00000000001048f8                memory_context_init
+                0x000000000010495c                memory_context_destroy
+                0x000000000010498c                memory_context_clone
+ *fill*         0x0000000000104b4b        0x1 
+ .text          0x0000000000104b4c      0x209 objs/ipv4.o
+                0x0000000000104b4c                ipv4_send_packet
+                0x0000000000104ca8                ipv4_input
+ *fill*         0x0000000000104d55        0x3 
+ .text          0x0000000000104d58       0xd1 objs/bootmodule.o
+                0x0000000000104db8                get_bootmodule_count
+                0x0000000000104dc0                get_bootmodule_at
+                0x0000000000104dd8                get_bootmodule_loader
+                0x0000000000104e24                put_bootmodule_loader
+ *fill*         0x0000000000104e29        0x3 
+ .text          0x0000000000104e2c      0x15f objs/interpreter.o
+ .text          0x0000000000104f8b        0x0 objs/version.o
+ *fill*         0x0000000000104f8b        0x1 
+ .text          0x0000000000104f8c      0xa2b objs/thread.o
+                0x0000000000105130                allocate_thread
+                0x000000000010525c                destroy_thread
+                0x00000000001052f0                insert_thread
+                0x0000000000105394                rename_thread
+                0x0000000000105410                create_kernel_thread
+                0x000000000010553c                sys_create_thread
+                0x000000000010566c                thread_sleep
+                0x000000000010567c                sys_get_thread_count_for_process
+                0x00000000001056b8                sys_get_thread_info_for_process
+                0x0000000000105714                sys_sleep_thread
+                0x0000000000105728                do_wake_up_thread
+                0x000000000010579c                sys_gettid
+                0x00000000001057ac                get_thread_count
+                0x0000000000105800                get_thread_by_id
+                0x0000000000105858                thread_exit
+                0x0000000000105908                kernel_thread_exit
+                0x0000000000105914                sys_exit_thread
+                0x0000000000105920                thread_wake_up
+                0x000000000010596c                sys_wake_up_thread
+ *fill*         0x00000000001059b7        0x1 
+ .text          0x00000000001059b8      0x3b0 objs/console.o
+                0x0000000000105a68                console_get_real_screen
+                0x0000000000105a70                console_set_screen
+                0x0000000000105acc                console_switch_screen
+                0x0000000000105b1c                console_set_debug
+                0x0000000000105b60                kprintf
+                0x0000000000105bdc                kvprintf
+                0x0000000000105c50                dprintf
+                0x0000000000105ca4                dprintf_unlocked
+                0x0000000000105ce4                kernel_console_read
+ .text          0x0000000000105d68      0x1a6 objs/init.o
+                0x0000000000105d68                init_thread
+                0x0000000000105ef8                execve
+ *fill*         0x0000000000105f0e        0x2 
+ .text          0x0000000000105f10      0x3a8 objs/signal.o
+                0x0000000000105f10                is_signal_pending
+                0x0000000000105f30                handle_signals
+                0x000000000010601c                do_send_signal
+                0x00000000001060c0                send_signal
+                0x0000000000106108                sys_sigaction
+                0x00000000001061a8                sys_sigprocmask
+                0x0000000000106230                sys_kill
+                0x0000000000106248                sys_kill_thread
+ .text          0x00000000001062b8      0x462 objs/io_context.o
+                0x00000000001062b8                create_file
+                0x00000000001062f8                delete_file
+                0x0000000000106328                io_context_insert_file
+                0x000000000010639c                io_context_get_file
+                0x00000000001063f0                io_context_put_file
+                0x0000000000106488                io_context_insert_file_at
+                0x000000000010650c                io_context_remove_file
+                0x0000000000106570                init_io_context
+                0x00000000001065e0                io_context_clone
+                0x00000000001066b8                destroy_io_context
+ *fill*         0x000000000010671a        0x2 
+ .text          0x000000000010671c      0x1f9 objs/packet.o
+                0x000000000010671c                create_packet
+                0x0000000000106754                delete_packet
+                0x000000000010675c                create_packet_queue
+                0x00000000001067c4                delete_packet_queue
+                0x0000000000106804                packet_queue_insert
+                0x00000000001068b0                packet_queue_pop_head
+ *fill*         0x0000000000106915        0x3 
+ .text          0x0000000000106918      0x2be objs/scheduler.o
+                0x0000000000106918                add_thread_to_ready
+                0x000000000010699c                add_thread_to_expired
+                0x0000000000106a2c                reset_thread_quantum
+                0x0000000000106a40                do_schedule
+ *fill*         0x0000000000106bd6        0x2 
+ .text          0x0000000000106bd8      0x6b3 objs/ipc.o
+                0x0000000000106be8                sys_create_ipc_port
+                0x0000000000106ce8                sys_destroy_ipc_port
+                0x0000000000106d8c                sys_send_ipc_message
+                0x0000000000106edc                sys_recv_ipc_message
+                0x000000000010705c                sys_peek_ipc_message
+                0x0000000000107168                sys_register_named_ipc_port
+                0x000000000010723c                sys_get_named_ipc_port
+ *fill*         0x000000000010728b        0x1 
+ .text          0x000000000010728c      0x447 objs/kmalloc.o
+                0x00000000001072f0                kmalloc
+                0x00000000001074f8                kfree
+                0x000000000010769c                kmalloc_get_statistics
+ *fill*         0x00000000001076d3        0x1 
+ .text          0x00000000001076d4      0x1a3 objs/filesystem.o
+                0x0000000000107718                register_filesystem
+                0x00000000001077f4                get_filesystem
+                0x000000000010782c                probe_filesystem
+ *fill*         0x0000000000107877        0x1 
+ .text          0x0000000000107878      0x6bd objs/pages.o
+                0x0000000000107878                do_alloc_pages
+                0x0000000000107938                alloc_pages
+                0x00000000001079e4                alloc_pages_aligned
+                0x0000000000107bac                free_pages
+                0x0000000000107ce0                get_free_page_count
+                0x0000000000107d40                get_total_page_count
+                0x0000000000107d54                sys_get_memory_info
+                0x0000000000107d90                reserve_memory_pages
+ *fill*         0x0000000000107f35        0x3 
+ .text          0x0000000000107f38      0x1a8 objs/devices.o
+                0x0000000000107f40                register_bus_driver
+                0x0000000000108008                unregister_bus_driver
+                0x0000000000108088                get_bus_driver
+ .text          0x00000000001080e0      0x22e objs/route.o
+                0x0000000000108148                create_route
+                0x00000000001081d0                insert_route
+                0x0000000000108240                find_route
+                0x00000000001082a8                put_route
+ *fill*         0x000000000010830e        0x2 
+ .text          0x0000000000108310      0x15e objs/syscall.o
+                0x0000000000108310                handle_system_call
+ *fill*         0x000000000010846e        0x2 
+ .text          0x0000000000108470      0x9f2 objs/inode.o
+                0x00000000001084c4                get_inode
+                0x00000000001086c0                put_inode
+                0x0000000000108790                get_vnode
+                0x00000000001087c4                put_vnode
+                0x0000000000108808                mount_point_can_unmount
+                0x0000000000108820                do_lookup_inode
+                0x0000000000108a10                lookup_parent_inode
+                0x0000000000108ba8                lookup_inode
+                0x0000000000108ce8                get_inode_cache_size
+                0x0000000000108d18                init_inode_cache
+                0x0000000000108e20                destroy_inode_cache
+ *fill*         0x0000000000108e62        0x2 
+ .text          0x0000000000108e64      0x891 objs/elf32.o
+                0x0000000000108e6c                elf32_load_and_validate_header
+                0x0000000000108ec0                elf32_load_section_headers
+                0x0000000000108f98                elf32_parse_section_headers
+                0x000000000010951c                elf32_get_symbol
+                0x000000000010952c                elf32_get_symbol_info
+                0x00000000001095dc                elf32_init_image_info
+                0x0000000000109658                elf32_destroy_image_info
+ *fill*         0x00000000001096f5        0x3 
+ .text          0x00000000001096f8      0xa77 objs/region.o
+                0x0000000000109778                memory_region_allocate
+                0x00000000001097fc                memory_region_destroy
+                0x000000000010993c                memory_region_get
+                0x0000000000109980                memory_region_put
+                0x0000000000109990                do_create_memory_region
+                0x0000000000109a30                do_create_memory_region_at
+                0x0000000000109a8c                memory_region_create
+                0x0000000000109b48                do_memory_region_remap_pages
+                0x0000000000109b7c                memory_region_remap_pages
+                0x0000000000109bb4                do_memory_region_alloc_pages
+                0x0000000000109bec                memory_region_alloc_pages
+                0x0000000000109c20                memory_region_map_to_file
+                0x0000000000109d10                memory_region_resize
+                0x0000000000109e08                sys_memory_region_create
+                0x0000000000109e68                sys_memory_region_delete
+                0x0000000000109e94                sys_memory_region_remap_pages
+                0x0000000000109ed8                sys_memory_region_alloc_pages
+                0x0000000000109f18                sys_memory_region_clone_pages
+                0x0000000000109ff4                memory_region_dump
+ *fill*         0x000000000010a16f        0x1 
+ .text          0x000000000010a170      0x64a objs/module.o
+                0x000000000010a6c4                load_module
+                0x000000000010a6d0                get_module_symbol_info
+                0x000000000010a704                sys_load_module
+                0x000000000010a710                sys_get_module_count
+                0x000000000010a744                sys_get_module_info
+                0x000000000010a79c                set_module_loader
+ *fill*         0x000000000010a7ba        0x2 
+ .text          0x000000000010a7bc     0x10ac objs/tcp.o
+                0x000000000010b190                tcp_create_socket
+                0x000000000010b36c                put_tcp_endpoint
+                0x000000000010b40c                tcp_input
+ .text          0x000000000010b868      0x5b8 objs/waitqueue.o
+                0x000000000010b868                waitqueue_add_node
+                0x000000000010b9c8                waitqueue_add_node_tail
+                0x000000000010baa4                waitqueue_remove_node
+                0x000000000010bba8                waitqueue_wake_up
+                0x000000000010bc6c                waitqueue_wake_up_head
+                0x000000000010bd04                waitqueue_wake_up_all
+                0x000000000010bd7c                waitqueue_is_empty
+                0x000000000010be0c                init_waitqueue
+ .text          0x000000000010be20      0x16e objs/symbols.o
+                0x000000000010be68                add_kernel_symbol
+                0x000000000010beec                get_kernel_symbol_address
+                0x000000000010bf1c                get_kernel_symbol_info
+                0x000000000010bf60                init_kernel_symbols
+ .text          0x000000000010bf8e        0x0 objs/debugger.o
+ *fill*         0x000000000010bf8e        0x2 
+ .text          0x000000000010bf90      0x8db objs/devfs.o
+                0x000000000010c728                create_device_node
+ *fill*         0x000000000010c86b        0x1 
+ .text          0x000000000010c86c       0xef objs/smp.o
+                0x000000000010c86c                current_thread
+                0x000000000010c898                current_process
+                0x000000000010c8a8                idle_thread
+                0x000000000010c8b8                get_active_processor_count
+                0x000000000010c8cc                sys_get_processor_count
+                0x000000000010c8d4                get_idle_time
+                0x000000000010c8e8                sys_get_processor_info
+ *fill*         0x000000000010c95b        0x1 
+ .text          0x000000000010c95c      0x1b0 objs/sbrk.o
+                0x000000000010c95c                sys_sbrk
+ .text          0x000000000010cb0c      0x615 objs/loader.o
+                0x000000000010ccb4                get_app_binary_loader
+                0x000000000010ccec                put_app_binary_loader
+                0x000000000010ccf4                get_application_symbol_info
+                0x000000000010cd18                do_execve
+                0x000000000010d0b0                sys_execve
+                0x000000000010d0cc                register_application_loader
+                0x000000000010d0f8                register_interpreter_loader
+ *fill*         0x000000000010d121        0x3 
+ .text          0x000000000010d124      0x415 objs/lock/context.o
+                0x000000000010d2c0                lock_context_get
+                0x000000000010d314                lock_context_insert
+                0x000000000010d384                lock_context_remove
+                0x000000000010d3e8                lock_context_update
+                0x000000000010d428                lock_context_make_empty
+                0x000000000010d444                lock_context_init
+                0x000000000010d490                lock_context_clone
+                0x000000000010d500                lock_context_destroy
+                0x000000000010d528                init_locking
+ *fill*         0x000000000010d539        0x3 
+ .text          0x000000000010d53c      0x356 objs/lock/semaphore.o
+                0x000000000010d6c4                semaphore_lock
+                0x000000000010d6e8                semaphore_timedlock
+                0x000000000010d70c                semaphore_unlock
+                0x000000000010d798                semaphore_create
+                0x000000000010d838                semaphore_destroy
+ *fill*         0x000000000010d892        0x2 
+ .text          0x000000000010d894      0x693 objs/lock/mutex.o
+                0x000000000010da68                do_acquire_mutex
+                0x000000000010dcb4                mutex_lock
+                0x000000000010dcd4                mutex_trylock
+                0x000000000010dcf8                mutex_timedlock
+                0x000000000010dd24                do_release_mutex
+                0x000000000010dd40                mutex_unlock
+                0x000000000010dd50                mutex_clone
+                0x000000000010ddac                mutex_update
+                0x000000000010ddc4                mutex_is_locked
+                0x000000000010de38                mutex_create
+                0x000000000010de4c                mutex_destroy
+                0x000000000010de5c                sys_mutex_lock
+                0x000000000010de80                sys_mutex_trylock
+                0x000000000010dea4                sys_mutex_timedlock
+                0x000000000010ded0                sys_mutex_unlock
+                0x000000000010deec                sys_mutex_create
+                0x000000000010df0c                sys_mutex_destroy
+ *fill*         0x000000000010df27        0x1 
+ .text          0x000000000010df28      0x1c9 objs/lock/common.o
+                0x000000000010df28                lock_wait_on
+                0x000000000010dfdc                lock_timed_wait_on
+ *fill*         0x000000000010e0f1        0x3 
+ .text          0x000000000010e0f4      0x4ef objs/lock/condition.o
+                0x000000000010e45c                condition_wait
+                0x000000000010e480                condition_timedwait
+                0x000000000010e4a8                condition_signal
+                0x000000000010e4b8                condition_broadcast
+                0x000000000010e4c8                condition_clone
+                0x000000000010e4e8                condition_update
+                0x000000000010e4ec                condition_create
+                0x000000000010e4fc                condition_destroy
+                0x000000000010e50c                sys_condition_wait
+                0x000000000010e53c                sys_condition_timedwait
+                0x000000000010e574                sys_condition_signal
+                0x000000000010e590                sys_condition_broadcast
+                0x000000000010e5ac                sys_condition_create
+                0x000000000010e5c8                sys_condition_destroy
+ *fill*         0x000000000010e5e3        0x1 
+ .text          0x000000000010e5e4      0x25d objs/lib/time.o
+                0x000000000010e5e4                gettime
+                0x000000000010e798                daysdiff
+                0x000000000010e7fc                dayofweek
+                0x000000000010e820                uptime
+ *fill*         0x000000000010e841        0x3 
+ .text          0x000000000010e844      0x4b8 objs/lib/hashtable.o
+                0x000000000010e844                init_hashtable
+                0x000000000010e8a4                destroy_hashtable
+                0x000000000010e8c0                hashtable_add
+                0x000000000010e9ac                hashtable_get
+                0x000000000010ea00                hashtable_remove
+                0x000000000010ea8c                hashtable_iterate
+                0x000000000010eae8                hashtable_filtered_iterate
+                0x000000000010eb60                hashtable_get_item_count
+                0x000000000010eb68                hashtable_get_filtered_item_count
+                0x000000000010ebd4                hash_number
+                0x000000000010ec18                hash_string
+                0x000000000010ec74                hash_int
+                0x000000000010ec84                hash_int64
+                0x000000000010ec94                hash_str
+                0x000000000010ecb0                compare_int
+                0x000000000010ecc4                compare_int64
+                0x000000000010ece0                compare_str
+ .text          0x000000000010ecfc      0x163 objs/lib/circular.o
+                0x000000000010ecfc                init_circular_pointer
+                0x000000000010ed1c                circular_pointer_diff
+                0x000000000010ed38                circular_pointer_move
+                0x000000000010ed50                circular_pointer_get
+                0x000000000010ed60                init_circular_buffer
+                0x000000000010ed8c                destroy_circular_buffer
+                0x000000000010eda8                circular_buffer_size
+                0x000000000010edb0                circular_buffer_read
+                0x000000000010ee08                circular_buffer_write
+ *fill*         0x000000000010ee5f        0x1 
+ .text          0x000000000010ee60      0x2c9 objs/lib/array.o
+                0x000000000010eec8                array_add_item
+                0x000000000010eef4                array_insert_item
+                0x000000000010ef64                array_remove_item
+                0x000000000010efec                array_remove_item_from
+                0x000000000010f03c                array_get_size
+                0x000000000010f044                array_get_item
+                0x000000000010f060                array_index_of
+                0x000000000010f090                array_make_empty
+                0x000000000010f0c0                array_set_realloc_size
+                0x000000000010f0dc                array_init
+                0x000000000010f100                array_destroy
+ *fill*         0x000000000010f129        0x3 
+ .text          0x000000000010f12c      0x3bc objs/lib/string.o
+                0x000000000010f12c                memmove
+                0x000000000010f178                memcmp
+                0x000000000010f1c0                strlen
+                0x000000000010f1d8                strcmp
+                0x000000000010f1fc                strncmp
+                0x000000000010f248                strcasecmp
+                0x000000000010f288                strncasecmp
+                0x000000000010f2e8                strchr
+                0x000000000010f314                strrchr
+                0x000000000010f340                strncpy
+                0x000000000010f368                strdup
+                0x000000000010f3b0                strndup
+                0x000000000010f40c                strcat
+                0x000000000010f450                strncat
+                0x000000000010f4a0                str_to_num
+ .text          0x000000000010f4e8       0x20 objs/lib/ctype.o
+                0x000000000010f4e8                toupper
+                0x000000000010f4f8                tolower
+ .text          0x000000000010f508      0x6a0 objs/lib/printf.o
+                0x000000000010f508                do_printf
+ .text          0x000000000010fba8       0xfc objs/lib/stack.o
+                0x000000000010fba8                stack_push
+                0x000000000010fc1c                stack_pop
+                0x000000000010fc44                stack_peek
+                0x000000000010fc6c                init_stack
+                0x000000000010fc88                destroy_stack
+ .text          0x000000000010fca4       0x69 objs/lib/snprintf.o
+                0x000000000010fccc                snprintf
+ *fill*         0x000000000010fd0d        0x3 
+ .text          0x000000000010fd10      0x5a7 objs/lib/udivmoddi4.o
+                0x000000000010fd10                __moddi3
+                0x000000000010feec                __umoddi3
+                0x0000000000110040                __divdi3
+                0x00000000001101ac                __udivdi3
+ *fill*         0x00000000001102b7        0x1 
+ .text          0x00000000001102b8       0x54 objs/arch/apic.o
+                0x00000000001102b8                get_processor_index
+                0x00000000001102bc                get_processor
+                0x00000000001102c4                apic_timer_irq
+                0x00000000001102d8                apic_spurious_irq
+                0x00000000001102fc                apic_tlb_flush_irq
+ .text          0x000000000011030c        0x0 objs/arch/cpu.o
+ .text          0x000000000011030c      0x6bd objs/arch/isr.o
+                0x000000000011030c                isr0
+                0x000000000011034b                isr1
+                0x0000000000110385                isr3
+                0x00000000001103bf                isr6
+                0x00000000001103fe                isr7
+                0x0000000000110438                isr13
+                0x0000000000110475                isr14
+                0x00000000001104b2                isr16
+                0x00000000001104f1                isr19
+                0x0000000000110530                isr32
+                0x000000000011056a                isr33
+                0x00000000001105a4                isr34
+                0x00000000001105de                isr35
+                0x0000000000110618                isr36
+                0x0000000000110652                isr37
+                0x000000000011068c                isr38
+                0x00000000001106c6                isr39
+                0x0000000000110700                isr40
+                0x000000000011073a                isr41
+                0x0000000000110774                isr42
+                0x00000000001107ae                isr43
+                0x00000000001107e8                isr44
+                0x0000000000110822                isr45
+                0x000000000011085c                isr46
+                0x0000000000110896                isr47
+                0x00000000001108d0                isr128
+                0x0000000000110912                isr240
+                0x000000000011094f                isr241
+                0x000000000011098c                isr242
+ .text          0x00000000001109c9       0x47 objs/arch/switch.o
+                0x00000000001109c9                switch_to_thread
+                0x00000000001109d6                sched_preempt
+ .text          0x0000000000110a10        0x0 objs/arch/boot.o
+ .text          0x0000000000110a10        0x0 objs/arch/mp.o
+ .text          0x0000000000110a10      0x10c objs/arch/start.o
+                0x0000000000110a10                arch_reboot
+                0x0000000000110a30                arch_shutdown
+ .text          0x0000000000110b1c      0x238 objs/arch/screen.o
+ .text          0x0000000000110d54       0x7b objs/arch/gdt.o
+                0x0000000000110d54                gdt_set_descriptor_base
+                0x0000000000110d84                gdt_set_descriptor_limit
+                0x0000000000110db8                gdt_set_descriptor_access
+ *fill*         0x0000000000110dcf        0x1 
+ .text          0x0000000000110dd0       0x79 objs/arch/fork.o
+                0x0000000000110dd0                arch_do_fork
+ .text          0x0000000000110e49       0x4d objs/arch/atomic.o
+                0x0000000000110e49                atomic_get
+                0x0000000000110e50                atomic_set
+                0x0000000000110e5b                atomic_inc
+                0x0000000000110e63                atomic_dec
+                0x0000000000110e6b                atomic_dec_and_test
+                0x0000000000110e7b                atomic_swap
+                0x0000000000110e87                atomic_test_and_clear
+ *fill*         0x0000000000110e96        0x2 
+ .text          0x0000000000110e98      0x765 objs/arch/pagefault.o
+                0x0000000000110f20                handle_page_fault
+ *fill*         0x00000000001115fd        0x3 
+ .text          0x0000000000111600      0x1a6 objs/arch/bios.o
+                0x00000000001116a8                call_bios_interrupt
+ .text          0x00000000001117a6       0x77 objs/arch/string.o
+                0x00000000001117a6                memset
+                0x00000000001117bf                memsetw
+                0x00000000001117d9                memsetl
+                0x00000000001117f2                memcpy
+ *fill*         0x000000000011181d        0x3 
+ .text          0x0000000000111820      0x4cc objs/arch/paging.o
+                0x0000000000111820                get_paging_flags_for_region
+                0x0000000000111840                paging_alloc_table_entries
+                0x0000000000111918                paging_fill_table_entries
+                0x00000000001119e0                paging_clear_table_entries
+                0x0000000000111a60                paging_free_table_entries
+                0x0000000000111b60                paging_clone_table_entries
+ .text          0x0000000000111cec       0xf5 objs/arch/context.o
+                0x0000000000111cec                arch_memory_context_init
+                0x0000000000111d50                arch_memory_context_destroy
+                0x0000000000111dbc                arch_memory_context_clone
+ .text          0x0000000000111de1        0x0 objs/arch/smp_entry.o
+ *fill*         0x0000000000111de1        0x3 
+ .text          0x0000000000111de4      0x691 objs/arch/elf32_module.o
+                0x000000000011242c                elf32_module_get_dependencies
+ *fill*         0x0000000000112475        0x3 
+ .text          0x0000000000112478       0xb1 objs/arch/spinlock.o
+                0x0000000000112478                init_spinlock
+                0x000000000011248c                spinlock
+                0x00000000001124c4                spinunlock
+                0x00000000001124fc                spinlock_disable
+                0x0000000000112510                spinunlock_enable
+                0x0000000000112524                spinlock_is_locked
+ *fill*         0x0000000000112529        0x3 
+ .text          0x000000000011252c      0x16f objs/arch/thread.o
+                0x000000000011252c                arch_allocate_thread
+                0x0000000000112580                arch_destroy_thread
+                0x0000000000112594                arch_create_kernel_thread
+                0x00000000001125f8                arch_create_user_thread
+ .text          0x000000000011269b       0x5d objs/arch/network.o
+                0x000000000011269b                ip_checksum
+ .text          0x00000000001126f8      0x161 objs/arch/signal.o
+                0x00000000001126f8                sys_signal_return
+                0x0000000000112724                arch_handle_userspace_signal
+                0x00000000001127c4                arch_handle_signals
+ *fill*         0x0000000000112859        0x3 
+ .text          0x000000000011285c       0xeb objs/arch/scheduler.o
+                0x000000000011285c                schedule
+ *fill*         0x0000000000112947        0x1 
+ .text          0x0000000000112948       0xf1 objs/arch/interrupt.o
+                0x0000000000112948                arch_disable_irq
+                0x0000000000112980                arch_enable_irq
+                0x00000000001129b8                arch_mask_and_ack_irq
+                0x0000000000112a10                irq_handler
+ *fill*         0x0000000000112a39        0x3 
+ .text          0x0000000000112a3c      0x3b3 objs/arch/elf32_application.o
+                0x0000000000112a3c                elf32_application_execute
+ *fill*         0x0000000000112def        0x1 
+ .text          0x0000000000112df0       0x41 objs/arch/syscall.o
+                0x0000000000112df0                system_call_entry
+ *fill*         0x0000000000112e31        0x3 
+ .text          0x0000000000112e34      0x915 objs/arch/region.o
+                0x0000000000112e34                arch_memory_region_remap_pages
+                0x0000000000113000                arch_memory_region_alloc_pages
+                0x000000000011313c                arch_memory_region_unmap_pages
+                0x00000000001132a8                arch_memory_region_clone_pages
+ *fill*         0x0000000000113749        0x3 
+ .text          0x000000000011374c      0x1ca objs/arch/exception.o
+                0x000000000011374c                dump_registers
+                0x00000000001137d0                handle_division_by_zero
+                0x00000000001137fc                handle_invalid_opcode
+                0x0000000000113828                handle_device_not_available
+                0x0000000000113894                handle_general_protection_fault
+                0x00000000001138c0                handle_fpu_exception
+                0x00000000001138ec                handle_sse_exception
+ *fill*         0x0000000000113916        0x2 
+ .text          0x0000000000113918       0x10 objs/arch/fpu.o
+                0x0000000000113918                load_fpu_state
+                0x0000000000113920                save_fpu_state
+ .text          0x0000000000113928       0x59 objs/arch/i386.o
+                0x0000000000113928                get_eflags
+                0x000000000011392b                set_eflags
+                0x0000000000113931                disable_interrupts
+                0x000000000011393a                enable_interrupts
+                0x000000000011393c                is_interrupts_disabled
+                0x0000000000113946                get_cr2
+                0x000000000011394a                set_cr2
+                0x0000000000113952                get_cr3
+                0x0000000000113956                set_cr3
+                0x000000000011395e                get_ebp
+                0x0000000000113961                clear_task_switched
+                0x0000000000113964                set_task_switched
+                0x000000000011396e                flush_tlb
+                0x0000000000113975                invlpg
+                0x000000000011397b                halt_loop
+ *fill*         0x0000000000113981        0x3 
+ .text          0x0000000000113984      0x18a objs/arch/hwtime.o
+                0x0000000000113984                gethwclock
+                0x0000000000113b08                sethwclock
+ *fill*         0x0000000000113b0e        0x2 
+ .text          0x0000000000113b10       0xe3 objs/arch/debugger.o
+                0x0000000000113b10                debug_print_stack_trace
+                0x0000000000113bdc                handle_debug_exception
+ *fill*         0x0000000000113bf3        0x1 
+ .text          0x0000000000113bf4      0x150 objs/arch/pit.o
+                0x0000000000113c7c                pit_read_timer
+                0x0000000000113c90                pit_wait_wrap
+                0x0000000000113ccc                get_system_time
+                0x0000000000113d04                set_system_time
+                0x0000000000113d38                get_boot_time
+ .text          0x0000000000113d44        0x0 objs/arch/smp.o
+ .text          0x0000000000113d44      0x570 objs/x86emu/debug.o
+                0x0000000000113d44                x86emu_dump_regs
+                0x0000000000113ffc                x86emu_dump_xregs
+ .text          0x00000000001142b4     0x3731 objs/x86emu/prim_ops.o
+                0x00000000001142b4                aaa_word
+                0x0000000000114330                aas_word
+                0x00000000001143ac                aad_word
+                0x0000000000114420                aam_word
+                0x0000000000114490                adc_byte
+                0x0000000000114568                adc_word
+                0x0000000000114644                adc_long
+                0x000000000011473c                add_byte
+                0x0000000000114804                add_word
+                0x00000000001148cc                add_long
+                0x0000000000114994                and_byte
+                0x00000000001149f8                and_word
+                0x0000000000114a5c                and_long
+                0x0000000000114abc                cmp_byte
+                0x0000000000114b78                cmp_word
+                0x0000000000114c38                cmp_long
+                0x0000000000114ce4                daa_byte
+                0x0000000000114d6c                das_byte
+                0x0000000000114df4                dec_byte
+                0x0000000000114e94                dec_word
+                0x0000000000114f34                dec_long
+                0x0000000000114fc4                inc_byte
+                0x0000000000115068                inc_word
+                0x0000000000115108                inc_long
+                0x000000000011519c                or_byte
+                0x0000000000115200                or_word
+                0x0000000000115264                or_long
+                0x00000000001152c4                neg_byte
+                0x0000000000115364                neg_word
+                0x0000000000115400                neg_long
+                0x000000000011549c                not_byte
+                0x00000000001154a4                not_word
+                0x00000000001154ac                not_long
+                0x00000000001154b4                rcl_byte
+                0x0000000000115574                rcl_word
+                0x0000000000115620                rcl_long
+                0x00000000001156c8                rcr_byte
+                0x00000000001157fc                rcr_word
+                0x0000000000115914                rcr_long
+                0x0000000000115a08                rol_byte
+                0x0000000000115ab4                rol_word
+                0x0000000000115b60                rol_long
+                0x0000000000115bfc                ror_byte
+                0x0000000000115c94                ror_word
+                0x0000000000115d2c                ror_long
+                0x0000000000115dbc                shl_byte
+                0x0000000000115ecc                shl_word
+                0x0000000000115fd8                shl_long
+                0x00000000001160cc                shr_byte
+                0x00000000001161b4                shr_word
+                0x0000000000116288                shr_long
+                0x000000000011634c                sar_byte
+                0x0000000000116408                sar_word
+                0x00000000001164c8                sar_long
+                0x0000000000116570                shld_word
+                0x0000000000116690                shld_long
+                0x0000000000116790                shrd_word
+                0x000000000011688c                shrd_long
+                0x0000000000116964                sbb_byte
+                0x0000000000116a24                sbb_word
+                0x0000000000116ae8                sbb_long
+                0x0000000000116b9c                sub_byte
+                0x0000000000116c50                sub_word
+                0x0000000000116d04                sub_long
+                0x0000000000116da4                test_byte
+                0x0000000000116e08                test_word
+                0x0000000000116e60                test_long
+                0x0000000000116eb8                xor_byte
+                0x0000000000116f20                xor_word
+                0x0000000000116f88                xor_long
+                0x0000000000116fec                imul_byte
+                0x000000000011702c                imul_word
+                0x0000000000117078                imul_long_direct
+                0x0000000000117090                imul_long
+                0x00000000001170cc                mul_byte
+                0x00000000001170fc                mul_word
+                0x0000000000117138                mul_long
+                0x0000000000117160                idiv_byte
+                0x00000000001171a0                idiv_word
+                0x0000000000117258                idiv_long
+                0x000000000011730c                div_byte
+                0x0000000000117348                div_word
+                0x0000000000117400                div_long
+                0x00000000001174b4                ins
+                0x00000000001176f0                outs
+                0x0000000000117924                mem_access_word
+                0x000000000011792c                push_word
+                0x0000000000117960                push_long
+                0x0000000000117990                pop_word
+                0x00000000001179bc                pop_long
+ *fill*         0x00000000001179e5        0x3 
+ .text          0x00000000001179e8     0x9427 objs/x86emu/ops.o
+ *fill*         0x0000000000120e0f        0x1 
+ .text          0x0000000000120e10      0x22e objs/x86emu/sys.o
+                0x0000000000120e28                rdb
+                0x0000000000120e4c                rdw
+                0x0000000000120e74                rdl
+                0x0000000000120e9c                wrb
+                0x0000000000120ec4                wrw
+                0x0000000000120ef0                wrl
+                0x0000000000120f1c                X86EMU_setupMemFuncs
+                0x0000000000120f58                X86EMU_setupPioFuncs
+                0x0000000000120f94                X86EMU_setupIntrFuncs
+                0x0000000000120fcc                X86EMU_prepareForInt
+ *fill*         0x000000000012103e        0x2 
+ .text          0x0000000000121040      0xdb8 objs/x86emu/decode.o
+                0x0000000000121094                x86emu_intr_raise
+                0x00000000001210ac                X86EMU_exec
+                0x00000000001211e0                X86EMU_halt_sys
+                0x00000000001211f0                fetch_decode_modrm
+                0x0000000000121244                fetch_byte_imm
+                0x0000000000121274                fetch_word_imm
+                0x00000000001212a0                fetch_long_imm
+                0x00000000001212cc                fetch_data_byte
+                0x00000000001212f0                fetch_data_word
+                0x0000000000121314                fetch_data_long
+                0x0000000000121338                fetch_data_byte_abs
+                0x0000000000121350                fetch_data_word_abs
+                0x0000000000121368                fetch_data_long_abs
+                0x0000000000121380                store_data_byte
+                0x00000000001213b0                store_data_word
+                0x00000000001213e0                store_data_long
+                0x000000000012140c                store_data_byte_abs
+                0x0000000000121430                store_data_word_abs
+                0x0000000000121454                store_data_long_abs
+                0x0000000000121474                decode_rm_byte_register
+                0x00000000001214d4                decode_rm_word_register
+                0x0000000000121534                decode_rm_long_register
+                0x0000000000121594                decode_rm_seg_register
+                0x00000000001215e4                decode_sib_address
+                0x0000000000121780                decode_rm00_address
+                0x000000000012194c                decode_rm01_address
+                0x0000000000121b9c                decode_rm10_address
+ .text          0x0000000000121df8      0x44d objs/x86emu/fpu.o
+                0x0000000000121df8                x86emuOp_esc_coprocess_d8
+                0x0000000000121e04                x86emuOp_esc_coprocess_d9
+                0x0000000000121ea0                x86emuOp_esc_coprocess_da
+                0x0000000000121f3c                x86emuOp_esc_coprocess_db
+                0x0000000000121fd8                x86emuOp_esc_coprocess_dc
+                0x0000000000122074                x86emuOp_esc_coprocess_dd
+                0x0000000000122110                x86emuOp_esc_coprocess_de
+                0x00000000001221ac                x86emuOp_esc_coprocess_df
+ *fill*         0x0000000000122245        0x3 
+ .text          0x0000000000122248     0x2cd1 objs/x86emu/ops2.o
+ *(.text.*)
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/time.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/icmp.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/elf.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/kernel.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/rootfs.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/interface.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arp.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/fork.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/socket.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/process.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/blockcache.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/vfs.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/irq.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/context.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/ipv4.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/bootmodule.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/interpreter.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/thread.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/console.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/init.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/signal.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/io_context.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/packet.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/scheduler.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/ipc.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/kmalloc.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/filesystem.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/pages.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/devices.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/route.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/syscall.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/inode.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/elf32.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/region.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/module.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/tcp.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/waitqueue.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/symbols.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/devfs.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/smp.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/sbrk.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/loader.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lock/context.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lock/semaphore.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lock/mutex.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lock/common.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lock/condition.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/time.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/hashtable.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/circular.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/array.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/string.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/ctype.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/printf.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/stack.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/snprintf.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/lib/udivmoddi4.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/apic.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/start.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/screen.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/gdt.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/fork.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/pagefault.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/bios.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/paging.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/context.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/elf32_module.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/spinlock.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/thread.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/signal.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/scheduler.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/interrupt.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/elf32_application.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/syscall.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/region.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/exception.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/fpu.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/hwtime.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/debugger.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/arch/pit.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/debug.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/prim_ops.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/ops.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/sys.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/decode.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/fpu.o
+ .text.unlikely
+                0x0000000000124f19        0x0 objs/x86emu/ops2.o
+                0x0000000000124f19                __smp_trampoline_start = .
+ *(.smp_trampoline)
+                0x0000000000124f19                __smp_trampoline_end = .
+
+.iplt           0x0000000000124f20        0x0
+ .iplt          0x0000000000124f20        0x0 objs/time.o
+                0x0000000000125000                . = ALIGN (0x1000)
+
+.rodata         0x0000000000125000     0x3014
+ *(.rodata)
+ .rodata        0x0000000000125000       0x14 objs/vfs.o
+ .rodata        0x0000000000125014       0x1c objs/scheduler.o
+ *fill*         0x0000000000125030       0x10 
+ .rodata        0x0000000000125040      0x42c objs/syscall.o
+ .rodata        0x000000000012546c       0x10 objs/lock/context.o
+ *fill*         0x000000000012547c        0x4 
+ .rodata        0x0000000000125480       0xae objs/lib/time.o
+                0x0000000000125480                sumofdays
+                0x00000000001254f8                monthdays2
+                0x0000000000125514                monthdays
+ *fill*         0x000000000012552e        0x2 
+ .rodata        0x0000000000125530       0x98 objs/lib/printf.o
+ .rodata        0x00000000001255c8       0x16 objs/arch/elf32_application.o
+ *fill*         0x00000000001255de        0x2 
+ .rodata        0x00000000001255e0       0x1f objs/arch/region.o
+ *fill*         0x00000000001255ff        0x1 
+ .rodata        0x0000000000125600       0x20 objs/x86emu/prim_ops.o
+ .rodata        0x0000000000125620      0x260 objs/x86emu/ops.o
+ .rodata        0x0000000000125880      0x280 objs/x86emu/decode.o
+ .rodata        0x0000000000125b00       0x80 objs/x86emu/ops2.o
+ *(.rodata.*)
+ .rodata.str1.4
+                0x0000000000125b80       0x21 objs/icmp.o
+ .rodata.str1.1
+                0x0000000000125ba1       0x1c objs/icmp.o
+ .rodata.str1.1
+                0x0000000000125bbd       0x2e objs/kernel.o
+                                         0x37 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000125beb       0x48 objs/rootfs.o
+                                         0x59 (size before relaxing)
+ *fill*         0x0000000000125c33        0x1 
+ .rodata.str1.4
+                0x0000000000125c34       0x21 objs/rootfs.o
+ .rodata.str1.1
+                0x0000000000125c55       0x67 objs/interface.o
+                                         0x6c (size before relaxing)
+ .rodata.str1.4
+                0x0000000000125cbc       0x1f objs/interface.o
+ *fill*         0x0000000000125cdb        0x1 
+ .rodata.str1.4
+                0x0000000000125cdc       0x52 objs/arp.o
+ .rodata.str1.1
+                0x0000000000125d2e       0x1b objs/arp.o
+ .rodata.str1.1
+                0x0000000000125d49       0x13 objs/socket.o
+ .rodata.str1.1
+                0x0000000000125d5c       0x76 objs/process.o
+ *fill*         0x0000000000125dd2        0x2 
+ .rodata.str1.4
+                0x0000000000125dd4       0xd6 objs/process.o
+                                         0xfa (size before relaxing)
+ .rodata.str1.1
+                0x0000000000125eaa       0x37 objs/blockcache.o
+ .rodata.str1.4
+                0x0000000000125ee1       0x21 objs/blockcache.o
+ .rodata.str1.1
+                0x0000000000125ee1       0x41 objs/vfs.o
+                                         0x45 (size before relaxing)
+ *fill*         0x0000000000125f22        0x2 
+ .rodata.str1.4
+                0x0000000000125f24       0x93 objs/vfs.o
+                                         0xb7 (size before relaxing)
+ *fill*         0x0000000000125fb7        0x1 
+ .rodata.str1.4
+                0x0000000000125fb8       0x77 objs/context.o
+                                         0x9b (size before relaxing)
+ .rodata.str1.1
+                0x000000000012602f       0x53 objs/context.o
+ *fill*         0x0000000000126082        0x2 
+ .rodata.str1.4
+                0x0000000000126084       0x54 objs/ipv4.o
+                                         0x75 (size before relaxing)
+ .rodata.str1.1
+                0x00000000001260d8       0x3a objs/ipv4.o
+ .rodata.str1.1
+                0x0000000000126112        0x8 objs/bootmodule.o
+ .rodata.str1.1
+                0x000000000012611a       0x10 objs/interpreter.o
+ .rodata.str1.1
+                0x000000000012612a       0x15 objs/version.o
+ .rodata.str1.1
+                0x000000000012613f       0x2d objs/thread.o
+                                         0x43 (size before relaxing)
+ .rodata.str1.4
+                0x000000000012616c       0x6a objs/thread.o
+                                         0x8e (size before relaxing)
+ .rodata.str1.1
+                0x00000000001261d6        0x8 objs/console.o
+ .rodata.str1.1
+                0x00000000001261de       0xb9 objs/init.o
+                                         0xc3 (size before relaxing)
+ *fill*         0x0000000000126297        0x1 
+ .rodata.str1.4
+                0x0000000000126298       0xf1 objs/init.o
+ .rodata.str1.1
+                0x0000000000126389       0x14 objs/signal.o
+                                         0x21 (size before relaxing)
+ *fill*         0x000000000012639d        0x3 
+ .rodata.str1.4
+                0x00000000001263a0       0x25 objs/signal.o
+                                         0x49 (size before relaxing)
+ .rodata.str1.1
+                0x00000000001263c5       0x27 objs/io_context.o
+                                         0x3b (size before relaxing)
+ .rodata.str1.4
+                0x00000000001263ec       0x21 objs/io_context.o
+ .rodata.str1.1
+                0x00000000001263ec       0x66 objs/packet.o
+ .rodata.str1.4
+                0x0000000000126452       0x21 objs/packet.o
+ .rodata.str1.1
+                0x0000000000126452       0x20 objs/scheduler.o
+                                         0x36 (size before relaxing)
+ *fill*         0x0000000000126472        0x2 
+ .rodata.str1.4
+                0x0000000000126474       0x35 objs/scheduler.o
+                                         0x59 (size before relaxing)
+ .rodata.str1.1
+                0x00000000001264a9       0x4f objs/ipc.o
+                                         0x64 (size before relaxing)
+ .rodata.str1.4
+                0x00000000001264f8       0x45 objs/ipc.o
+                                         0x69 (size before relaxing)
+ *fill*         0x000000000012653d        0x3 
+ .rodata.str1.4
+                0x0000000000126540      0x10d objs/kmalloc.o
+                                        0x131 (size before relaxing)
+ .rodata.str1.1
+                0x000000000012664d       0x19 objs/kmalloc.o
+ .rodata.str1.1
+                0x0000000000126666        0xf objs/filesystem.o
+ .rodata.str1.1
+                0x0000000000126675       0x9d objs/pages.o
+ *fill*         0x0000000000126712        0x2 
+ .rodata.str1.4
+                0x0000000000126714       0xf7 objs/pages.o
+                                        0x11b (size before relaxing)
+ .rodata.str1.1
+                0x000000000012680b       0x10 objs/devices.o
+ *fill*         0x000000000012681b        0x1 
+ .rodata.str1.4
+                0x000000000012681c       0x2d objs/route.o
+ .rodata.str1.1
+                0x0000000000126849        0xc objs/route.o
+ .rodata.str1.1
+                0x0000000000126855      0x43c objs/syscall.o
+                                        0x45f (size before relaxing)
+ .rodata.str1.4
+                0x0000000000126c91       0x21 objs/syscall.o
+ .rodata.str1.1
+                0x0000000000126c91       0x5a objs/inode.o
+                                         0x6b (size before relaxing)
+ *fill*         0x0000000000126ceb        0x1 
+ .rodata.str1.4
+                0x0000000000126cec       0x24 objs/inode.o
+                                         0x48 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000126d10       0x18 objs/elf32.o
+ .rodata.str1.4
+                0x0000000000126d28       0x64 objs/elf32.o
+ .rodata.str1.1
+                0x0000000000126d8c       0x43 objs/region.o
+                                         0x75 (size before relaxing)
+ *fill*         0x0000000000126dcf        0x1 
+ .rodata.str1.4
+                0x0000000000126dd0       0x48 objs/region.o
+                                         0x6c (size before relaxing)
+ .rodata.str1.1
+                0x0000000000126e18       0x58 objs/module.o
+                                         0x5d (size before relaxing)
+ .rodata.str1.4
+                0x0000000000126e70       0xc7 objs/module.o
+ *fill*         0x0000000000126f37        0x1 
+ .rodata.str1.4
+                0x0000000000126f38       0x6d objs/tcp.o
+                                         0x91 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000126fa5       0x90 objs/tcp.o
+ .rodata.str1.1
+                0x0000000000127035       0xa2 objs/waitqueue.o
+ *fill*         0x00000000001270d7        0x1 
+ .rodata.str1.4
+                0x00000000001270d8       0x31 objs/waitqueue.o
+                                         0x55 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127109        0xc objs/devfs.o
+                                         0x16 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127115       0x23 objs/smp.o
+ .rodata.str1.4
+                0x0000000000127138       0x21 objs/smp.o
+ .rodata.str1.1
+                0x0000000000127138       0x23 objs/sbrk.o
+                                          0x5 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127138       0x1c objs/loader.o
+                                         0x22 (size before relaxing)
+ .rodata.str1.4
+                0x0000000000127154       0x48 objs/loader.o
+ .rodata.str1.4
+                0x000000000012719c       0xb5 objs/lock/context.o
+                                         0xd9 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127251       0x25 objs/lock/context.o
+ *fill*         0x0000000000127276        0x2 
+ .rodata.str1.4
+                0x0000000000127278       0x55 objs/lock/semaphore.o
+ *fill*         0x00000000001272cd        0x3 
+ .rodata.str1.4
+                0x00000000001272d0       0xbd objs/lock/mutex.o
+ *fill*         0x000000000012738d        0x3 
+ .rodata.str1.4
+                0x0000000000127390       0x55 objs/lock/condition.o
+ .rodata.str1.1
+                0x00000000001273e5        0x7 objs/lib/printf.o
+ .rodata.str1.1
+                0x00000000001273ec       0x59 objs/arch/apic.o
+ *fill*         0x0000000000127445        0x3 
+ .rodata.str1.4
+                0x0000000000127448       0x3a objs/arch/apic.o
+ .rodata.str1.1
+                0x0000000000127482       0x73 objs/arch/cpu.o
+                                         0x76 (size before relaxing)
+ *fill*         0x00000000001274f5        0x3 
+ .rodata.str1.4
+                0x00000000001274f8       0x20 objs/arch/mp.o
+ .rodata.str1.4
+                0x0000000000127518       0xe4 objs/arch/start.o
+                                        0x108 (size before relaxing)
+ .rodata.str1.1
+                0x00000000001275fc       0x59 objs/arch/start.o
+ .rodata.str1.1
+                0x0000000000127655        0xd objs/arch/screen.o
+ *fill*         0x0000000000127662        0x2 
+ .rodata.str1.4
+                0x0000000000127664       0x93 objs/arch/pagefault.o
+                                         0xb7 (size before relaxing)
+ .rodata.str1.1
+                0x00000000001276f7       0xad objs/arch/pagefault.o
+                                         0xc5 (size before relaxing)
+ .rodata.str1.1
+                0x00000000001277a4        0xa objs/arch/bios.o
+ .rodata.str1.1
+                0x00000000001277ae       0x7c objs/arch/paging.o
+                                         0x90 (size before relaxing)
+ *fill*         0x000000000012782a        0x2 
+ .rodata.str1.4
+                0x000000000012782c       0x3d objs/arch/paging.o
+                                         0x61 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127869       0x28 objs/arch/elf32_module.o
+ *fill*         0x0000000000127891        0x3 
+ .rodata.str1.4
+                0x0000000000127894       0xf7 objs/arch/elf32_module.o
+                                        0x11b (size before relaxing)
+ .rodata.str1.1
+                0x000000000012798b       0x19 objs/arch/spinlock.o
+                                         0x32 (size before relaxing)
+ .rodata.str1.4
+                0x00000000001279a4       0x21 objs/arch/spinlock.o
+ .rodata.str1.1
+                0x00000000001279a4       0x17 objs/arch/signal.o
+ *fill*         0x00000000001279bb        0x1 
+ .rodata.str1.4
+                0x00000000001279bc       0x70 objs/arch/signal.o
+                                         0x94 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127a2c       0x17 objs/arch/elf32_application.o
+                                          0xc (size before relaxing)
+ .rodata.str1.4
+                0x0000000000127a2c       0x2f objs/arch/elf32_application.o
+ *fill*         0x0000000000127a5b        0x1 
+ .rodata.str1.4
+                0x0000000000127a5c       0xd1 objs/arch/region.o
+                                         0xf5 (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127b2d       0x37 objs/arch/region.o
+                                         0x5d (size before relaxing)
+ .rodata.str1.1
+                0x0000000000127b64       0xbe objs/arch/exception.o
+ .rodata.str1.1
+                0x0000000000127c22        0x9 objs/arch/hwtime.o
+ .rodata.str1.1
+                0x0000000000127c2b       0x22 objs/arch/debugger.o
+                                         0x24 (size before relaxing)
+ *fill*         0x0000000000127c4d        0x3 
+ .rodata.str1.4
+                0x0000000000127c50       0x20 objs/arch/debugger.o
+ .rodata.str1.1
+                0x0000000000127c70        0x4 objs/arch/pit.o
+ .rodata.str1.1
+                0x0000000000127c74      0x294 objs/x86emu/debug.o
+ .rodata.str1.4
+                0x0000000000127f08       0x46 objs/x86emu/ops.o
+ *fill*         0x0000000000127f4e        0x2 
+ .rodata.str1.4
+                0x0000000000127f50       0xc4 objs/x86emu/ops2.o
+                                         0xc2 (size before relaxing)
+
+.eh_frame       0x0000000000128014    0x14298
+ .eh_frame      0x0000000000128014       0xf0 objs/time.o
+ .eh_frame      0x0000000000128104       0xac objs/icmp.o
+                                         0xc4 (size before relaxing)
+ .eh_frame      0x00000000001281b0       0x28 objs/elf.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x00000000001281d8      0x264 objs/kernel.o
+                                        0x27c (size before relaxing)
+ .eh_frame      0x000000000012843c      0x5c4 objs/rootfs.o
+                                        0x5dc (size before relaxing)
+ .eh_frame      0x0000000000128a00      0x300 objs/interface.o
+                                        0x318 (size before relaxing)
+ .eh_frame      0x0000000000128d00      0x25c objs/arp.o
+                                        0x274 (size before relaxing)
+ .eh_frame      0x0000000000128f5c       0xe0 objs/fork.o
+                                         0xf8 (size before relaxing)
+ .eh_frame      0x000000000012903c      0x35c objs/socket.o
+                                        0x374 (size before relaxing)
+ .eh_frame      0x0000000000129398      0x5e8 objs/process.o
+                                        0x600 (size before relaxing)
+ .eh_frame      0x0000000000129980      0x1d8 objs/blockcache.o
+                                        0x1f0 (size before relaxing)
+ .eh_frame      0x0000000000129b58     0x134c objs/vfs.o
+                                       0x1364 (size before relaxing)
+ .eh_frame      0x000000000012aea4       0x94 objs/irq.o
+                                         0xac (size before relaxing)
+ .eh_frame      0x000000000012af38      0x490 objs/context.o
+                                        0x4a8 (size before relaxing)
+ .eh_frame      0x000000000012b3c8      0x124 objs/ipv4.o
+                                        0x13c (size before relaxing)
+ .eh_frame      0x000000000012b4ec      0x15c objs/bootmodule.o
+                                        0x174 (size before relaxing)
+ .eh_frame      0x000000000012b648      0x124 objs/interpreter.o
+                                        0x13c (size before relaxing)
+ .eh_frame      0x000000000012b76c      0x668 objs/thread.o
+                                        0x680 (size before relaxing)
+ .eh_frame      0x000000000012bdd4      0x244 objs/console.o
+                                        0x25c (size before relaxing)
+ .eh_frame      0x000000000012c018      0x1f8 objs/init.o
+                                        0x210 (size before relaxing)
+ .eh_frame      0x000000000012c210      0x258 objs/signal.o
+                                        0x270 (size before relaxing)
+ .eh_frame      0x000000000012c468      0x368 objs/io_context.o
+                                        0x380 (size before relaxing)
+ .eh_frame      0x000000000012c7d0      0x190 objs/packet.o
+                                        0x1a8 (size before relaxing)
+ .eh_frame      0x000000000012c960      0x12c objs/scheduler.o
+                                        0x144 (size before relaxing)
+ .eh_frame      0x000000000012ca8c      0x4ac objs/ipc.o
+                                        0x4c4 (size before relaxing)
+ .eh_frame      0x000000000012cf38      0x1ec objs/kmalloc.o
+                                        0x204 (size before relaxing)
+ .eh_frame      0x000000000012d124      0x17c objs/filesystem.o
+                                        0x194 (size before relaxing)
+ .eh_frame      0x000000000012d2a0      0x3a0 objs/pages.o
+                                        0x3b8 (size before relaxing)
+ .eh_frame      0x000000000012d640      0x194 objs/devices.o
+                                        0x1ac (size before relaxing)
+ .eh_frame      0x000000000012d7d4      0x208 objs/route.o
+                                        0x220 (size before relaxing)
+ .eh_frame      0x000000000012d9dc       0x94 objs/syscall.o
+                                         0xac (size before relaxing)
+ .eh_frame      0x000000000012da70      0x5f8 objs/inode.o
+                                        0x610 (size before relaxing)
+ .eh_frame      0x000000000012e068      0x4a4 objs/elf32.o
+                                        0x4bc (size before relaxing)
+ .eh_frame      0x000000000012e50c      0x81c objs/region.o
+                                        0x834 (size before relaxing)
+ .eh_frame      0x000000000012ed28      0x46c objs/module.o
+                                        0x484 (size before relaxing)
+ .eh_frame      0x000000000012f194      0x980 objs/tcp.o
+                                        0x998 (size before relaxing)
+ .eh_frame      0x000000000012fb14      0x324 objs/waitqueue.o
+                                        0x33c (size before relaxing)
+ .eh_frame      0x000000000012fe38      0x148 objs/symbols.o
+                                        0x160 (size before relaxing)
+ .eh_frame      0x000000000012ff80      0x5fc objs/devfs.o
+                                        0x614 (size before relaxing)
+ .eh_frame      0x000000000013057c      0x164 objs/smp.o
+                                        0x17c (size before relaxing)
+ .eh_frame      0x00000000001306e0       0xb0 objs/sbrk.o
+                                         0xc8 (size before relaxing)
+ .eh_frame      0x0000000000130790      0x34c objs/loader.o
+                                        0x364 (size before relaxing)
+ .eh_frame      0x0000000000130adc      0x394 objs/lock/context.o
+                                        0x3ac (size before relaxing)
+ .eh_frame      0x0000000000130e70      0x234 objs/lock/semaphore.o
+                                        0x24c (size before relaxing)
+ .eh_frame      0x00000000001310a4      0x520 objs/lock/mutex.o
+                                        0x538 (size before relaxing)
+ .eh_frame      0x00000000001315c4      0x110 objs/lock/common.o
+                                        0x128 (size before relaxing)
+ .eh_frame      0x00000000001316d4      0x440 objs/lock/condition.o
+                                        0x458 (size before relaxing)
+ .eh_frame      0x0000000000131b14      0x108 objs/lib/time.o
+                                        0x120 (size before relaxing)
+ .eh_frame      0x0000000000131c1c      0x3b8 objs/lib/hashtable.o
+                                        0x3d0 (size before relaxing)
+ .eh_frame      0x0000000000131fd4      0x178 objs/lib/circular.o
+                                        0x190 (size before relaxing)
+ .eh_frame      0x000000000013214c      0x21c objs/lib/array.o
+                                        0x234 (size before relaxing)
+ .eh_frame      0x0000000000132368      0x2f4 objs/lib/string.o
+                                        0x30c (size before relaxing)
+ .eh_frame      0x000000000013265c       0x28 objs/lib/ctype.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x0000000000132684       0xd8 objs/lib/printf.o
+                                         0xf0 (size before relaxing)
+ .eh_frame      0x000000000013275c       0xac objs/lib/stack.o
+                                         0xc4 (size before relaxing)
+ .eh_frame      0x0000000000132808       0x50 objs/lib/snprintf.o
+                                         0x68 (size before relaxing)
+ .eh_frame      0x0000000000132858      0x188 objs/lib/udivmoddi4.o
+                                        0x1a0 (size before relaxing)
+ .eh_frame      0x00000000001329e0      0x130 objs/arch/apic.o
+                                        0x148 (size before relaxing)
+ .eh_frame      0x0000000000132b10      0x184 objs/arch/cpu.o
+                                        0x19c (size before relaxing)
+ .eh_frame      0x0000000000132c94       0x20 objs/arch/mp.o
+                                         0x38 (size before relaxing)
+ .eh_frame      0x0000000000132cb4      0x11c objs/arch/start.o
+                                        0x134 (size before relaxing)
+ .eh_frame      0x0000000000132dd0      0x124 objs/arch/screen.o
+                                        0x13c (size before relaxing)
+ .eh_frame      0x0000000000132ef4       0x54 objs/arch/gdt.o
+                                         0x6c (size before relaxing)
+ .eh_frame      0x0000000000132f48       0x6c objs/arch/fork.o
+                                         0x84 (size before relaxing)
+ .eh_frame      0x0000000000132fb4      0x2d0 objs/arch/pagefault.o
+                                        0x2e8 (size before relaxing)
+ .eh_frame      0x0000000000133284      0x168 objs/arch/bios.o
+                                        0x180 (size before relaxing)
+ .eh_frame      0x00000000001333ec      0x43c objs/arch/paging.o
+                                        0x454 (size before relaxing)
+ .eh_frame      0x0000000000133828       0xc4 objs/arch/context.o
+                                         0xdc (size before relaxing)
+ .eh_frame      0x00000000001338ec      0x3ac objs/arch/elf32_module.o
+                                        0x3c4 (size before relaxing)
+ .eh_frame      0x0000000000133c98       0xc4 objs/arch/spinlock.o
+                                         0xdc (size before relaxing)
+ .eh_frame      0x0000000000133d5c       0xc8 objs/arch/thread.o
+                                         0xe0 (size before relaxing)
+ .eh_frame      0x0000000000133e24       0xf8 objs/arch/signal.o
+                                        0x110 (size before relaxing)
+ .eh_frame      0x0000000000133f1c       0x7c objs/arch/scheduler.o
+                                         0x94 (size before relaxing)
+ .eh_frame      0x0000000000133f98       0x98 objs/arch/interrupt.o
+                                         0xb0 (size before relaxing)
+ .eh_frame      0x0000000000134030      0x1cc objs/arch/elf32_application.o
+                                        0x1e4 (size before relaxing)
+ .eh_frame      0x00000000001341fc       0x2c objs/arch/syscall.o
+                                         0x44 (size before relaxing)
+ .eh_frame      0x0000000000134228      0x358 objs/arch/region.o
+                                        0x370 (size before relaxing)
+ .eh_frame      0x0000000000134580      0x184 objs/arch/exception.o
+                                        0x19c (size before relaxing)
+ .eh_frame      0x0000000000134704       0x28 objs/arch/fpu.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x000000000013472c       0x78 objs/arch/hwtime.o
+                                         0x90 (size before relaxing)
+ .eh_frame      0x00000000001347a4       0xb8 objs/arch/debugger.o
+                                         0xd0 (size before relaxing)
+ .eh_frame      0x000000000013485c      0x104 objs/arch/pit.o
+                                        0x11c (size before relaxing)
+ .eh_frame      0x0000000000134960      0x2f8 objs/x86emu/debug.o
+                                        0x310 (size before relaxing)
+ .eh_frame      0x0000000000134c58     0x144c objs/x86emu/prim_ops.o
+                                       0x1464 (size before relaxing)
+ .eh_frame      0x00000000001360a4     0x4a78 objs/x86emu/ops.o
+                                       0x4a90 (size before relaxing)
+ .eh_frame      0x000000000013ab1c      0x1b0 objs/x86emu/sys.o
+                                        0x1c8 (size before relaxing)
+ .eh_frame      0x000000000013accc      0x418 objs/x86emu/decode.o
+                                        0x430 (size before relaxing)
+ .eh_frame      0x000000000013b0e4      0x244 objs/x86emu/fpu.o
+                                        0x25c (size before relaxing)
+ .eh_frame      0x000000000013b328      0xf84 objs/x86emu/ops2.o
+                                        0xf9c (size before relaxing)
+                0x000000000013d000                . = ALIGN (0x1000)
+                0x000000000013d000                __ro_end = .
+                0x000000000013d000                __data_start = .
+
+.data           0x000000000013d000      0xba0
+ *(.data)
+ .data          0x000000000013d000        0x0 objs/time.o
+ .data          0x000000000013d000        0x0 objs/icmp.o
+ .data          0x000000000013d000        0x0 objs/elf.o
+ .data          0x000000000013d000        0x0 objs/kernel.o
+ .data          0x000000000013d000       0x68 objs/rootfs.o
+ .data          0x000000000013d068        0x0 objs/interface.o
+ .data          0x000000000013d068        0x0 objs/arp.o
+ .data          0x000000000013d068        0x0 objs/fork.o
+ *fill*         0x000000000013d068       0x18 
+ .data          0x000000000013d080       0x68 objs/socket.o
+                0x000000000013d080                socket_calls
+ .data          0x000000000013d0e8        0x0 objs/process.o
+ .data          0x000000000013d0e8        0x0 objs/blockcache.o
+ .data          0x000000000013d0e8        0x0 objs/vfs.o
+ .data          0x000000000013d0e8        0x0 objs/irq.o
+ .data          0x000000000013d0e8        0x0 objs/context.o
+ .data          0x000000000013d0e8        0x0 objs/ipv4.o
+ .data          0x000000000013d0e8        0x0 objs/bootmodule.o
+ .data          0x000000000013d0e8       0x10 objs/interpreter.o
+ .data          0x000000000013d0f8        0x8 objs/version.o
+                0x000000000013d0f8                build_time
+                0x000000000013d0fc                build_date
+ .data          0x000000000013d100        0x0 objs/thread.o
+ .data          0x000000000013d100        0x8 objs/console.o
+ .data          0x000000000013d108        0x0 objs/init.o
+ .data          0x000000000013d108        0x0 objs/signal.o
+ .data          0x000000000013d108        0x0 objs/io_context.o
+ .data          0x000000000013d108        0x0 objs/packet.o
+ .data          0x000000000013d108        0x8 objs/scheduler.o
+                0x000000000013d108                scheduler_lock
+ .data          0x000000000013d110        0x0 objs/ipc.o
+ .data          0x000000000013d110        0x8 objs/kmalloc.o
+ .data          0x000000000013d118        0x0 objs/filesystem.o
+ .data          0x000000000013d118        0x8 objs/pages.o
+                0x000000000013d118                pages_lock
+ .data          0x000000000013d120        0x0 objs/devices.o
+ .data          0x000000000013d120        0x0 objs/route.o
+ .data          0x000000000013d120        0x0 objs/syscall.o
+ .data          0x000000000013d120        0x0 objs/inode.o
+ .data          0x000000000013d120        0x0 objs/elf32.o
+ .data          0x000000000013d120        0x0 objs/region.o
+ .data          0x000000000013d120        0x0 objs/module.o
+ .data          0x000000000013d120       0x1c objs/tcp.o
+ .data          0x000000000013d13c        0x0 objs/waitqueue.o
+ .data          0x000000000013d13c        0x0 objs/symbols.o
+ .data          0x000000000013d13c        0x0 objs/debugger.o
+ *fill*         0x000000000013d13c        0x4 
+ .data          0x000000000013d140       0x68 objs/devfs.o
+ .data          0x000000000013d1a8        0x4 objs/smp.o
+                0x000000000013d1a8                processor_count
+ .data          0x000000000013d1ac        0x0 objs/sbrk.o
+ .data          0x000000000013d1ac        0x0 objs/loader.o
+ .data          0x000000000013d1ac        0x0 objs/lock/context.o
+ .data          0x000000000013d1ac        0x0 objs/lock/semaphore.o
+ .data          0x000000000013d1ac        0x0 objs/lock/mutex.o
+ .data          0x000000000013d1ac        0x0 objs/lock/common.o
+ .data          0x000000000013d1ac        0x0 objs/lock/condition.o
+ .data          0x000000000013d1ac        0x0 objs/lib/time.o
+ .data          0x000000000013d1ac        0x0 objs/lib/hashtable.o
+ .data          0x000000000013d1ac        0x0 objs/lib/circular.o
+ .data          0x000000000013d1ac        0x0 objs/lib/array.o
+ .data          0x000000000013d1ac        0x0 objs/lib/string.o
+ .data          0x000000000013d1ac        0x0 objs/lib/ctype.o
+ .data          0x000000000013d1ac        0x0 objs/lib/printf.o
+ .data          0x000000000013d1ac        0x0 objs/lib/stack.o
+ .data          0x000000000013d1ac        0x0 objs/lib/snprintf.o
+ .data          0x000000000013d1ac        0x0 objs/lib/udivmoddi4.o
+ .data          0x000000000013d1ac        0x4 objs/arch/apic.o
+                0x000000000013d1ac                local_apic_address
+ *fill*         0x000000000013d1b0       0x10 
+ .data          0x000000000013d1c0       0x68 objs/arch/cpu.o
+                0x000000000013d1c0                i386_features
+ .data          0x000000000013d228        0x0 objs/arch/isr.o
+ .data          0x000000000013d228        0x0 objs/arch/switch.o
+ .data          0x000000000013d228        0x0 objs/arch/boot.o
+ .data          0x000000000013d228        0x0 objs/arch/mp.o
+ .data          0x000000000013d228        0x0 objs/arch/start.o
+ .data          0x000000000013d228       0x61 objs/arch/screen.o
+ *fill*         0x000000000013d289       0x17 
+ .data          0x000000000013d2a0       0x30 objs/arch/gdt.o
+                0x000000000013d2a0                gdt
+ .data          0x000000000013d2d0        0x0 objs/arch/fork.o
+ .data          0x000000000013d2d0        0x0 objs/arch/atomic.o
+ .data          0x000000000013d2d0        0x0 objs/arch/pagefault.o
+ .data          0x000000000013d2d0       0x30 objs/arch/bios.o
+ .data          0x000000000013d300        0x0 objs/arch/string.o
+ .data          0x000000000013d300        0x0 objs/arch/paging.o
+ .data          0x000000000013d300        0x0 objs/arch/context.o
+ .data          0x000000000013d300        0x0 objs/arch/smp_entry.o
+ .data          0x000000000013d300       0x1c objs/arch/elf32_module.o
+ .data          0x000000000013d31c        0x0 objs/arch/spinlock.o
+ .data          0x000000000013d31c        0x0 objs/arch/thread.o
+ .data          0x000000000013d31c        0x0 objs/arch/network.o
+ .data          0x000000000013d31c        0x0 objs/arch/signal.o
+ .data          0x000000000013d31c        0x0 objs/arch/scheduler.o
+ .data          0x000000000013d31c        0x2 objs/arch/interrupt.o
+ *fill*         0x000000000013d31e        0x2 
+ .data          0x000000000013d320       0x1c objs/arch/elf32_application.o
+ .data          0x000000000013d33c        0x0 objs/arch/syscall.o
+ .data          0x000000000013d33c        0x0 objs/arch/region.o
+ .data          0x000000000013d33c        0x0 objs/arch/exception.o
+ .data          0x000000000013d33c        0x0 objs/arch/fpu.o
+ .data          0x000000000013d33c        0x0 objs/arch/i386.o
+ .data          0x000000000013d33c        0x8 objs/arch/hwtime.o
+ .data          0x000000000013d344        0x0 objs/arch/debugger.o
+ .data          0x000000000013d344        0x8 objs/arch/pit.o
+ .data          0x000000000013d34c        0x0 objs/arch/smp.o
+ .data          0x000000000013d34c        0x0 objs/x86emu/debug.o
+ .data          0x000000000013d34c        0x0 objs/x86emu/prim_ops.o
+ *fill*         0x000000000013d34c       0x14 
+ .data          0x000000000013d360      0x400 objs/x86emu/ops.o
+                0x000000000013d360                x86emu_optab
+ .data          0x000000000013d760       0x30 objs/x86emu/sys.o
+                0x000000000013d760                sys_outl
+                0x000000000013d764                sys_outw
+                0x000000000013d768                sys_outb
+                0x000000000013d76c                sys_inl
+                0x000000000013d770                sys_inw
+                0x000000000013d774                sys_inb
+                0x000000000013d778                sys_wrl
+                0x000000000013d77c                sys_wrw
+                0x000000000013d780                sys_wrb
+                0x000000000013d784                sys_rdl
+                0x000000000013d788                sys_rdw
+                0x000000000013d78c                sys_rdb
+ .data          0x000000000013d790        0x0 objs/x86emu/decode.o
+ .data          0x000000000013d790        0x0 objs/x86emu/fpu.o
+ *fill*         0x000000000013d790       0x10 
+ .data          0x000000000013d7a0      0x400 objs/x86emu/ops2.o
+                0x000000000013d7a0                x86emu_optab2
+ *(.data.*)
+
+.igot.plt       0x000000000013dba0        0x0
+ .igot.plt      0x000000000013dba0        0x0 objs/time.o
+                0x000000000013e000                . = ALIGN (0x1000)
+
+.bss            0x000000000013e000     0xc710
+ *(.bss)
+ .bss           0x000000000013e000        0x0 objs/time.o
+ .bss           0x000000000013e000        0x0 objs/icmp.o
+ .bss           0x000000000013e000        0x0 objs/elf.o
+ .bss           0x000000000013e000     0x1104 objs/kernel.o
+ *fill*         0x000000000013f104        0x4 
+ .bss           0x000000000013f108       0x24 objs/rootfs.o
+ .bss           0x000000000013f12c       0x20 objs/interface.o
+ .bss           0x000000000013f14c       0x18 objs/arp.o
+ .bss           0x000000000013f164        0x0 objs/fork.o
+ *fill*         0x000000000013f164        0x4 
+ .bss           0x000000000013f168       0x2c objs/socket.o
+ .bss           0x000000000013f194       0x1c objs/process.o
+ .bss           0x000000000013f1b0        0x0 objs/blockcache.o
+ .bss           0x000000000013f1b0        0x0 objs/vfs.o
+ *fill*         0x000000000013f1b0       0x10 
+ .bss           0x000000000013f1c0       0x40 objs/irq.o
+ .bss           0x000000000013f200        0x0 objs/context.o
+ .bss           0x000000000013f200        0x0 objs/ipv4.o
+ .bss           0x000000000013f200      0x484 objs/bootmodule.o
+ .bss           0x000000000013f684        0x0 objs/interpreter.o
+ .bss           0x000000000013f684        0x0 objs/version.o
+ .bss           0x000000000013f684        0x4 objs/thread.o
+ *fill*         0x000000000013f688       0x18 
+ .bss           0x000000000013f6a0     0x802c objs/console.o
+ .bss           0x00000000001476cc        0x0 objs/init.o
+ .bss           0x00000000001476cc        0x0 objs/signal.o
+ .bss           0x00000000001476cc        0x0 objs/io_context.o
+ .bss           0x00000000001476cc        0x0 objs/packet.o
+ .bss           0x00000000001476cc        0x0 objs/scheduler.o
+ .bss           0x00000000001476cc       0x3c objs/ipc.o
+ .bss           0x0000000000147708        0xc objs/kmalloc.o
+ .bss           0x0000000000147714       0x1c objs/filesystem.o
+ .bss           0x0000000000147730        0x0 objs/pages.o
+ .bss           0x0000000000147730       0x1c objs/devices.o
+ .bss           0x000000000014774c       0x1c objs/route.o
+ .bss           0x0000000000147768        0x0 objs/syscall.o
+ .bss           0x0000000000147768        0x0 objs/inode.o
+ .bss           0x0000000000147768        0x0 objs/elf32.o
+ .bss           0x0000000000147768        0x4 objs/region.o
+ .bss           0x000000000014776c       0x1c objs/module.o
+ .bss           0x0000000000147788       0x20 objs/tcp.o
+ .bss           0x00000000001477a8        0x0 objs/waitqueue.o
+ .bss           0x00000000001477a8       0x18 objs/symbols.o
+ .bss           0x00000000001477c0        0x0 objs/debugger.o
+ .bss           0x00000000001477c0       0x2c objs/devfs.o
+ .bss           0x00000000001477ec        0x4 objs/smp.o
+                0x00000000001477ec                active_processor_count
+ .bss           0x00000000001477f0        0x0 objs/sbrk.o
+ .bss           0x00000000001477f0        0x8 objs/loader.o
+ .bss           0x00000000001477f8        0x0 objs/lock/context.o
+ .bss           0x00000000001477f8        0x0 objs/lock/semaphore.o
+ .bss           0x00000000001477f8        0x0 objs/lock/mutex.o
+ .bss           0x00000000001477f8        0x0 objs/lock/common.o
+ .bss           0x00000000001477f8        0x0 objs/lock/condition.o
+ .bss           0x00000000001477f8        0x0 objs/lib/time.o
+ .bss           0x00000000001477f8        0x0 objs/lib/hashtable.o
+ .bss           0x00000000001477f8        0x0 objs/lib/circular.o
+ .bss           0x00000000001477f8        0x0 objs/lib/array.o
+ .bss           0x00000000001477f8        0x0 objs/lib/string.o
+ .bss           0x00000000001477f8        0x0 objs/lib/ctype.o
+ .bss           0x00000000001477f8        0x0 objs/lib/printf.o
+ .bss           0x00000000001477f8        0x0 objs/lib/stack.o
+ .bss           0x00000000001477f8        0x0 objs/lib/snprintf.o
+ .bss           0x00000000001477f8        0x0 objs/lib/udivmoddi4.o
+ .bss           0x00000000001477f8        0xc objs/arch/apic.o
+                0x00000000001477f8                local_apic_base
+                0x00000000001477fc                apic_present
+ .bss           0x0000000000147804        0x0 objs/arch/cpu.o
+ .bss           0x0000000000147804        0x0 objs/arch/isr.o
+ .bss           0x0000000000147804        0x0 objs/arch/switch.o
+ .bss           0x0000000000147804     0x2000 objs/arch/boot.o
+                0x0000000000149804                _kernel_stack_top
+ .bss           0x0000000000149804        0x0 objs/arch/mp.o
+ .bss           0x0000000000149804        0x0 objs/arch/start.o
+ .bss           0x0000000000149804        0x4 objs/arch/screen.o
+ .bss           0x0000000000149808        0x0 objs/arch/gdt.o
+ .bss           0x0000000000149808        0x0 objs/arch/fork.o
+ .bss           0x0000000000149808        0x0 objs/arch/atomic.o
+ .bss           0x0000000000149808        0x0 objs/arch/pagefault.o
+ .bss           0x0000000000149808        0x8 objs/arch/bios.o
+ .bss           0x0000000000149810        0x0 objs/arch/string.o
+ .bss           0x0000000000149810        0x4 objs/arch/paging.o
+ .bss           0x0000000000149814        0x0 objs/arch/context.o
+ .bss           0x0000000000149814        0x0 objs/arch/smp_entry.o
+ .bss           0x0000000000149814        0x0 objs/arch/elf32_module.o
+ .bss           0x0000000000149814        0x0 objs/arch/spinlock.o
+ .bss           0x0000000000149814        0x0 objs/arch/thread.o
+ .bss           0x0000000000149814        0x0 objs/arch/network.o
+ .bss           0x0000000000149814        0x0 objs/arch/signal.o
+ .bss           0x0000000000149814        0x0 objs/arch/scheduler.o
+ .bss           0x0000000000149814        0x0 objs/arch/interrupt.o
+ .bss           0x0000000000149814        0x0 objs/arch/elf32_application.o
+ .bss           0x0000000000149814        0x0 objs/arch/syscall.o
+ .bss           0x0000000000149814        0x0 objs/arch/region.o
+ .bss           0x0000000000149814        0x0 objs/arch/exception.o
+ .bss           0x0000000000149814        0x0 objs/arch/fpu.o
+ .bss           0x0000000000149814        0x0 objs/arch/i386.o
+ .bss           0x0000000000149814        0x0 objs/arch/hwtime.o
+ .bss           0x0000000000149814        0x0 objs/arch/debugger.o
+ *fill*         0x0000000000149814        0x4 
+ .bss           0x0000000000149818       0x10 objs/arch/pit.o
+ .bss           0x0000000000149828        0x0 objs/arch/smp.o
+ .bss           0x0000000000149828        0x0 objs/x86emu/debug.o
+ .bss           0x0000000000149828        0x0 objs/x86emu/prim_ops.o
+ .bss           0x0000000000149828        0x0 objs/x86emu/ops.o
+ .bss           0x0000000000149828        0x0 objs/x86emu/sys.o
+ .bss           0x0000000000149828        0x0 objs/x86emu/decode.o
+ .bss           0x0000000000149828        0x0 objs/x86emu/fpu.o
+ .bss           0x0000000000149828        0x8 objs/x86emu/ops2.o
+ *(.bss.*)
+ COMMON         0x0000000000149830       0x18 objs/vfs.o
+                0x0000000000149830                kernel_io_context
+                0x0000000000149844                mount_points
+ *fill*         0x0000000000149848       0x18 
+ COMMON         0x0000000000149860       0x20 objs/context.o
+                0x0000000000149860                kernel_memory_context
+ COMMON         0x0000000000149880       0x18 objs/thread.o
+                0x0000000000149880                thread_table
+ COMMON         0x0000000000149898        0x4 objs/init.o
+                0x0000000000149898                init_thread_id
+ COMMON         0x000000000014989c       0x18 objs/scheduler.o
+                0x000000000014989c                last_ready
+                0x00000000001498a0                first_ready
+                0x00000000001498a4                first_expired
+                0x00000000001498a8                sleep_queue
+                0x00000000001498b0                last_expired
+ *fill*         0x00000000001498b4        0xc 
+ COMMON         0x00000000001498c0       0x50 objs/pages.o
+                0x00000000001498c0                memory_size
+                0x00000000001498c8                memory_pages
+                0x00000000001498e0                memory_descriptors
+ COMMON         0x0000000000149910       0x1c objs/region.o
+                0x0000000000149910                region_lock
+                0x0000000000149914                region_table
+ COMMON         0x000000000014992c        0x4 objs/module.o
+                0x000000000014992c                module_loader
+ *fill*         0x0000000000149930       0x10 
+ COMMON         0x0000000000149940       0x68 objs/smp.o
+                0x0000000000149940                processor_table
+ *fill*         0x00000000001499a8       0x18 
+ COMMON         0x00000000001499c0       0x24 objs/lock/context.o
+                0x00000000001499c0                kernel_lock_context
+ COMMON         0x00000000001499e4        0x4 objs/arch/apic.o
+                0x00000000001499e4                lapic_region
+ *fill*         0x00000000001499e8       0x18 
+ COMMON         0x0000000000149a00       0x80 objs/arch/cpu.o
+                0x0000000000149a00                arch_processor_table
+ COMMON         0x0000000000149a80       0x34 objs/arch/start.o
+                0x0000000000149a80                mb_header
+ *fill*         0x0000000000149ab4        0xc 
+ COMMON         0x0000000000149ac0      0x800 objs/arch/interrupt.o
+                0x0000000000149ac0                idt
+ COMMON         0x000000000014a2c0      0x450 objs/x86emu/sys.o
+                0x000000000014a2c0                _X86EMU_intrTab
+                0x000000000014a6c0                _X86EMU_env
+                0x000000000014b000                . = ALIGN (0x1000)
+                0x000000000014b000                __k_init_start = .
+
+.kinit          0x000000000014b000     0x24b6
+ *(.kernel_init)
+ .kernel_init   0x000000000014b000      0x108 objs/kernel.o
+                0x000000000014b000                parse_kernel_parameters
+                0x000000000014b0a4                kernel_main
+ .kernel_init   0x000000000014b108      0x16d objs/rootfs.o
+                0x000000000014b108                init_root_filesystem
+ *fill*         0x000000000014b275        0x3 
+ .kernel_init   0x000000000014b278      0x33c objs/interface.o
+                0x000000000014b278                create_network_interfaces
+                0x000000000014b550                init_network_interfaces
+ .kernel_init   0x000000000014b5b4       0x2b objs/arp.o
+                0x000000000014b5b4                init_arp
+ *fill*         0x000000000014b5df        0x1 
+ .kernel_init   0x000000000014b5e0       0xc3 objs/socket.o
+                0x000000000014b5e0                init_socket
+ *fill*         0x000000000014b6a3        0x1 
+ .kernel_init   0x000000000014b6a4       0xbf objs/process.o
+                0x000000000014b6a4                init_processes
+ *fill*         0x000000000014b763        0x1 
+ .kernel_init   0x000000000014b764       0x80 objs/vfs.o
+                0x000000000014b764                init_vfs
+ .kernel_init   0x000000000014b7e4       0x17 objs/irq.o
+                0x000000000014b7e4                init_irq_handlers
+ *fill*         0x000000000014b7fb        0x1 
+ .kernel_init   0x000000000014b7fc      0x108 objs/bootmodule.o
+                0x000000000014b7fc                init_bootmodules
+ .kernel_init   0x000000000014b904       0x1a objs/interpreter.o
+                0x000000000014b904                init_interpreter_loader
+ *fill*         0x000000000014b91e        0x2 
+ .kernel_init   0x000000000014b920       0x2e objs/thread.o
+                0x000000000014b920                init_threads
+ *fill*         0x000000000014b94e        0x2 
+ .kernel_init   0x000000000014b950      0x11e objs/init.o
+                0x000000000014ba38                create_init_thread
+ *fill*         0x000000000014ba6e        0x2 
+ .kernel_init   0x000000000014ba70       0x42 objs/scheduler.o
+                0x000000000014ba70                init_scheduler
+ *fill*         0x000000000014bab2        0x2 
+ .kernel_init   0x000000000014bab4       0xd0 objs/ipc.o
+                0x000000000014bab4                init_ipc
+ .kernel_init   0x000000000014bb84       0x20 objs/kmalloc.o
+                0x000000000014bb84                init_kmalloc
+ .kernel_init   0x000000000014bba4       0x61 objs/filesystem.o
+                0x000000000014bba4                init_filesystems
+ *fill*         0x000000000014bc05        0x3 
+ .kernel_init   0x000000000014bc08       0xe0 objs/pages.o
+                0x000000000014bc08                register_memory_type
+                0x000000000014bc54                init_page_allocator
+                0x000000000014bcb4                init_page_allocator_late
+ .kernel_init   0x000000000014bce8       0x64 objs/devices.o
+                0x000000000014bce8                init_devices
+ .kernel_init   0x000000000014bd4c       0x61 objs/route.o
+                0x000000000014bd4c                init_routes
+ *fill*         0x000000000014bdad        0x3 
+ .kernel_init   0x000000000014bdb0      0x164 objs/elf32.o
+                0x000000000014bdb0                init_elf32_kernel_symbols
+ .kernel_init   0x000000000014bf14       0x86 objs/region.o
+                0x000000000014bf14                preinit_regions
+                0x000000000014bf44                init_regions
+ *fill*         0x000000000014bf9a        0x2 
+ .kernel_init   0x000000000014bf9c       0x6c objs/module.o
+                0x000000000014bf9c                init_module_loader
+ .kernel_init   0x000000000014c008       0x9b objs/tcp.o
+                0x000000000014c008                init_tcp
+ *fill*         0x000000000014c0a3        0x1 
+ .kernel_init   0x000000000014c0a4       0x90 objs/devfs.o
+                0x000000000014c0a4                init_devfs
+ .kernel_init   0x000000000014c134       0xcc objs/smp.o
+                0x000000000014c134                init_smp
+                0x000000000014c15c                init_smp_late
+ .kernel_init   0x000000000014c200       0x17 objs/loader.o
+                0x000000000014c200                init_application_loader
+ *fill*         0x000000000014c217        0x1 
+ .kernel_init   0x000000000014c218      0x1d2 objs/arch/apic.o
+                0x000000000014c218                calibrate_apic_timer
+                0x000000000014c2b8                setup_local_apic
+                0x000000000014c2e8                init_apic
+                0x000000000014c3a0                init_apic_timer
+ *fill*         0x000000000014c3ea        0x2 
+ .kernel_init   0x000000000014c3ec      0x3e0 objs/arch/cpu.o
+                0x000000000014c3ec                detect_cpu
+                0x000000000014c724                cpu_calibrate_speed
+ .kernel_init   0x000000000014c7cc       0x21 objs/arch/boot.o
+                0x000000000014c7cc                _start
+ *fill*         0x000000000014c7ed        0x3 
+ .kernel_init   0x000000000014c7f0       0x18 objs/arch/mp.o
+                0x000000000014c7f0                init_mp
+ .kernel_init   0x000000000014c808      0x476 objs/arch/start.o
+                0x000000000014c808                arch_start
+                0x000000000014cc48                arch_late_init
+ *fill*         0x000000000014cc7e        0x2 
+ .kernel_init   0x000000000014cc80       0x62 objs/arch/screen.o
+                0x000000000014cc80                init_screen
+ *fill*         0x000000000014cce2        0x2 
+ .kernel_init   0x000000000014cce4       0x22 objs/arch/gdt.o
+                0x000000000014cce4                init_gdt
+ *fill*         0x000000000014cd06        0x2 
+ .kernel_init   0x000000000014cd08       0x7b objs/arch/bios.o
+                0x000000000014cd08                init_bios_access
+ *fill*         0x000000000014cd83        0x1 
+ .kernel_init   0x000000000014cd84      0x1db objs/arch/paging.o
+                0x000000000014cd84                init_paging
+ *fill*         0x000000000014cf5f        0x1 
+ .kernel_init   0x000000000014cf60       0x13 objs/arch/elf32_module.o
+                0x000000000014cf60                init_elf32_module_loader
+ *fill*         0x000000000014cf73        0x1 
+ .kernel_init   0x000000000014cf74      0x482 objs/arch/interrupt.o
+                0x000000000014cf74                init_interrupts
+ *fill*         0x000000000014d3f6        0x2 
+ .kernel_init   0x000000000014d3f8       0x13 objs/arch/elf32_application.o
+                0x000000000014d3f8                init_elf32_application_loader
+ .kernel_init   0x000000000014d40b       0x14 objs/arch/i386.o
+                0x000000000014d40b                reload_segment_descriptors
+ *fill*         0x000000000014d41f        0x1 
+ .kernel_init   0x000000000014d420       0x96 objs/arch/pit.o
+                0x000000000014d420                init_system_time
+                0x000000000014d48c                init_pit
+                0x000000000014e000                . = ALIGN (0x1000)
+                0x000000000014e000                __kernel_end = .
+LOAD objs/time.o
+LOAD objs/icmp.o
+LOAD objs/elf.o
+LOAD objs/kernel.o
+LOAD objs/rootfs.o
+LOAD objs/interface.o
+LOAD objs/arp.o
+LOAD objs/fork.o
+LOAD objs/socket.o
+LOAD objs/process.o
+LOAD objs/blockcache.o
+LOAD objs/vfs.o
+LOAD objs/irq.o
+LOAD objs/context.o
+LOAD objs/ipv4.o
+LOAD objs/bootmodule.o
+LOAD objs/interpreter.o
+LOAD objs/version.o
+LOAD objs/thread.o
+LOAD objs/console.o
+LOAD objs/init.o
+LOAD objs/signal.o
+LOAD objs/io_context.o
+LOAD objs/packet.o
+LOAD objs/scheduler.o
+LOAD objs/ipc.o
+LOAD objs/kmalloc.o
+LOAD objs/filesystem.o
+LOAD objs/pages.o
+LOAD objs/devices.o
+LOAD objs/route.o
+LOAD objs/syscall.o
+LOAD objs/inode.o
+LOAD objs/elf32.o
+LOAD objs/region.o
+LOAD objs/module.o
+LOAD objs/tcp.o
+LOAD objs/waitqueue.o
+LOAD objs/symbols.o
+LOAD objs/debugger.o
+LOAD objs/devfs.o
+LOAD objs/smp.o
+LOAD objs/sbrk.o
+LOAD objs/loader.o
+LOAD objs/lock/context.o
+LOAD objs/lock/semaphore.o
+LOAD objs/lock/mutex.o
+LOAD objs/lock/common.o
+LOAD objs/lock/condition.o
+LOAD objs/lib/time.o
+LOAD objs/lib/hashtable.o
+LOAD objs/lib/circular.o
+LOAD objs/lib/array.o
+LOAD objs/lib/string.o
+LOAD objs/lib/ctype.o
+LOAD objs/lib/printf.o
+LOAD objs/lib/stack.o
+LOAD objs/lib/snprintf.o
+LOAD objs/lib/udivmoddi4.o
+LOAD objs/arch/apic.o
+LOAD objs/arch/cpu.o
+LOAD objs/arch/isr.o
+LOAD objs/arch/switch.o
+LOAD objs/arch/boot.o
+LOAD objs/arch/mp.o
+LOAD objs/arch/start.o
+LOAD objs/arch/screen.o
+LOAD objs/arch/gdt.o
+LOAD objs/arch/fork.o
+LOAD objs/arch/atomic.o
+LOAD objs/arch/pagefault.o
+LOAD objs/arch/bios.o
+LOAD objs/arch/string.o
+LOAD objs/arch/paging.o
+LOAD objs/arch/context.o
+LOAD objs/arch/smp_entry.o
+LOAD objs/arch/elf32_module.o
+LOAD objs/arch/spinlock.o
+LOAD objs/arch/thread.o
+LOAD objs/arch/network.o
+LOAD objs/arch/signal.o
+LOAD objs/arch/scheduler.o
+LOAD objs/arch/interrupt.o
+LOAD objs/arch/elf32_application.o
+LOAD objs/arch/syscall.o
+LOAD objs/arch/region.o
+LOAD objs/arch/exception.o
+LOAD objs/arch/fpu.o
+LOAD objs/arch/i386.o
+LOAD objs/arch/hwtime.o
+LOAD objs/arch/debugger.o
+LOAD objs/arch/pit.o
+LOAD objs/arch/smp.o
+LOAD objs/x86emu/debug.o
+LOAD objs/x86emu/prim_ops.o
+LOAD objs/x86emu/ops.o
+LOAD objs/x86emu/sys.o
+LOAD objs/x86emu/decode.o
+LOAD objs/x86emu/fpu.o
+LOAD objs/x86emu/ops2.o
+OUTPUT(objs/kernel elf32-i386)
+
+.rel.dyn        0x000000000014e000        0x0
+ .rel.iplt      0x000000000014e000        0x0 objs/time.o
+ .rel.text      0x000000000014e000        0x0 objs/time.o
+ .rel.kernel_init
+                0x000000000014e000        0x0 objs/time.o
+ .rel.rodata    0x000000000014e000        0x0 objs/time.o
+ .rel.data      0x000000000014e000        0x0 objs/time.o
+
+.comment        0x0000000000000000       0x1d
+ .comment       0x0000000000000000       0x1d objs/time.o
+                                         0x1e (size before relaxing)
+ .comment       0x000000000000001d       0x1e objs/icmp.o
+ .comment       0x000000000000001d       0x1e objs/elf.o
+ .comment       0x000000000000001d       0x1e objs/kernel.o
+ .comment       0x000000000000001d       0x1e objs/rootfs.o
+ .comment       0x000000000000001d       0x1e objs/interface.o
+ .comment       0x000000000000001d       0x1e objs/arp.o
+ .comment       0x000000000000001d       0x1e objs/fork.o
+ .comment       0x000000000000001d       0x1e objs/socket.o
+ .comment       0x000000000000001d       0x1e objs/process.o
+ .comment       0x000000000000001d       0x1e objs/blockcache.o
+ .comment       0x000000000000001d       0x1e objs/vfs.o
+ .comment       0x000000000000001d       0x1e objs/irq.o
+ .comment       0x000000000000001d       0x1e objs/context.o
+ .comment       0x000000000000001d       0x1e objs/ipv4.o
+ .comment       0x000000000000001d       0x1e objs/bootmodule.o
+ .comment       0x000000000000001d       0x1e objs/interpreter.o
+ .comment       0x000000000000001d       0x1e objs/version.o
+ .comment       0x000000000000001d       0x1e objs/thread.o
+ .comment       0x000000000000001d       0x1e objs/console.o
+ .comment       0x000000000000001d       0x1e objs/init.o
+ .comment       0x000000000000001d       0x1e objs/signal.o
+ .comment       0x000000000000001d       0x1e objs/io_context.o
+ .comment       0x000000000000001d       0x1e objs/packet.o
+ .comment       0x000000000000001d       0x1e objs/scheduler.o
+ .comment       0x000000000000001d       0x1e objs/ipc.o
+ .comment       0x000000000000001d       0x1e objs/kmalloc.o
+ .comment       0x000000000000001d       0x1e objs/filesystem.o
+ .comment       0x000000000000001d       0x1e objs/pages.o
+ .comment       0x000000000000001d       0x1e objs/devices.o
+ .comment       0x000000000000001d       0x1e objs/route.o
+ .comment       0x000000000000001d       0x1e objs/syscall.o
+ .comment       0x000000000000001d       0x1e objs/inode.o
+ .comment       0x000000000000001d       0x1e objs/elf32.o
+ .comment       0x000000000000001d       0x1e objs/region.o
+ .comment       0x000000000000001d       0x1e objs/module.o
+ .comment       0x000000000000001d       0x1e objs/tcp.o
+ .comment       0x000000000000001d       0x1e objs/waitqueue.o
+ .comment       0x000000000000001d       0x1e objs/symbols.o
+ .comment       0x000000000000001d       0x1e objs/debugger.o
+ .comment       0x000000000000001d       0x1e objs/devfs.o
+ .comment       0x000000000000001d       0x1e objs/smp.o
+ .comment       0x000000000000001d       0x1e objs/sbrk.o
+ .comment       0x000000000000001d       0x1e objs/loader.o
+ .comment       0x000000000000001d       0x1e objs/lock/context.o
+ .comment       0x000000000000001d       0x1e objs/lock/semaphore.o
+ .comment       0x000000000000001d       0x1e objs/lock/mutex.o
+ .comment       0x000000000000001d       0x1e objs/lock/common.o
+ .comment       0x000000000000001d       0x1e objs/lock/condition.o
+ .comment       0x000000000000001d       0x1e objs/lib/time.o
+ .comment       0x000000000000001d       0x1e objs/lib/hashtable.o
+ .comment       0x000000000000001d       0x1e objs/lib/circular.o
+ .comment       0x000000000000001d       0x1e objs/lib/array.o
+ .comment       0x000000000000001d       0x1e objs/lib/string.o
+ .comment       0x000000000000001d       0x1e objs/lib/ctype.o
+ .comment       0x000000000000001d       0x1e objs/lib/printf.o
+ .comment       0x000000000000001d       0x1e objs/lib/stack.o
+ .comment       0x000000000000001d       0x1e objs/lib/snprintf.o
+ .comment       0x000000000000001d       0x1e objs/lib/udivmoddi4.o
+ .comment       0x000000000000001d       0x1e objs/arch/apic.o
+ .comment       0x000000000000001d       0x1e objs/arch/cpu.o
+ .comment       0x000000000000001d       0x1e objs/arch/mp.o
+ .comment       0x000000000000001d       0x1e objs/arch/start.o
+ .comment       0x000000000000001d       0x1e objs/arch/screen.o
+ .comment       0x000000000000001d       0x1e objs/arch/gdt.o
+ .comment       0x000000000000001d       0x1e objs/arch/fork.o
+ .comment       0x000000000000001d       0x1e objs/arch/pagefault.o
+ .comment       0x000000000000001d       0x1e objs/arch/bios.o
+ .comment       0x000000000000001d       0x1e objs/arch/paging.o
+ .comment       0x000000000000001d       0x1e objs/arch/context.o
+ .comment       0x000000000000001d       0x1e objs/arch/elf32_module.o
+ .comment       0x000000000000001d       0x1e objs/arch/spinlock.o
+ .comment       0x000000000000001d       0x1e objs/arch/thread.o
+ .comment       0x000000000000001d       0x1e objs/arch/signal.o
+ .comment       0x000000000000001d       0x1e objs/arch/scheduler.o
+ .comment       0x000000000000001d       0x1e objs/arch/interrupt.o
+ .comment       0x000000000000001d       0x1e objs/arch/elf32_application.o
+ .comment       0x000000000000001d       0x1e objs/arch/syscall.o
+ .comment       0x000000000000001d       0x1e objs/arch/region.o
+ .comment       0x000000000000001d       0x1e objs/arch/exception.o
+ .comment       0x000000000000001d       0x1e objs/arch/fpu.o
+ .comment       0x000000000000001d       0x1e objs/arch/hwtime.o
+ .comment       0x000000000000001d       0x1e objs/arch/debugger.o
+ .comment       0x000000000000001d       0x1e objs/arch/pit.o
+ .comment       0x000000000000001d       0x1e objs/arch/smp.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/debug.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/prim_ops.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/ops.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/sys.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/decode.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/fpu.o
+ .comment       0x000000000000001d       0x1e objs/x86emu/ops2.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/time.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/icmp.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/elf.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/kernel.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/rootfs.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/interface.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arp.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/fork.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/socket.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/process.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/blockcache.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/vfs.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/irq.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/context.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/ipv4.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/bootmodule.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/interpreter.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/version.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/thread.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/console.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/init.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/signal.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/io_context.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/packet.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/scheduler.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/ipc.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/kmalloc.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/filesystem.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/pages.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/devices.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/route.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/syscall.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/inode.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/elf32.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/region.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/module.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/tcp.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/waitqueue.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/symbols.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/debugger.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/devfs.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/smp.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/sbrk.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/loader.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lock/context.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lock/semaphore.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lock/mutex.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lock/common.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lock/condition.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/time.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/hashtable.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/circular.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/array.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/string.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/ctype.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/printf.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/stack.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/snprintf.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/lib/udivmoddi4.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/apic.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/cpu.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/mp.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/start.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/screen.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/gdt.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/fork.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/pagefault.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/bios.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/paging.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/context.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/elf32_module.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/spinlock.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/thread.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/signal.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/scheduler.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/interrupt.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/elf32_application.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/syscall.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/region.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/exception.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/fpu.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/hwtime.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/debugger.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/pit.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/arch/smp.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/debug.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/prim_ops.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/ops.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/sys.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/decode.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/fpu.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs/x86emu/ops2.o
+patching file zlib-1.2.3/pbuild.xml
+patching file libpng-1.2.41/config.h
+patching file libpng-1.2.41/pbuild.xml
+ource/kernel/src/lock/semaphore.c
+[GCC    ] source/kernel/src/lock/common.c
+[GCC    ] source/kernel/src/lib/string.c
+[GCC    ] source/kernel/src/lib/printf.c
+[GCC    ] source/kernel/src/lib/hashtable.c
+[GCC    ] source/kernel/src/lib/udivmoddi4.c
+[GCC    ] source/kernel/src/lib/snprintf.c
+[GCC    ] source/kernel/src/lib/time.c
+[GCC    ] source/kernel/src/lib/ctype.c
+[GCC    ] source/kernel/src/lib/circular.c
+[GCC    ] source/kernel/src/lib/stack.c
+[GCC    ] source/kernel/src/lib/array.c
+
+Linking kernel binary
+
+[LD    ] source/kernel/objs/kernel
+Compiling PCI busmanager
+
+[GCC    ] source/drivers/bus/pci/pci.c
+[GCC    ] source/drivers/bus/pci/devices.c
+
+Linking PCI busmanager
+
+[GCC    ] source/drivers/bus/pci/objs/pci
+
+Compiling PATA disk driver
+
+[GCC    ] source/drivers/disk/pata/pata.c
+[GCC    ] source/drivers/disk/pata/controller.c
+[GCC    ] source/drivers/disk/pata/port.c
+[GCC    ] source/drivers/disk/pata/command.c
+[GCC    ] source/drivers/disk/pata/pio.c
+[GCC    ] source/drivers/disk/pata/disk.c
+[GCC    ] source/drivers/disk/pata/cdrom.c
+
+Linking PATA disk driver
+
+[GCC    ] source/drivers/disk/pata/objs/pata
+
+Compiling RAM disk driver
+
+[GCC    ] source/drivers/disk/ramdisk/ramdisk.c
+[GCC    ] source/drivers/disk/ramdisk/control.c
+
+Linking RAM disk driver
+
+[GCC    ] source/drivers/disk/ramdisk/objs/ramdisk
+
+Compiling partition parser
+
+[GCC    ] source/drivers/disk/partition/partition.c
+[GCC    ] source/drivers/disk/partition/msdos.c
+
+Linking partition parser
+
+[GCC    ] source/drivers/disk/partition/objs/partition
+
+Compiling ISO9660 filesystem driver
+
+[GCC    ] source/drivers/filesystem/iso9660/iso9660.c
+
+Linking ISO9660 filesystem driver
+
+[GCC    ] source/drivers/filesystem/iso9660/objs/iso9660
+
+Compiling ext2 filesystem driver
+
+[GCC    ] source/drivers/filesystem/ext2/ext2.c
+[GCC    ] source/drivers/filesystem/ext2/inode.c
+[GCC    ] source/drivers/filesystem/ext2/directory.c
+[GCC    ] source/drivers/filesystem/ext2/block.c
+
+Linking ext2 filesystem driver
+
+[GCC    ] source/drivers/filesystem/ext2/objs/ext2
+
+Compiling RAM filesystem driver
+
+[GCC    ] source/drivers/filesystem/ramfs/ramfs.c
+
+Linking RAM filesystem driver
+
+[GCC    ] source/drivers/filesystem/ramfs/objs/process
+
+Compiling PS/2 keyboard and mouse driver
+
+[GCC    ] source/drivers/input/ps2/ps2.c
+[GCC    ] source/drivers/input/ps2/kbd.c
+[GCC    ] source/drivers/input/ps2/mouse.c
+[GCC    ] source/drivers/input/ps2/buffer.c
+
+Linking PS/2 keyboard and mouse driver
+
+[LD     ] source/drivers/input/ps2/objs/ps2
+
+Compiling input driver
+
+[GCC    ] source/drivers/input/input/input.c
+[GCC    ] source/drivers/input/input/control.c
+[GCC    ] source/drivers/input/input/driver.c
+[GCC    ] source/drivers/input/input/node.c
+[GCC    ] source/drivers/input/input/ps2keyboard/ps2keyboard.c
+[GCC    ] source/drivers/input/input/ps2keyboard/keymap.c
+[GCC    ] source/drivers/input/input/ps2mouse/ps2mouse.c
+
+Linking input driver
+
+[GCC    ] source/drivers/input/input/objs/input
+
+Compiling terminal driver
+
+[GCC    ] source/drivers/char/terminal/terminal.c
+[GCC    ] source/drivers/char/terminal/pty.c
+[GCC    ] source/drivers/char/terminal/kterm.c
+[GCC    ] source/drivers/char/terminal/control.c
+[GCC    ] source/drivers/char/terminal/input.c
+
+Linking terminal driver
+
+[GCC    ] source/drivers/char/terminal/objs/terminal
+
+Compiling VESA video driver
+
+[GCC    ] source/drivers/video/vesa/vesa.c
+
+Linking VESA video driver
+
+[GCC    ] source/drivers/video/vesa/objs/vesa
+
+Compiling pcnet32 network driver
+
+[GCC    ] source/drivers/network/pcnet32/pcnet32.c
+
+Linking pcnet32 network driver
+
+[GCC    ] source/drivers/network/pcnet32/objs/pcnet32
+File zlib-1.2.3.tar.bz2 already exists.
+Extracting zlib source
+Patching zlib source
+Compiling zlib 1.2.3
+-> adler32.c
+-> compress.c
+-> crc32.c
+-> gzio.c
+-> uncompr.c
+-> deflate.c
+-> trees.c
+-> zutil.c
+-> inflate.c
+-> infback.c
+-> inftrees.c
+-> inffast.c
+Linking zlib 1.2.3
+-> objs/libz.a
+Installing zlib 1.2.3 headers
+-> zlib.h
+-> zconf.h
+File libpng-1.2.41.tar.gz already exists.
+Extracting libpng source
+Patching libpng source
+Compiling libpng 1.2.41
+-> png.c
+-> pngset.c
+-> pngget.c
+-> pngrutil.c
+-> pngtrans.c
+-> pngwutil.c
+-> pngread.c
+-> pngrio.c
+-> pngwio.c
+-> pngwrite.c
+-> pngrtran.c
+-> pngwtran.c
+-> pngmem.c
+-> pngerror.c
+-> pngpread.c
+Linking libpng 1.2.41
+-> objs/libpng.a
+Installing libpng 1.2.41 headers
+-> png.h
+-> pngconf.h
+Compiling startup library
+
+[GCC    ] source/lib/start/arch/i386/start.S
+
+Linking startup library
+
+[AR     ] source/lib/start/objs/libstart.a
+
+Compiling C library
+
+[GCC    ] source/lib/c/arch/i386/syscall.S
+[GCC    ] source/lib/c/arch/i386/getpagesize.c
+[GCC    ] source/lib/c/arch/i386/setjmp.S
+[GCC    ] source/lib/c/arch/i386/longjmp.S
+[GCC    ] source/lib/c/arch/i386/memcpy.S
+[GCC    ] source/lib/c/arch/i386/math/e_exp.S
+[GCC    ] source/lib/c/arch/i386/math/e_log.S
+[GCC    ] source/lib/c/arch/i386/math/s_sin.S
+[GCC    ] source/lib/c/arch/i386/math/s_cos.S
+[GCC    ] source/lib/c/arch/i386/math/s_floor.S
+[GCC    ] source/lib/c/arch/i386/math/s_ceil.S
+[GCC    ] source/lib/c/arch/i386/math/s_frexp.S
+[GCC    ] source/lib/c/arch/i386/math/s_fabs.S
+[GCC    ] source/lib/c/arch/i386/math/e_fmod.S
+[GCC    ] source/lib/c/arch/i386/math/e_atan2.S
+[GCC    ] source/lib/c/arch/i386/math/e_hypot.S
+[GCC    ] source/lib/c/arch/i386/math/e_pow.S
+[GCC    ] source/lib/c/arch/i386/math/s_finite.S
+[GCC    ] source/lib/c/arch/i386/math/s_scalbn.S
+[GCC    ] source/lib/c/arch/i386/math/e_log10.S
+[GCC    ] source/lib/c/src/start.c
+[GCC    ] source/lib/c/src/opendir.c
+[GCC    ] source/lib/c/src/readdir.c
+[GCC    ] source/lib/c/src/closedir.c
+[GCC    ] source/lib/c/src/rewinddir.c
+[GCC    ] source/lib/c/src/udivmoddi4.c
+[GCC    ] source/lib/c/src/stdlib/malloc.c
+[GCC    ] source/lib/c/src/stdlib/abort.c
+[GCC    ] source/lib/c/src/stdlib/getenv.c
+[GCC    ] source/lib/c/src/stdlib/strtol.c
+[GCC    ] source/lib/c/src/stdlib/strtoll.c
+[GCC    ] source/lib/c/src/stdlib/strtoul.c
+[GCC    ] source/lib/c/src/stdlib/strtoull.c
+[GCC    ] source/lib/c/src/stdlib/atoi.c
+[GCC    ] source/lib/c/src/stdlib/atol.c
+[GCC    ] source/lib/c/src/stdlib/atoll.c
+[GCC    ] source/lib/c/src/stdlib/atof.c
+[GCC    ] source/lib/c/src/stdlib/qsort.c
+[GCC    ] source/lib/c/src/stdlib/bsearch.c
+[GCC    ] source/lib/c/src/stdlib/abs.c
+[GCC    ] source/lib/c/src/stdlib/labs.c
+[GCC    ] source/lib/c/src/stdlib/llabs.c
+[GCC    ] source/lib/c/src/stdlib/strtod.c
+[GCC    ] source/lib/c/src/stdlib/mkstemp.c
+[GCC    ] source/lib/c/src/stdlib/random.c
+[GCC    ] source/lib/c/src/stdlib/srandom.c
+[GCC    ] source/lib/c/src/stdlib/rand.c
+[GCC    ] source/lib/c/src/stdlib/srand.c
+[GCC    ] source/lib/c/src/stdlib/mktemp.c
+[GCC    ] source/lib/c/src/string/memset.c
+[GCC    ] source/lib/c/src/string/memcpy.c
+[GCC    ] source/lib/c/src/string/memcmp.c
+[GCC    ] source/lib/c/src/string/memmove.c
+[GCC    ] source/lib/c/src/string/memchr.c
+[GCC    ] source/lib/c/src/string/strchr.c
+[GCC    ] source/lib/c/src/string/strrchr.c
+[GCC    ] source/lib/c/src/string/strlen.c
+[GCC    ] source/lib/c/src/string/strnlen.c
+[GCC    ] source/lib/c/src/string/strcmp.c
+[GCC    ] source/lib/c/src/string/strncmp.c
+[GCC    ] source/lib/c/src/string/strcasecmp.c
+[GCC    ] source/lib/c/src/string/strncasecmp.c
+[GCC    ] source/lib/c/src/string/strdup.c
+[GCC    ] source/lib/c/src/string/strndup.c
+[GCC    ] source/lib/c/src/string/strcpy.c
+[GCC    ] source/lib/c/src/string/strncpy.c
+[GCC    ] source/lib/c/src/string/strstr.c
+[GCC    ] source/lib/c/src/string/strerror.c
+[GCC    ] source/lib/c/src/string/strsignal.c
+[GCC    ] source/lib/c/src/string/strcat.c
+[GCC    ] source/lib/c/src/string/strncat.c
+[GCC    ] source/lib/c/src/string/strpbrk.c
+[GCC    ] source/lib/c/src/string/strspn.c
+[GCC    ] source/lib/c/src/string/strcspn.c
+[GCC    ] source/lib/c/src/string/strtok_r.c
+[GCC    ] source/lib/c/src/string/strtok.c
+[GCC    ] source/lib/c/src/unistd/sync.c
+[GCC    ] source/lib/c/src/unistd/sbrk.c
+[GCC    ] source/lib/c/src/unistd/fork.c
+[GCC    ] source/lib/c/src/unistd/execve.c
+[GCC    ] source/lib/c/src/unistd/execv.c
+[GCC    ] source/lib/c/src/unistd/execl.c
+[GCC    ] source/lib/c/src/unistd/execlp.c
+[GCC    ] source/lib/c/src/unistd/dup.c
+[GCC    ] source/lib/c/src/unistd/dup2.c
+[GCC    ] source/lib/c/src/unistd/write.c
+[GCC    ] source/lib/c/src/unistd/read.c
+[GCC    ] source/lib/c/src/unistd/pwrite.c
+[GCC    ] source/lib/c/src/unistd/pread.c
+[GCC    ] source/lib/c/src/unistd/exit.c
+[GCC    ] source/lib/c/src/unistd/getdents.c
+[GCC    ] source/lib/c/src/unistd/close.c
+[GCC    ] source/lib/c/src/unistd/execvp.c
+[GCC    ] source/lib/c/src/unistd/fchdir.c
+[GCC    ] source/lib/c/src/unistd/isatty.c
+[GCC    ] source/lib/c/src/unistd/lseek.c
+[GCC    ] source/lib/c/src/unistd/unlink.c
+[GCC    ] source/lib/c/src/unistd/readlink.c
+[GCC    ] source/lib/c/src/unistd/getcwd.c
+[GCC    ] source/lib/c/src/unistd/sleep.c
+[GCC    ] source/lib/c/src/unistd/access.c
+[GCC    ] source/lib/c/src/unistd/chdir.c
+[GCC    ] source/lib/c/src/unistd/ftruncate.c
+[GCC    ] source/lib/c/src/unistd/getpid.c
+[GCC    ] source/lib/c/src/unistd/getppid.c
+[GCC    ] source/lib/c/src/unistd/gettid.c
+[GCC    ] source/lib/c/src/unistd/link.c
+[GCC    ] source/lib/c/src/unistd/rmdir.c
+[GCC    ] source/lib/c/src/unistd/chown.c
+[GCC    ] source/lib/c/src/unistd/symlink.c
+[GCC    ] source/lib/c/src/unistd/ttyname.c
+[GCC    ] source/lib/c/src/unistd/pipe.c
+[GCC    ] source/lib/c/src/unistd/alarm.c
+[GCC    ] source/lib/c/src/unistd/fpathconf.c
+[GCC    ] source/lib/c/src/unistd/getuid.c
+[GCC    ] source/lib/c/src/unistd/geteuid.c
+[GCC    ] source/lib/c/src/unistd/setuid.c
+[GCC    ] source/lib/c/src/unistd/setreuid.c
+[GCC    ] source/lib/c/src/unistd/getgid.c
+[GCC    ] source/lib/c/src/unistd/getegid.c
+[GCC    ] source/lib/c/src/unistd/setgid.c
+[GCC    ] source/lib/c/src/unistd/setregid.c
+[GCC    ] source/lib/c/src/unistd/gethostname.c
+[GCC    ] source/lib/c/src/unistd/getdtablesize.c
+[GCC    ] source/lib/c/src/unistd/getpgid.c
+[GCC    ] source/lib/c/src/unistd/setpgid.c
+[GCC    ] source/lib/c/src/unistd/getpgrp.c
+[GCC    ] source/lib/c/src/unistd/setpgrp.c
+[GCC    ] source/lib/c/src/fcntl/open.c
+[GCC    ] source/lib/c/src/fcntl/creat.c
+[GCC    ] source/lib/c/src/fcntl/fcntl.c
+[GCC    ] source/lib/c/src/stdio/stdio_internal.c
+[GCC    ] source/lib/c/src/stdio/streams.c
+[GCC    ] source/lib/c/src/stdio/ferror.c
+[GCC    ] source/lib/c/src/stdio/fgetc.c
+[GCC    ] source/lib/c/src/stdio/getc.c
+[GCC    ] source/lib/c/src/stdio/fgets.c
+[GCC    ] source/lib/c/src/stdio/fputc.c
+[GCC    ] source/lib/c/src/stdio/fputs.c
+[GCC    ] source/lib/c/src/stdio/fileno.c
+[GCC    ] source/lib/c/src/stdio/feof.c
+[GCC    ] source/lib/c/src/stdio/fflush.c
+[GCC    ] source/lib/c/src/stdio/ungetc.c
+[GCC    ] source/lib/c/src/stdio/clearerr.c
+[GCC    ] source/lib/c/src/stdio/fopen.c
+[GCC    ] source/lib/c/src/stdio/fdopen.c
+[GCC    ] source/lib/c/src/stdio/freopen.c
+[GCC    ] source/lib/c/src/stdio/fclose.c
+[GCC    ] source/lib/c/src/stdio/putc.c
+[GCC    ] source/lib/c/src/stdio/setvbuf.c
+[GCC    ] source/lib/c/src/stdio/fseek.c
+[GCC    ] source/lib/c/src/stdio/ftell.c
+[GCC    ] source/lib/c/src/stdio/fread.c
+[GCC    ] source/lib/c/src/stdio/fwrite.c
+[GCC    ] source/lib/c/src/stdio/rewind.c
+[GCC    ] source/lib/c/src/stdio/perror.c
+[GCC    ] source/lib/c/src/stdio/puts.c
+[GCC    ] source/lib/c/src/stdio/putchar.c
+[GCC    ] source/lib/c/src/stdio/rename.c
+[GCC    ] source/lib/c/src/stdio/remove.c
+[GCC    ] source/lib/c/src/stdio/fpurge.c
+[GCC    ] source/lib/c/src/time/tzset.c
+[GCC    ] source/lib/c/src/time/time_int.c
+[GCC    ] source/lib/c/src/time/strftime.c
+[GCC    ] source/lib/c/src/time/mktime.c
+[GCC    ] source/lib/c/src/time/ctime.c
+[GCC    ] source/lib/c/src/time/ctime_r.c
+[GCC    ] source/lib/c/src/time/localtime.c
+[GCC    ] source/lib/c/src/time/localtime_r.c
+[GCC    ] source/lib/c/src/time/asctime.c
+[GCC    ] source/lib/c/src/time/asctime_r.c
+[GCC    ] source/lib/c/src/time/gmtime.c
+[GCC    ] source/lib/c/src/time/gmtime_r.c
+[GCC    ] source/lib/c/src/time/gettimeofday.c
+[GCC    ] source/lib/c/src/time/ctime.c
+[GCC    ] source/lib/c/src/time/time.c
+[GCC    ] source/lib/c/src/time/nanosleep.c
+[GCC    ] source/lib/c/src/getopt/getopt.c
+[GCC    ] source/lib/c/src/getopt/getopt_long.c
+[GCC    ] source/lib/c/src/getopt/getopt_long_only.c
+[GCC    ] source/lib/c/src/sys/stat.c
+[GCC    ] source/lib/c/src/sys/fstat.c
+[GCC    ] source/lib/c/src/sys/stime.c
+[GCC    ] source/lib/c/src/sys/mkdir.c
+[GCC    ] source/lib/c/src/sys/ioctl.c
+[GCC    ] source/lib/c/src/sys/select.c
+[GCC    ] source/lib/c/src/sys/mount.c
+[GCC    ] source/lib/c/src/sys/umount.c
+[GCC    ] source/lib/c/src/sys/lstat.c
+[GCC    ] source/lib/c/src/sys/umask.c
+[GCC    ] source/lib/c/src/sys/chmod.c
+[GCC    ] source/lib/c/src/sys/utime.c
+[GCC    ] source/lib/c/src/sys/utimes.c
+[GCC    ] source/lib/c/src/sys/wait.c
+[GCC    ] source/lib/c/src/sys/wait3.c
+[GCC    ] source/lib/c/src/sys/wait4.c
+[GCC    ] source/lib/c/src/sys/waitpid.c
+[GCC    ] source/lib/c/src/sys/socket.c
+[GCC    ] source/lib/c/src/sys/connect.c
+[GCC    ] source/lib/c/src/sys/getrusage.c
+[GCC    ] source/lib/c/src/ctype/isalpha.c
+[GCC    ] source/lib/c/src/ctype/isupper.c
+[GCC    ] source/lib/c/src/ctype/isblank.c
+[GCC    ] source/lib/c/src/ctype/islower.c
+[GCC    ] source/lib/c/src/ctype/isdigit.c
+[GCC    ] source/lib/c/src/ctype/isxdigit.c
+[GCC    ] source/lib/c/src/ctype/isalnum.c
+[GCC    ] source/lib/c/src/ctype/isspace.c
+[GCC    ] source/lib/c/src/ctype/isprint.c
+[GCC    ] source/lib/c/src/ctype/iscntrl.c
+[GCC    ] source/lib/c/src/ctype/tolower.c
+[GCC    ] source/lib/c/src/ctype/toupper.c
+[GCC    ] source/lib/c/src/ctype/toascii.c
+[GCC    ] source/lib/c/src/ctype/isgraph.c
+[GCC    ] source/lib/c/src/ctype/ispunct.c
+[GCC    ] source/lib/c/src/ctype/isascii.c
+[GCC    ] source/lib/c/src/signal/signal.c
+[GCC    ] source/lib/c/src/signal/sigaction.c
+[GCC    ] source/lib/c/src/signal/kill.c
+[GCC    ] source/lib/c/src/signal/killpg.c
+[GCC    ] source/lib/c/src/signal/raise.c
+[GCC    ] source/lib/c/src/signal/sigemptyset.c
+[GCC    ] source/lib/c/src/signal/sigfillset.c
+[GCC    ] source/lib/c/src/signal/sigaddset.c
+[GCC    ] source/lib/c/src/signal/sigdelset.c
+[GCC    ] source/lib/c/src/signal/sigismember.c
+[GCC    ] source/lib/c/src/signal/sigprocmask.c
+[GCC    ] source/lib/c/src/signal/sigsetjmp.c
+[GCC    ] source/lib/c/src/signal/siglongjmp.c
+[GCC    ] source/lib/c/src/locale/localeconv.c
+[GCC    ] source/lib/c/src/locale/setlocale.c
+[GCC    ] source/lib/c/src/termios/tcflush.c
+[GCC    ] source/lib/c/src/termios/tcgetattr.c
+[GCC    ] source/lib/c/src/termios/tcsetattr.c
+[GCC    ] source/lib/c/src/termios/tcflow.c
+[GCC    ] source/lib/c/src/termios/tcgetpgrp.c
+[GCC    ] source/lib/c/src/termios/tcsetpgrp.c
+[GCC    ] source/lib/c/src/math/s_ldexp.c
+[GCC    ] source/lib/c/src/math/s_modf.c
+[GCC    ] source/lib/c/src/yaosp/debug.c
+[GCC    ] source/lib/c/src/yaosp/sysinfo.c
+[GCC    ] source/lib/c/src/yaosp/region.c
+[GCC    ] source/lib/c/src/yaosp/module.c
+[GCC    ] source/lib/c/src/yaosp/yaosp.c
+[GCC    ] source/lib/c/src/yaosp/ipc.c
+[GCC    ] source/lib/c/src/trio/trio.c
+[GCC    ] source/lib/c/src/trio/trionan.c
+[GCC    ] source/lib/c/src/trio/triostr.c
+[GCC    ] source/lib/c/src/pwd/getpwuid.c
+[GCC    ] source/lib/c/src/pwd/getpwent.c
+[GCC    ] source/lib/c/src/pwd/getpwnam.c
+[GCC    ] source/lib/c/src/pwd/endpwent.c
+[GCC    ] source/lib/c/src/pwd/setpwent.c
+[GCC    ] source/lib/c/src/network/inet_aton.c
+[GCC    ] source/lib/c/src/network/inet_ntoa.c
+[GCC    ] source/lib/c/src/pthread/mutex.c
+[GCC    ] source/lib/c/src/pthread/mutexattr.c
+[GCC    ] source/lib/c/src/pthread/thread.c
+[GCC    ] source/lib/c/src/pthread/attr.c
+[GCC    ] source/lib/c/src/pthread/condition.c
+[GCC    ] source/lib/c/src/regex/collate.c
+[GCC    ] source/lib/c/src/regex/collcmp.c
+[GCC    ] source/lib/c/src/regex/regcomp.c
+[GCC    ] source/lib/c/src/regex/regerror.c
+[GCC    ] source/lib/c/src/regex/regexec.c
+[GCC    ] source/lib/c/src/regex/regfree.c
+
+Linking C library
+
+[AR     ] source/lib/c/objs/libc.a
+
+Compiling yutil library
+
+[GCC    ] source/lib/yutil/src/hashtable.c
+[GCC    ] source/lib/yutil/src/array.c
+[GCC    ] source/lib/yutil/src/string.c
+[GCC    ] source/lib/yutil/src/stack.c
+[GCC    ] source/lib/yutil/src/list.c
+[GCC    ] source/lib/yutil/src/blockbuffer.c
+
+Linking yutil library
+
+[AR     ] source/lib/yutil/objs/libyutil.a
+
+Compiling ygupatching file ncurses-5.7/include/curses.h
+patching file ncurses-5.7/include/hashsize.h
+patching file ncurses-5.7/include/ncurses_cfg.h
+patching file ncurses-5.7/include/ncurses_def.h
+patching file ncurses-5.7/include/parametrized.h
+patching file ncurses-5.7/include/term.h
+patching file ncurses-5.7/include/termcap.h
+patching file ncurses-5.7/include/unctrl.h
+patching file ncurses-5.7/ncurses/codes.c
+patching file ncurses-5.7/ncurses/comp_captab.c
+patching file ncurses-5.7/ncurses/expanded.c
+patching file ncurses-5.7/ncurses/fallback.c
+patching file ncurses-5.7/ncurses/init_keytry.h
+patching file ncurses-5.7/ncurses/lib_gen.c
+patching file ncurses-5.7/ncurses/lib_keyname.c
+patching file ncurses-5.7/ncurses/names.c
+patching file ncurses-5.7/ncurses/unctrl.c
+patching file ncurses-5.7/pbuild.xml
+i library
+
+[GCC    ] source/lib/ygui/src/application.c
+[GCC    ] source/lib/ygui/src/window.c
+[GCC    ] source/lib/ygui/src/widget.c
+[GCC    ] source/lib/ygui/src/panel.c
+[GCC    ] source/lib/ygui/src/label.c
+[GCC    ] source/lib/ygui/src/font.c
+[GCC    ] source/lib/ygui/src/button.c
+[GCC    ] source/lib/ygui/src/textfield.c
+[GCC    ] source/lib/ygui/src/desktop.c
+[GCC    ] source/lib/ygui/src/scrollpanel.c
+[GCC    ] source/lib/ygui/src/gc.c
+[GCC    ] source/lib/ygui/src/bitmap.c
+[GCC    ] source/lib/ygui/src/image.c
+[GCC    ] source/lib/ygui/src/menu.c
+[GCC    ] source/lib/ygui/src/menuitem.c
+[GCC    ] source/lib/ygui/src/menubar.c
+[GCC    ] source/lib/ygui/src/textarea.c
+[GCC    ] source/lib/ygui/src/dirview.c
+[GCC    ] source/lib/ygui/src/layout/layout.c
+[GCC    ] source/lib/ygui/src/layout/borderlayout.c
+[GCC    ] source/lib/ygui/src/layout/flowlayout.c
+[GCC    ] source/lib/ygui/src/render/render.c
+[GCC    ] source/lib/ygui/src/image/imageloader.c
+[GCC    ] source/lib/ygui/src/image/png.c
+[GCC    ] source/lib/ygui/src/dialog/filechooser.c
+[GCC    ] source/lib/ygui/src/border/border.c
+[GCC    ] source/lib/ygui/src/border/lineborder.c
+
+Linking ygui library
+
+[AR     ] source/lib/ygui/objs/libygui.a
+File ncurses-5.7.tar.gz already exists.
+Extracting ncurses source
+Patching ncurses source
+Compiling ncurses 5.7
+-> ncurses/./tty/hardscroll.c
+-> ncurses/./tty/hashmap.c
+-> ncurses/./base/lib_addch.c
+-> ncurses/./base/lib_addstr.c
+-> ncurses/./base/lib_beep.c
+-> ncurses/./base/lib_bkgd.c
+-> ncurses/./base/lib_box.c
+-> ncurses/./base/lib_chgat.c
+-> ncurses/./base/lib_clear.c
+-> ncurses/./base/lib_clearok.c
+-> ncurses/./base/lib_clrbot.c
+-> ncurses/./base/lib_clreol.c
+-> ncurses/./base/lib_color.c
+-> ncurses/./base/lib_colorset.c
+-> ncurses/./base/lib_delch.c
+-> ncurses/./base/lib_delwin.c
+-> ncurses/./base/lib_echo.c
+-> ncurses/./base/lib_endwin.c
+-> ncurses/./base/lib_erase.c
+-> ncurses/./base/lib_flash.c
+-> ncurses/lib_gen.c
+-> ncurses/./base/lib_getch.c
+-> ncurses/./base/lib_getstr.c
+-> ncurses/./base/lib_hline.c
+-> ncurses/./base/lib_immedok.c
+-> ncurses/./base/lib_inchstr.c
+-> ncurses/./base/lib_initscr.c
+-> ncurses/./base/lib_insch.c
+-> ncurses/./base/lib_insdel.c
+-> ncurses/./base/lib_insnstr.c
+-> ncurses/./base/lib_instr.c
+-> ncurses/./base/lib_isendwin.c
+-> ncurses/./base/lib_leaveok.c
+-> ncurses/./base/lib_mouse.c
+-> ncurses/./base/lib_move.c
+-> ncurses/./tty/lib_mvcur.c
+-> ncurses/./base/lib_mvwin.c
+-> ncurses/./base/lib_newterm.c
+-> ncurses/./base/lib_newwin.c
+-> ncurses/./base/lib_nl.c
+-> ncurses/./base/lib_overlay.c
+-> ncurses/./base/lib_pad.c
+-> ncurses/./base/lib_printw.c
+-> ncurses/./base/lib_redrawln.c
+-> ncurses/./base/lib_refresh.c
+-> ncurses/./base/lib_restart.c
+-> ncurses/./base/lib_scanw.c
+-> ncurses/./base/lib_screen.c
+-> ncurses/./base/lib_scroll.c
+-> ncurses/./base/lib_scrollok.c
+-> ncurses/./base/lib_scrreg.c
+-> ncurses/./base/lib_set_term.c
+-> ncurses/./base/lib_slk.c
+-> ncurses/./base/lib_slkatr_set.c
+-> ncurses/./base/lib_slkatrof.c
+-> ncurses/./base/lib_slkatron.c
+-> ncurses/./base/lib_slkatrset.c
+-> ncurses/./base/lib_slkattr.c
+-> ncurses/./base/lib_slkclear.c
+-> ncurses/./base/lib_slkcolor.c
+-> ncurses/./base/lib_slkinit.c
+-> ncurses/./base/lib_slklab.c
+-> ncurses/./base/lib_slkrefr.c
+-> ncurses/./base/lib_slkset.c
+-> ncurses/./base/lib_slktouch.c
+-> ncurses/./base/lib_touch.c
+-> ncurses/./tty/lib_tstp.c
+-> ncurses/./base/lib_ungetch.c
+-> ncurses/./tty/lib_vidattr.c
+-> ncurses/./base/lib_vline.c
+-> ncurses/./base/lib_wattroff.c
+-> ncurses/./base/lib_wattron.c
+-> ncurses/./base/lib_winch.c
+-> ncurses/./base/lib_window.c
+-> ncurses/./base/nc_panel.c
+-> ncurses/./base/safe_sprintf.c
+-> ncurses/./tty/tty_update.c
+-> ncurses/./trace/varargs.c
+-> ncurses/./base/memmove.c
+-> ncurses/./base/vsscanf.c
+-> ncurses/./base/lib_freeall.c
+-> ncurses/expanded.c
+-> ncurses/./base/legacy_coding.c
+-> ncurses/./base/lib_dft_fgbg.c
+-> ncurses/./tinfo/lib_print.c
+-> ncurses/./base/resizeterm.c
+-> ncurses/./tinfo/use_screen.c
+-> ncurses/./base/use_window.c
+-> ncurses/./base/wresize.c
+-> ncurses/./tinfo/access.c
+-> ncupatching file readline-6.0/bind.c
+patching file readline-6.0/complete.c
+patching file readline-6.0/config.h
+patching file readline-6.0/display.c
+patching file readline-6.0/histexpand.c
+patching file readline-6.0/input.c
+patching file readline-6.0/misc.c
+patching file readline-6.0/pbuild.xml
+patching file readline-6.0/readline.c
+patching file readline-6.0/search.c
+patching file readline-6.0/shell.c
+patching file readline-6.0/tilde.c
+patching file readline-6.0/undo.c
+patching file readline-6.0/util.c
+patching file freetype-2.3.11/include/freetype/config/ftmodule.h
+patching file freetype-2.3.11/objs/README
+patching file freetype-2.3.11/pbuild.xml
+patching file bzip2-1.0.5/pbuild.xml
+patching file Python-2.5.4/Lib/yaosp.py
+patching file Python-2.5.4/Modules/_yaospmodule.c
+patching file Python-2.5.4/Modules/config.c
+patching file Python-2.5.4/Modules/getpath.c
+patching file Python-2.5.4/Modules/posixmodule.c
+patching file Python-2.5.4/Python/getplatform.c
+patching file Python-2.5.4/pbuild.xml
+patching file Python-2.5.4/pyconfig.h
+rses/./tinfo/add_tries.c
+-> ncurses/./tinfo/alloc_ttype.c
+-> ncurses/codes.c
+-> ncurses/./tinfo/comp_error.c
+-> ncurses/./tinfo/db_iterator.c
+-> ncurses/./tinfo/doalloc.c
+-> ncurses/./tinfo/entries.c
+-> ncurses/fallback.c
+-> ncurses/./tinfo/free_ttype.c
+-> ncurses/./tinfo/getenv_num.c
+-> ncurses/./tinfo/home_terminfo.c
+-> ncurses/./tinfo/init_keytry.c
+-> ncurses/./tinfo/lib_acs.c
+-> ncurses/./tinfo/lib_baudrate.c
+-> ncurses/./tinfo/lib_cur_term.c
+-> ncurses/./tinfo/lib_data.c
+-> ncurses/./tinfo/lib_has_cap.c
+-> ncurses/./tinfo/lib_kernel.c
+-> ncurses/lib_keyname.c
+-> ncurses/./tinfo/lib_longname.c
+-> ncurses/./tinfo/lib_napms.c
+-> ncurses/./tinfo/lib_options.c
+-> ncurses/./tinfo/lib_raw.c
+-> ncurses/./tinfo/lib_setup.c
+-> ncurses/./tinfo/lib_termcap.c
+-> ncurses/./tinfo/lib_termname.c
+-> ncurses/./tinfo/lib_tgoto.c
+-> ncurses/./tinfo/lib_ti.c
+-> ncurses/./tinfo/lib_tparm.c
+-> ncurses/./tinfo/lib_tputs.c
+-> ncurses/./trace/lib_trace.c
+-> ncurses/./tinfo/lib_ttyflags.c
+-> ncurses/./tty/lib_twait.c
+-> ncurses/./tinfo/name_match.c
+-> ncurses/names.c
+-> ncurses/./tinfo/read_entry.c
+-> ncurses/./tinfo/read_termcap.c
+-> ncurses/./tinfo/setbuf.c
+-> ncurses/./tinfo/strings.c
+-> ncurses/./base/tries.c
+-> ncurses/./tinfo/trim_sgr0.c
+-> ncurses/unctrl.c
+-> ncurses/./trace/visbuf.c
+-> ncurses/./tinfo/alloc_entry.c
+-> ncurses/./tinfo/captoinfo.c
+-> ncurses/comp_captab.c
+-> ncurses/./tinfo/comp_expand.c
+-> ncurses/./tinfo/comp_hash.c
+-> ncurses/./tinfo/comp_parse.c
+-> ncurses/./tinfo/comp_scan.c
+-> ncurses/./tinfo/parse_entry.c
+-> ncurses/./tinfo/write_entry.c
+-> ncurses/./base/define_key.c
+-> ncurses/./tinfo/hashed_db.c
+-> ncurses/./base/key_defined.c
+-> ncurses/./base/keybound.c
+-> ncurses/./base/keyok.c
+-> ncurses/./base/version.c
+Linking ncurses 5.7
+-> objs/libncurses.a
+Installing ncurses 5.7 headers
+-> curses.h
+-> ncurses_dll.h
+-> termcap.h
+-> unctrl.h
+File readline-6.0.tar.gz already exists.
+Extracting readline source
+Patching readline source
+Compiling readline 6.0
+-> readline.c
+-> funmap.c
+-> keymaps.c
+-> vi_mode.c
+-> parens.c
+-> rltty.c
+-> complete.c
+-> bind.c
+-> isearch.c
+-> display.c
+-> signals.c
+-> util.c
+-> kill.c
+-> undo.c
+-> macro.c
+-> input.c
+-> callback.c
+-> terminal.c
+-> xmalloc.c
+-> history.c
+-> histsearch.c
+-> histexpand.c
+-> histfile.c
+-> nls.c
+-> search.c
+-> shell.c
+-> savestring.c
+-> text.c
+-> misc.c
+-> compat.c
+-> mbutil.c
+-> tilde.c
+Linking readline 6.0
+-> objs/libreadline.a
+Installing readline 6.0 headers
+-> chardefs.h
+-> history.h
+-> keymaps.h
+-> readline.h
+-> rlconf.h
+-> rlstdc.h
+-> rltypedefs.h
+-> tilde.h
+File freetype-2.3.11.tar.bz2 already exists.
+Extracting freetype source
+Patching freetype source
+Compiling freetype 2.3.11
+-> src/autofit/autofit.c
+-> src/base/ftbase.c
+-> src/base/ftinit.c
+-> src/base/ftsystem.c
+-> src/base/ftglyph.c
+-> src/base/ftbitmap.c
+-> src/base/fttype1.c
+-> src/truetype/truetype.c
+-> src/sfnt/sfnt.c
+-> src/smooth/smooth.c
+Linking freetype 2.3.9
+-> objs/libfreetype.a
+Installing freetype 2.3.11 headers
+File bzip2-1.0.5.tar.gz already exists.
+Extracting bzip2 source
+Patching bzip2 source
+Compiling bzip2 1.0.5
+-> blocksort.c
+-> huffman.c
+-> crctable.c
+-> randtable.c
+-> compress.c
+-> decompress.c
+-> bzlib.c
+Linking bzip2 1.0.5
+-> objs/libbzip2.a
+Installing bzip2 1.0.5 header
+File python-2.5.4.tar.bz2 already exists.
+Extracting python source
+Patching python source
+Compiling Python 2.5.4
+-> Modules/_typesmodule.c
+-> Modules/getbuildinfo.c
+-> Modules/_yaospmodule.c
+-> Parser/acceler.c
+-> Parser/grammar1.c
+-> Parser/listnode.c
+-> Parser/node.c
+-> Parser/parser.c
+-> Parser/parsetok.c
+-> Parser/bitset.c
+-> Parser/metagrammar.c
+-> Parser/firstsets.c
+-> Parser/grammar.c
+-> Parser/pgen.c
+-> Parser/myreadline.c
+-> Parser/tokenizer.c
+-> Objects/abstract.c
+-> Objects/boolobject.c
+-> Objects/bufferobject.c
+-> Objects/cellobject.c
+-> Objects/classobject.c
+-> Objects/cobject.c
+-> Objects/codeobject.c
+-> Objects/complexobject.c
+-> Objects/descrobject.c
+-> Objects/enumobject.c
+-> Objects/exceptions.c
+-> Objects/genobject.c
+-> Objects/fileobject.c
+-> Objects/floatobject.c
+-> Objects/frameobject.c
+-> Objecpatching file bash-4.0/arrayfunc.c
+patching file bash-4.0/bashline.c
+patching file bash-4.0/builtins/alias.c
+patching file bash-4.0/builtins/bind.c
+patching file bash-4.0/builtins/break.c
+patching file bash-4.0/builtins/builtext.h
+patching file bash-4.0/builtins/builtin.c
+patching file bash-4.0/builtins/builtins.c
+patching file bash-4.0/builtins/caller.c
+patching file bash-4.0/builtins/cd.c
+patching file bash-4.0/builtins/colon.c
+patching file bash-4.0/builtins/command.c
+patching file bash-4.0/builtins/complete.c
+patching file bash-4.0/builtins/declare.c
+patching file bash-4.0/builtins/declare.def
+patching file bash-4.0/builtins/echo.c
+patching file bash-4.0/builtins/enable.c
+patching file bash-4.0/builtins/eval.c
+patching file bash-4.0/builtins/exec.c
+patching file bash-4.0/builtins/exit.c
+patching file bash-4.0/builtins/exit.def
+patching file bash-4.0/builtins/fc.c
+patching file bash-4.0/builtins/fc.def
+patching file bash-4.0/builtins/fg_bg.c
+patching file bash-4.0/builtins/getopts.c
+patching file bash-4.0/builtins/hash.c
+patching file bash-4.0/builtins/help.c
+patching file bash-4.0/builtins/history.c
+patching file bash-4.0/builtins/jobs.c
+patching file bash-4.0/builtins/kill.c
+patching file bash-4.0/builtins/let.c
+patching file bash-4.0/builtins/mapfile.c
+patching file bash-4.0/builtins/pipesize.h
+patching file bash-4.0/builtins/printf.c
+patching file bash-4.0/builtins/pushd.c
+patching file bash-4.0/builtins/read.c
+patching file bash-4.0/builtins/read.def
+patching file bash-4.0/builtins/return.c
+patching file bash-4.0/builtins/set.c
+patching file bash-4.0/builtins/setattr.c
+patching file bash-4.0/builtins/shift.c
+patching file bash-4.0/builtins/shopt.c
+patching file bash-4.0/builtins/source.c
+patching file bash-4.0/builtins/suspend.c
+patching file bash-4.0/builtins/test.c
+patching file bash-4.0/builtins/times.c
+patching file bash-4.0/builtins/trap.c
+patching file bash-4.0/builtins/type.c
+patching file bash-4.0/builtins/ulimit.c
+patching file bash-4.0/builtins/umask.c
+patching file bash-4.0/builtins/wait.c
+patching file bash-4.0/config-bot.h
+patching file bash-4.0/config.h
+patching file bash-4.0/doc/bash.1
+patching file bash-4.0/doc/bashref.texi
+patching file bash-4.0/eval.c
+patching file bash-4.0/execute_cmd.c
+patching file bash-4.0/externs.h
+patching file bash-4.0/externs.h.orig
+patching file bash-4.0/jobs.c
+patching file bash-4.0/jobs.h
+patching file bash-4.0/lib/glob/glob.c
+patching file bash-4.0/lib/readline/display.c
+patching file bash-4.0/lib/readline/readline.h
+patching file bash-4.0/lib/readline/terminal.c
+patching file bash-4.0/lib/readline/tilde.c
+patching file bash-4.0/lib/sh/netopen.c
+patching file bash-4.0/lib/sh/ufuncs.c
+patching file bash-4.0/lib/sh/winsize.c
+patching file bash-4.0/parse.y
+patching file bash-4.0/parse.y.orig
+patching file bash-4.0/patchlevel.h
+patching file bash-4.0/pathnames.h
+patching file bash-4.0/pbuild.xml
+patching file bash-4.0/pcomplete.c
+patching file bash-4.0/shell.c
+patching file bash-4.0/sig.c
+patching file bash-4.0/signames.h
+patching file bash-4.0/subst.c
+patching file bash-4.0/syntax.c
+patching file bash-4.0/trap.c
+patching file bash-4.0/variables.c
+patching file bash-4.0/version.h
+patching file bash-4.0/y.tab.c
+patching file bash-4.0/y.tab.h
+ts/funcobject.c
+-> Objects/intobject.c
+-> Objects/iterobject.c
+-> Objects/listobject.c
+-> Objects/longobject.c
+-> Objects/dictobject.c
+-> Objects/methodobject.c
+-> Objects/moduleobject.c
+-> Objects/object.c
+-> Objects/obmalloc.c
+-> Objects/rangeobject.c
+-> Objects/setobject.c
+-> Objects/sliceobject.c
+-> Objects/stringobject.c
+-> Objects/structseq.c
+-> Objects/tupleobject.c
+-> Objects/typeobject.c
+-> Objects/weakrefobject.c
+-> Objects/unicodeobject.c
+-> Objects/unicodectype.c
+-> Python/Python-ast.c
+-> Python/asdl.c
+-> Python/ast.c
+-> Python/bltinmodule.c
+-> Python/ceval.c
+-> Python/compile.c
+-> Python/codecs.c
+-> Python/errors.c
+-> Python/frozen.c
+-> Python/frozenmain.c
+-> Python/future.c
+-> Python/getargs.c
+-> Python/getcompiler.c
+-> Python/getcopyright.c
+-> Python/getmtime.c
+-> Python/getplatform.c
+-> Python/getversion.c
+-> Python/graminit.c
+-> Python/import.c
+-> Python/importdl.c
+-> Python/marshal.c
+-> Python/modsupport.c
+-> Python/mystrtoul.c
+-> Python/mysnprintf.c
+-> Python/pyarena.c
+-> Python/pyfpe.c
+-> Python/pystate.c
+-> Python/pythonrun.c
+-> Python/structmember.c
+-> Python/symtable.c
+-> Python/sysmodule.c
+-> Python/traceback.c
+-> Python/getopt.c
+-> Python/pystrtod.c
+-> Modules/config.c
+-> Modules/getpath.c
+-> Modules/main.c
+-> Modules/gcmodule.c
+-> Modules/errnomodule.c
+-> Modules/_sre.c
+-> Modules/_codecsmodule.c
+-> Modules/zipimport.c
+-> Modules/symtablemodule.c
+-> Modules/posixmodule.c
+-> Modules/python.c
+-> Python/sigcheck.c
+-> Parser/intrcheck.c
+-> Modules/readline.c
+-> Modules/_cursesmodule.c
+-> Modules/timemodule.c
+-> Modules/_struct.c
+-> Modules/bz2module.c
+Linking Python 2.5.4
+-> objs/python
+Installing python binary
+Installing python libraries ...
+-> site.py
+-> os.py
+-> copy_reg.py
+-> posixpath.py
+-> stat.py
+-> types.py
+-> yaosp.py
+-> tarfile.py
+-> shutil.py
+-> struct.py
+-> copy.py
+-> curses/__init__.py
+-> curses/ascii.py
+-> curses/has_key.py
+-> curses/panel.py
+-> curses/textpad.py
+-> curses/wrapper.py
+File bash-4.0.tar.gz already exists.
+Extracting bash source
+Patching bash source
+Compiling bash 4.0
+-> shell.c
+-> eval.c
+-> y.tab.c
+-> general.c
+-> make_cmd.c
+-> print_cmd.c
+-> dispose_cmd.c
+-> execute_cmd.c
+-> variables.c
+-> copy_cmd.c
+-> error.c
+-> expr.c
+-> flags.c
+-> jobs.c
+-> subst.c
+-> hashcmd.c
+-> hashlib.c
+-> mailcheck.c
+-> trap.c
+-> input.c
+-> unwind_prot.c
+-> pathexp.c
+-> sig.c
+-> test.c
+-> version.c
+-> alias.c
+-> array.c
+-> arrayfunc.c
+-> assoc.c
+-> braces.c
+-> bracecomp.c
+-> bashhist.c
+-> bashline.c
+-> list.c
+-> stringlib.c
+-> locale.c
+-> findcmd.c
+-> redir.c
+-> pcomplete.c
+-> pcomplib.c
+-> syntax.c
+-> xmalloc.c
+-> lib/sh/clktck.c
+-> lib/sh/clock.c
+-> lib/sh/getenv.c
+-> lib/sh/oslib.c
+-> lib/sh/setlinebuf.c
+-> lib/sh/strnlen.c
+-> lib/sh/itos.c
+-> lib/sh/zread.c
+-> lib/sh/zwrite.c
+-> lib/sh/shtty.c
+-> lib/sh/shmatch.c
+-> lib/sh/eaccess.c
+-> lib/sh/netconn.c
+-> lib/sh/netopen.c
+-> lib/sh/timeval.c
+-> lib/sh/makepath.c
+-> lib/sh/pathcanon.c
+-> lib/sh/pathphys.c
+-> lib/sh/tmpfile.c
+-> lib/sh/stringlist.c
+-> lib/sh/stringvec.c
+-> lib/sh/spell.c
+-> lib/sh/shquote.c
+-> lib/sh/strtrans.c
+-> lib/sh/strindex.c
+-> lib/sh/snprintf.c
+-> lib/sh/mailstat.c
+-> lib/sh/fmtulong.c
+-> lib/sh/fmtullong.c
+-> lib/sh/fmtumax.c
+-> lib/sh/xstrchr.c
+-> lib/sh/zcatfd.c
+-> lib/sh/zmapfd.c
+-> lib/sh/winsize.c
+-> lib/sh/wcsdup.c
+-> lib/sh/fpurge.c
+-> lib/sh/zgetline.c
+-> lib/sh/mbscmp.c
+-> lib/sh/uconvert.c
+-> lib/sh/ufuncs.c
+-> lib/sh/casemod.c
+-> lib/sh/fdprintf.c
+-> lib/sh/input_avail.c
+-> lib/glob/glob.c
+-> lib/glob/strmatch.c
+-> lib/glob/smatch.c
+-> lib/glob/xmbsrtowcs.c
+-> builtins/builtins.c
+-> builtins/alias.c
+-> builtins/bind.c
+-> builtins/break.c
+-> builtins/builtin.c
+-> builtins/caller.c
+-> builtins/cd.c
+-> builtins/colon.c
+-> builtins/command.c
+-> builtins/common.c
+-> builtins/declare.c
+-> builtins/echo.c
+-> builtins/enable.c
+-> builtins/eval.c
+-> builtins/evalfile.c
+-> builtins/evalstring.c
+-> builtins/exec.c
+-> builtins/exit.c
+-> builtins/fc.c
+-> builtins/fg_bg.c
+-> builtins/hash.c
+-> builtins/help.c
+-> builtins/history.c
+-> builtins/jobs.c
+-> builtins/kill.c
+-> builtins/let.c
+-> builtins/mapfile.c
+-> builtins/pushd.c
+-> builtins/read.c
+-> builtins/return.c
+-> builtins/set.c
+-> builtins/setattr.c
+-> builtins/shift.c
+-> builtins/source.c
+-> builtins/suspend.c
+-> builtins/test.c
+-> builtins/times.c
+-> builtins/trap.c
+-> builtins/type.c
+-> builtins/ulimit.c
+-> builtins/umask.c
+-> builtins/wait.c
+-> builtins/getopts.c
+-> builtins/shopt.c
+-> builtins/printf.c
+-> builtins/getopt.c
+-> builtins/bashgetopt.c
+-> builtins/complete.c
+-> lib/readline/readline.c
+-> lib/readline/vi_mode.c
+-> lib/readline/funmap.c
+-> lib/readline/keymaps.c
+-> lib/readline/parens.c
+-> lib/readline/search.c
+-> lib/readline/rltty.c
+-> lib/readline/complete.c
+-> lib/readline/bind.c
+-> lib/readline/isearch.c
+-> lib/readline/display.c
+-> lib/readline/signals.c
+-> lib/readline/util.c
+-> lib/readline/kill.c
+-> lib/readline/undo.c
+-> lib/readline/macro.c
+-> lib/readline/input.c
+-> lib/readline/callback.c
+-> lib/readline/terminal.c
+-> lib/readline/text.c
+-> lib/readline/nls.c
+-> lib/readline/misc.c
+-> lib/readline/history.c
+-> lib/readline/histexpand.c
+-> lib/readline/histfile.c
+-> lib/readline/histsearch.c
+-> lib/readline/savestring.c
+-> lib/readline/mbutil.c
+-> lib/readline/tilde.c
+-> lib/readline/compat.c
+Linking bash 4.0
+-> objs/bash
+Installing bash binary
+Compiling init application
+
+[GCC    ] source/applications/init/init.c
+
+Linking init application
+
+[GCC    ] source/applications/init/objs/init
+
+Compiling list shell command
+
+[GCC    ] source/applications/shelltools/list/list.c
+
+Linking list shell command
+
+[GCC    ] source/applications/shelltools/list/objs/list
+
+Compiling stat shell command
+
+[GCC    ] source/applications/shelltools/stat/stat.c
+
+Linking stat shell command
+
+[GCC    ] source/applications/shelltools/stat/objs/stat
+
+Compiling proclist shell command
+
+[GCC    ] source/applications/shelltools/proclist/proclist.c
+
+Linking proclist shell command
+
+[GCC    ] source/applications/shelltools/proclist/objs/proclist
+
+Compiling date shell command
+
+[GCC    ] source/applications/shelltools/date/date.c
+
+Linking date shell command
+
+[GCC    ] source/applications/shelltools/date/objs/date
+
+Compiling cat shell command
+
+[GCC    ] source/applications/shelltools/cat/cat.c
+
+Linking cat shell command
+
+[GCC    ] source/applications/shelltools/cat/objs/cat
+
+Compiling mount shell command
+
+[GCC    ] source/applications/shelltools/mount/mount.c
+
+Linking mount shell command
+
+[GCC    ] source/applications/shelltools/mount/objs/mount
+
+Compiling makedir shell command
+
+[GCC    ] source/applications/shelltools/makedir/makedir.c
+
+Linking makedir shell command
+
+[GCC    ] source/applications/shelltools/makedir/objs/makedir
+
+Compiling load_module shell command
+
+[GCC    ] source/applications/shelltools/load_module/load_module.c
+
+Linking load_module application
+
+[GCC    ] source/applications/shelltools/load_module/objs/load_module
+
+Compiling ramdiskctrl shell command
+
+[GCC    ] source/applications/shelltools/ramdiskctrl/ramdiskctrl.c
+
+Linking ramdiskctrl shell command
+
+[GCC    ] source/applications/shelltools/ramdiskctrl/objs/ramdiskctrl
+
+Compiling touch shell command
+
+[GCC    ] source/applications/shelltools/touch/touch.c
+
+Linking touch shell command
+
+[GCC    ] source/applications/shelltools/touch/objs/touch
+
+Compiling remdir shell command
+
+[GCC    ] source/applications/shelltools/remdir/remdir.c
+
+Linking remdir shell command
+
+[GCC    ] source/applications/shelltools/remdir/objs/remdir
+
+Compiling remove shell command
+
+[GCC    ] source/applications/shelltools/remove/remove.c
+
+Linking remove shell command
+
+[GCC    ] source/applications/shelltools/remove/objs/remove
+
+Compiling uptime shell command
+
+[GCC    ] source/applications/shelltools/uptime/uptime.c
+
+Linking uptime shell command
+
+[GCC    ] source/applications/shelltools/uptime/objs/uptime
+
+Compiling reboot shell command
+
+[GCC    ] source/applications/shelltools/reboot/reboot.c
+
+Linking reboot shell command
+
+[GCC    ] source/applications/shelltools/reboot/objs/reboot
+
+Compiling halt shell command
+
+[GCC    ] source/applications/shelltools/halt/halt.c
+
+Linking halt shell command
+
+[GCC    ] source/applications/shelltools/halt/objs/halt
+
+Compiling symlink shell command
+
+[GCC    ] source/applications/shelltools/symlink/symlink.c
+
+Linking symlink application
+
+[GCC    ] source/applications/shelltools/symlink/objs/symlink
+
+Compiling copy shell command
+
+[GCC    ] source/applications/shelltools/copy/copy.c
+
+Linking copy application
+
+[GCC    ] source/applications/shelltools/copy/objs/copy
+
+Compiling unmount shell command
+
+[GCC    ] source/applications/shelltools/unmount/unmount.c
+
+Linking unmount shell command
+
+[GCC    ] source/applications/shelltools/unmount/objs/unmount
+
+Compiling clear shell command
+
+[GCC    ] source/applications/shelltools/clear/clear.c
+
+Linking clear shell command
+
+[GCC    ] source/applications/shelltools/clear/objs/clear
+
+Compiling listpci shell command
+
+[GCC    ] source/applications/listpci/listpci.c
+[GCC    ] source/applications/listpci/deviceid.c
+
+Linking listpci application
+
+[GCC    ] source/applications/listpci/objs/listpci
+
+Compiling sysinfo shell command
+
+[GCC    ] source/applications/systeminfo/sysinfo.c
+
+Linking systeminfo application
+
+[GCC   ] source/applications/systeminfo/objs/systeminfo
+Compiling guiserver application
+
+[GCC    ] source/applications/guiserver/src/guiserver.c
+[GCC    ] source/applications/guiserver/src/bitmap.c
+[GCC    ] source/applications/guiserver/src/graphicsdriver.c
+[GCC    ] source/applications/guiserver/src/fontmanager.c
+[GCC    ] source/applications/guiserver/src/input.c
+[GCC    ] source/applications/guiserver/src/mouse.c
+[GCC    ] source/applications/guiserver/src/application.c
+[GCC    ] source/applications/guiserver/src/window.c
+[GCC    ] source/applications/guiserver/src/windowmanager.c
+[GCC    ] source/applications/guiserver/src/region.c
+[GCC    ] source/applications/guiserver/src/render.c
+[GCC    ] source/applications/guiserver/src/splash.c
+[GCC    ] source/applications/guiserver/src/arch/i386/graphicsdriver_i386.c
+[GCC    ] source/applications/guiserver/driver/video/vesa/vesa.c
+[GCC    ] source/applications/guiserver/driver/decorator/default/default.c
+
+Linking guiserver application
+
+[GCC    ] source/applications/guiserver/objs/guiserver
+Installing guiserver
+Downloading DejaVu fonts
+File dejavu-fonts-ttf-2.30.tar.bz2 already exists.
+Installing fonts
+Compiling irc_client application
+
+[GCC    ] source/applications/irc_client/main.c
+[GCC    ] source/applications/irc_client/core/eventmanager.c
+[GCC    ] source/applications/irc_client/ui/ui.c
+[GCC    ] source/applications/irc_client/ui/view.c
+[GCC    ] source/applications/irc_client/ui/server_view.c
+[GCC    ] source/applications/irc_client/ui/channel_view.c
+[GCC    ] source/applications/irc_client/network/irc.c
+[GCC    ] source/applications/irc_client/network/chan.c
+
+Linking init application
+
+[GCC    ] source/applications/irc_client/objs/irc_client
+Compiling startgui application
+
+[GCC    ] source/applications/startgui/startgui.c
+
+Linking startgui application
+
+[GCC    ] source/applications/startgui/objs/startgui
+Compiling taskbar application
+
+[GCC    ] source/applications/taskbar/taskbar.c
+[GCC    ] source/applications/taskbar/window_list.c
+[GCC    ] source/applications/taskbar/plugin/datetime/datetime.c
+[GCC    ] source/applications/taskbar/plugin/cpuload/cpuload.c
+[GCC    ] source/applications/taskbar/plugin/memoryusage/memoryusage.c
+
+Linking taskbar application
+
+[GCC    ] source/applications/taskbar/objs/taskbar
+Compiling terminal application
+
+[GCC    ] source/applications/terminal/main.c
+[GCC    ] source/applications/terminal/terminal.c
+[GCC    ] source/applications/terminal/term_widget.c
+[GCC    ] source/applications/terminal/buffer.c
+[GCC    ] source/applications/terminal/history.c
+
+Linking terminal application
+
+[GCC    ] source/applications/terminal/objs/terminal
+Compiling texteditor application
+
+[GCC    ] source/applications/texteditor/main.c
+
+Linking texteditor application
+
+[GCC    ] source/applications/texteditor/objs/texteditor
+Creating bootable ISO9660 CD-ROM image
+
+[MKISOFS] yaosp.iso
+Build done.

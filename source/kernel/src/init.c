@@ -159,11 +159,11 @@ int init_thread( void* arg ) {
     init_network();
 
     /* Free init code */
-
+/*
     init_page_count = ( ( uint32_t )&__kernel_end - ( uint32_t )&__k_init_start ) / PAGE_SIZE;
     kprintf( INFO, "Freeing %u pages containing initialization code.\n", init_page_count );
     free_pages( ( void* )&__k_init_start, init_page_count );
-
+*/
     /* Create a new process and start the init application */
 
     if ( fork() == 0 ) {

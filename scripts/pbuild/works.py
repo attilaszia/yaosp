@@ -196,11 +196,11 @@ class LdWork( Work ) :
 
         # Build the command
 
-        command = [ "ld" ]
+        command = [ "../../toolchain/binutils-2.19/ld/ld-new" ]
 
         if self.linker_script != None :
             command += [ "-T" + self.linker_script ]
-
+        command += [ "-M" ]
         command += real_inputs
         command += [ "-o", context.handle_everything( self.output ) ]
 
