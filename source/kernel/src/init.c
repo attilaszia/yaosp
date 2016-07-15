@@ -134,14 +134,14 @@ __init static void mount_root_filesystem( void ) {
 }
 
 __init static void init_network( void ) {
-#if 0
+
     init_network_interfaces();
     init_routes();
     init_arp();
     init_socket();
     init_tcp();
     create_network_interfaces();
-#endif
+
 }
 
 int init_thread( void* arg ) {
@@ -167,7 +167,7 @@ int init_thread( void* arg ) {
     /* Create a new process and start the init application */
 
     if ( fork() == 0 ) {
-        kprintf( INFO, "Idaig eljut...\n");
+        kprintf( INFO, "Forked init.\n");
         if ( execve( "/yaosp/system/init", NULL, NULL ) != 0 ) {
             panic( "Failed to execute init process!\n" );
         }

@@ -157,8 +157,8 @@ int main( int argc, char** argv ) {
 
     /* Start shells */
 
-    //start_shells();
-    start_gui();
+    start_shells();
+    //start_gui();
 
     return EXIT_SUCCESS;
 }
